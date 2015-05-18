@@ -1,100 +1,26 @@
-
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[左手代码 右手年华]]></title>
+  <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://www.harrycode.com/"/>
+  <updated>2015-05-18T12:55:44.000Z</updated>
+  <id>http://www.harrycode.com/</id>
   
-  <title>Archives | 左手代码 右手年华</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="一个尘世迷途小码农的程序与人生">
-<meta property="og:type" content="website">
-<meta property="og:title" content="左手代码 右手年华">
-<meta property="og:url" content="http://www.harrycode.com/archives/index.html">
-<meta property="og:site_name" content="左手代码 右手年华">
-<meta property="og:description" content="一个尘世迷途小码农的程序与人生">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="左手代码 右手年华">
-<meta name="twitter:description" content="一个尘世迷途小码农的程序与人生">
-  
-    <link rel="alternative" href="/atom.xml" title="左手代码 右手年华" type="application/atom+xml">
-  
-  
-    <link rel="icon" href="/favicon.png">
-  
-  <link rel="stylesheet" href="/css/style.css" type="text/css">
-  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
-  
-</head>
-<body>
-<div id="container">
-  <div id="wrap">
-    <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">左手代码 右手年华</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">一个尘世迷途小码农的程序与人生</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
-          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
-          <input type="submit" value="" class="search-form-submit">
-          <input name=tn type=hidden value="bds">
-          <input name=cl type=hidden value="3">
-          <input name=ct type=hidden value="2097152">
-          <input type="hidden" name="si" value="www.harrycode.com">
-        </form>
-      </div>
-    </div>
-  </div>
-</header>
-    <div class="outer">
-      <section id="main">
-  
-    <article id="post-2014-12-03-to-hadoop-working-mechanism" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" class="article-date">
-  <time datetime="2014-12-03T09:53:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
+  <author>
+    <name><![CDATA[Harry]]></name>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </author>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
-    </h1>
+  <generator uri="http://hexo.io/">Hexo</generator>
   
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
+  <entry>
+    <title><![CDATA[[转]  Hadoop工作机制]]></title>
+    <link href="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/"/>
+    <id>http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/</id>
+    <published>2014-12-03T09:53:00.000Z</published>
+    <updated>2015-05-18T12:55:44.000Z</updated>
+    <content type="html"><![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
 <p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
 <h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
 <h2 id="而对于每个作业的执行，又包含">而对于每个作业的执行，又包含</h2><p><code>输入准备 ----&gt; 任务执行 ----&gt; 输出结果</code></p>
@@ -153,47 +79,20 @@
 <li>mapred.inmem.merge.threadhold 启动map输出和磁盘溢出写过程的map输出阈值，默认值1000.</li>
 <li>mapred.iob.reduce.input.buffer.percent 在reduce过程中，内从中保存map输出的空间占整个堆内存空间的比例。默认值为0。默认情况下，map输出都合并到磁盘上，以便为reducer提供尽可能多的内存，如果reducer需要的内存较少，可以增加此值来最小化磁盘访问次数。</li>
 </ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="ci9twv3as000vczs6v5l1dy4e" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-understand-mapreduce-data-flow" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-understand-mapreduce-data-flow/" class="article-date">
-  <time datetime="2014-12-03T09:45:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
+  <entry>
+    <title><![CDATA[[转] 理解MapReduce数据流]]></title>
+    <link href="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/</id>
+    <published>2014-12-03T09:45:00.000Z</published>
+    <updated>2015-05-18T12:54:23.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
 <span class="bullet">1. </span>输入数据
 <span class="bullet">2. </span>MapReduce程序
 <span class="bullet">3. </span>配置信息     
@@ -210,47 +109,22 @@
 <p>  即 max(0,20,10,15,25)=max(max(0,20,10),max(15,25))=25</p>
 <p>如下图：将combiner后的输出作为reducer的输入<br><img class="center" src="http://img.blog.csdn.net/20141201195417081?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <p>  但需要特别注意的是，并不是任何场景都是可以用combiner的，比如把上面的例子改成求平均值：<br>    combiner后的reducer的结果:       <code>avg(avg(0,20,10),avg(15,25))=avg(10,20)=15;</code><br>    没有进行combiner的reducer结果：  <code>avg(0,20,10,15,25)=14;</code></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="ci9twv3a20006czs608n63s5w" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-briefly-introduce-each-major-module-of-hadoop" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" class="article-date">
-  <time datetime="2014-12-03T09:29:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
+<span class="bullet">1. </span>输入数据
+<span class="bul]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
+  <entry>
+    <title><![CDATA[[转] 简要介绍Hadoop的各个主要模块]]></title>
+    <link href="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/</id>
+    <published>2014-12-03T09:29:00.000Z</published>
+    <updated>2015-05-18T12:53:07.000Z</updated>
+    <content type="html"><![CDATA[<p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
 <h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），每个进程都有各自的角色，有的仅运行在单个服务器上，有的则运行在集群多个服务器上，它们包括：
 </code></pre><p>NameNode<br>Secondary NameNode<br>DataNode<br>JobTracker<br>TaskTracker<br>     Hadoop是一个分布式存储与计算系统，分布式存储部分是HDFS，分布式计算部分是MapReduce，它们都是遵循主/从（Master/Slave)结构，上面前3个组件属于分布式存储部分，后面2个组件属于分布式计算部分，下面详细介绍一下它们。</p>
 <h1 id="二、NameNode">二、NameNode</h1><pre><code><span class="comment">前面说了，NameNode属于HDFS</span><span class="string">,</span><span class="comment">它位于HDSF的主端，由它来指导DataNode执行底层I/O任务。NameNode相当于HDFS的书记员，它会跟踪文件如何被分割成文件块，而这些块又是被哪些节点存储，以及分布式文件系统整体运行状态是否正常等。</span>
@@ -265,47 +139,21 @@
 </code></pre><p>下面再来整体看一下整个Hadoop拓扑结构</p>
 <p>下面就是一个典型的Hadoop拓扑图，主动结构，NameNode和JobTracker位于主端，DataNode和TaskTracker位于从端。<br><img class="center" src="http://img.blog.csdn.net/20140718163814687?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
 <p>客户端向JobTracker发送Job任务，JobTracker会把Job切分，并分配不同的Map和Reduce任务到每一台机器。<br><img class="center" src="http://img.blog.csdn.net/20140718164110271?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="ci9twv3ad0009czs6bjuzxcl5" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
-  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
+<h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+  <entry>
+    <title><![CDATA[[转] 快速理解MapReduce]]></title>
+    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/</id>
+    <published>2014-12-03T07:50:00.000Z</published>
+    <updated>2015-05-18T12:49:31.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
 <p>　　MapReduce实现的大概过程如下：</p>
@@ -326,47 +174,20 @@
 <p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
 <p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
 <p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="ci9twv3a40007czs6xqs6ntpp" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-to-quickly-grasp-mapreduce-1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/" class="article-date">
-  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+  <entry>
+    <title><![CDATA[[转] 快速理解MapReduce]]></title>
+    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/</id>
+    <published>2014-12-03T07:50:00.000Z</published>
+    <updated>2015-05-18T12:50:45.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
 <p>　　MapReduce实现的大概过程如下：</p>
@@ -387,94 +208,43 @@
 <p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
 <p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
 <p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="ci9twv3ac0008czs65501qtsu" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-today-is-my-birthday-and-my-country" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/06/26/today-is-my-birthday-and-my-country/" class="article-date">
-  <time datetime="2014-06-26T08:58:00.000Z" itemprop="datePublished">2014-06-26</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/06/26/today-is-my-birthday-and-my-country/">今天是我的生日,我的祖国</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>今天是我的生日，我的祖国。</p>
+  <entry>
+    <title><![CDATA[今天是我的生日,我的祖国]]></title>
+    <link href="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/"/>
+    <id>http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/</id>
+    <published>2014-06-26T08:58:00.000Z</published>
+    <updated>2015-05-18T12:48:12.000Z</updated>
+    <content type="html"><![CDATA[<p>今天是我的生日，我的祖国。</p>
 <p>过去的一年里发生了很多，失去了至亲，换了房子搬了家，接来了娘，换了工作。</p>
 <p>青春的颜色逐渐褪去殆尽，余下的是生活的琐碎和每日回家的温暖。</p>
 <p>很难注名的去感谢谁谁谁，但希望你们一直再我身边，原谅着我的任性与偏执，理解着我的执着与坚持。</p>
 <p>许愿这么老土的事情就留给别人吧，有些事情要亲力亲为才有意义。</p>
 <p>如果一定要给过去的一岁填个横批。</p>
 <p>我希望是——不曾虚度。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="ci9twv3a00005czs60wndcbqz" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-nginx-monitoring-tool-ngxtop" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/20/nginx-monitoring-tool-ngxtop/" class="article-date">
-  <time datetime="2014-05-20T04:01:00.000Z" itemprop="datePublished">2014-05-20</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>今天是我的生日，我的祖国。</p>
+<p>过去的一年里发生了很多，失去了至亲，换了房子搬了家，接来了娘，换了工作。</p>
+<p>青春的颜色逐渐褪去殆尽，余下的是生活的琐碎和每日回家的温暖。</p>
+<p>很难注名的去感谢谁谁谁，但希望你们一直再我身边，原谅着我的任性与偏执]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/20/nginx-monitoring-tool-ngxtop/">Nginx监控利器 Ngxtop</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
+  <entry>
+    <title><![CDATA[Nginx监控利器 Ngxtop]]></title>
+    <link href="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/"/>
+    <id>http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/</id>
+    <published>2014-05-20T04:01:00.000Z</published>
+    <updated>2015-05-18T12:38:58.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop</span><br><span class="line">running for <span class="number">411</span> seconds, <span class="number">64332</span> records processed: <span class="number">156.60</span> req/sec</span><br><span class="line"></span><br><span class="line">Summary:</span><br><span class="line"><span class="string">|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span></span><br><span class="line"><span class="string">|---------+------------------+-------+-------+-------+-------|</span></span><br><span class="line"><span class="string">|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |</span></span><br><span class="line"></span><br><span class="line">Detailed:</span><br><span class="line"><span class="string">| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span></span><br><span class="line"><span class="string">|------------------------------------------+---------+------------------+-------+-------+-------+-------|</span></span><br><span class="line"><span class="string">| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |</span></span><br><span class="line"><span class="string">| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span></span><br></pre></td></tr></table></figure>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
 <h2 id="pip">pip</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget --<span class="keyword">no</span>-check-certificate http<span class="variable">s:</span>//bootstrap.pypa.io/<span class="built_in">get</span>-pip.<span class="keyword">py</span></span><br><span class="line"><span class="keyword">python</span> <span class="built_in">get</span>-pip.<span class="keyword">py</span></span><br></pre></td></tr></table></figure>
@@ -486,49 +256,24 @@
 <p>一些demo<br><figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Examples:</span><br><span class="line">    <span class="keyword">All</span> examples read nginx config <span class="keyword">file</span> <span class="keyword">for</span> <span class="keyword">access</span> log location <span class="keyword">and</span> format.</span><br><span class="line">    <span class="keyword">If</span> you want <span class="keyword">to</span> specify the <span class="keyword">access</span> log <span class="keyword">file</span> <span class="keyword">and</span> / <span class="keyword">or</span> log format, <span class="keyword">use</span> the -f <span class="keyword">and</span> -a options.</span><br><span class="line"></span><br><span class="line">    <span class="string">"top"</span> like view <span class="keyword">of</span> nginx requests</span><br><span class="line">    $ ngxtop</span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> requested path <span class="keyword">with</span> status <span class="number">404</span>:</span><br><span class="line">    $ ngxtop top request_path <span class="comment">--filter 'status == 404'</span></span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> requests <span class="keyword">with</span> highest total bytes sent</span><br><span class="line">    $ ngxtop <span class="comment">--order-by 'avg(bytes_sent) * count'</span></span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> remote address, e.g., who<span class="attribute">'s</span> hitting you the most</span><br><span class="line">    $ ngxtop <span class="comment">--group-by remote_addr</span></span><br><span class="line"></span><br><span class="line">    Print requests <span class="keyword">with</span> <span class="number">4</span>xx <span class="keyword">or</span> <span class="number">5</span>xx status, together <span class="keyword">with</span> status <span class="keyword">and</span> http referer</span><br><span class="line">    $ ngxtop -i <span class="attribute">'status</span> &gt;= <span class="number">400</span>' print request status http_referer</span><br><span class="line"></span><br><span class="line">    Average <span class="keyword">body</span> bytes sent <span class="keyword">of</span> <span class="number">200</span> responses <span class="keyword">of</span> requested path <span class="keyword">begin</span> <span class="keyword">with</span> <span class="attribute">'foo</span>':</span><br><span class="line">    $ ngxtop avg bytes_sent <span class="comment">--filter 'status == 200 and request_path.startswith("foo")'</span></span><br><span class="line"></span><br><span class="line">    Analyze apache <span class="keyword">access</span> log from remote machine using <span class="attribute">'common</span>' log format</span><br><span class="line">    $ ssh remote tail -f /var/log/apache2/<span class="keyword">access</span>.log | ngxtop -f common</span><br></pre></td></tr></table></figure></p>
 <p>实际使用下来还是很方便的，可以很方便看到403／500／404等情况，有利于我们掌握当前的服务质量。</p>
 <p>Enjoy~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="ci9twv3ag000dczs6c2j23xrb" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tool/">Tool</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-linux-server-system-monitor-tool-collecting" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/15/linux-server-system-monitor-tool-collecting/" class="article-date">
-  <time datetime="2014-05-15T08:50:00.000Z" itemprop="datePublished">2014-05-15</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.co]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
+      <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
     
+      <category term="Tool" scheme="http://www.harrycode.com/tags/Tool/"/>
     
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/15/linux-server-system-monitor-tool-collecting/">Linux 服务端系统监控工具大起底</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
+  <entry>
+    <title><![CDATA[Linux 服务端系统监控工具大起底]]></title>
+    <link href="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/"/>
+    <id>http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/</id>
+    <published>2014-05-15T08:50:00.000Z</published>
+    <updated>2015-05-18T12:37:49.000Z</updated>
+    <content type="html"><![CDATA[<h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
 <p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
 <p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
 <h1 id="1-_流量监控">1. 流量监控</h1><h2 id="1-1_Ifstat">1.1 Ifstat</h2><p>比较简易的网络监控工具，可以监控网卡的实时流量。当你只关心整机的流量而并不关心具体服务时，这个工具很趁手。</p>
@@ -918,98 +663,50 @@
 </table>
 <p>就这么多吧，敲的手抖，把最近用到的工具简单罗列了下下，希望对大家有用。<br>需要注意一下，上面的演示都是基于CentOSd的，其他操作系统中，同样的工具输出结果会略有不同，要想了解细节还是要靠 man.</p>
 <p>Enjoy~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="ci9twv3ai000iczs6zhds9q33" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-introduction-to-iotop" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/13/introduction-to-iotop/" class="article-date">
-  <time datetime="2014-05-13T05:19:00.000Z" itemprop="datePublished">2014-05-13</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
+<p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
+      <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
     
+      <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/13/introduction-to-iotop/">IOTop 简介</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
+  <entry>
+    <title><![CDATA[IOTop 简介]]></title>
+    <link href="http://www.harrycode.com/2014/05/13/introduction-to-iotop/"/>
+    <id>http://www.harrycode.com/2014/05/13/introduction-to-iotop/</id>
+    <published>2014-05-13T05:19:00.000Z</published>
+    <updated>2015-05-18T12:36:17.000Z</updated>
+    <content type="html"><![CDATA[<h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
 <h2 id="安装">安装</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm</span></span><br><span class="line">sudo rpm -ivh iotop-<span class="number">0.6</span>-<span class="number">1</span><span class="class">.noarch</span><span class="class">.rpm</span></span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
 <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">beta-<span class="number">01</span><span class="comment"># iotop --help</span></span><br><span class="line">Usage: /usr/sbin/iotop [OPTIONS]</span><br><span class="line"></span><br><span class="line">DISK READ <span class="operator">and</span> DISK WRITE are <span class="operator">the</span> block I/O bandwidth used during <span class="operator">the</span> sampling</span><br><span class="line">period. SWAPIN <span class="operator">and</span> IO are <span class="operator">the</span> percentages <span class="operator">of</span> <span class="built_in">time</span> <span class="operator">the</span> thread spent respectively</span><br><span class="line"><span class="keyword">while</span> swapping <span class="operator">in</span> <span class="operator">and</span> waiting <span class="command"><span class="keyword">on</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">more</span> <span class="title">generally</span>. <span class="title">PRIO</span> <span class="title">is</span> <span class="title">the</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">priority</span> <span class="title">at</span></span></span><br><span class="line">which <span class="operator">the</span> thread is running (<span class="built_in">set</span> <span class="keyword">using</span> <span class="operator">the</span> ionice <span class="command"><span class="keyword">command</span>).</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Options:</span><br><span class="line">  -<span class="ruby">-version             show program<span class="string">'s version number and exit</span><br><span class="line"></span></span>  -<span class="ruby">h, --help            show this help message <span class="keyword">and</span> exit</span><br><span class="line"></span>  -<span class="ruby">o, --only            only show processes <span class="keyword">or</span> threads actually doing <span class="constant">I</span>/<span class="constant">O</span> <span class="comment">#只显示当前有IO操作的进程或线程</span></span><br><span class="line"></span>  -<span class="ruby">b, --batch           non-interactive mode <span class="comment"># 运行在非交互模式下</span></span><br><span class="line"></span>  -<span class="ruby">n <span class="constant">NUM</span>, --iter=<span class="constant">NUM</span>    number of iterations before ending [infinite] <span class="comment"># 非交互模式下展示的次数</span></span><br><span class="line"></span>  -<span class="ruby">d <span class="constant">SEC</span>, --delay=<span class="constant">SEC</span>   delay between iterations [<span class="number">1</span> second] <span class="comment">#刷新的时间间隔</span></span><br><span class="line"></span>  -<span class="ruby">p <span class="constant">PID</span>, --pid=<span class="constant">PID</span>     processes/threads to monitor [all] <span class="comment">#只显示指定进程／线程的IO信息</span></span><br><span class="line"></span>  -<span class="ruby">u <span class="constant">USER</span>, --user=<span class="constant">USER</span>  users to monitor [all] <span class="comment">#只显示指定用户的进程所发生的IO</span></span><br><span class="line"></span>  -<span class="ruby"><span class="constant">P</span>, --processes       only show processes, <span class="keyword">not</span> all threads <span class="comment"># 只显示进程而不是所有的线程</span></span><br><span class="line"></span>  -<span class="ruby">a, --accumulated     show accumulated <span class="constant">I</span>/<span class="constant">O</span> instead of bandwidth <span class="comment">#在IOTOP启动后 显示每个进程／线程处理的IO总数</span></span><br><span class="line"></span>  -<span class="ruby">k, --kilobytes       use kilobytes instead of a human friendly unit <span class="comment"># 以KB为单位进行显示</span></span><br><span class="line"></span>  -<span class="ruby">t, --time            add a timestamp on each line (implies --batch) <span class="comment"># 显示时在每行添加当前时间</span></span><br><span class="line"></span>  -<span class="ruby">q, --quiet           suppress some lines of header (implies --batch)</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Controls: left <span class="operator">and</span> <span class="constant">right</span> arrows <span class="built_in">to</span> change <span class="operator">the</span> sorting column, r <span class="built_in">to</span> invert <span class="operator">the</span></span><br><span class="line">sorting order, o <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--only option, p to toggle the --processes</span></span><br><span class="line">option, <span class="operator">a</span> <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--accumulated option, q to quit, any other key to force</span></span><br><span class="line"><span class="operator">a</span> refresh.</span><br><span class="line"></span><br><span class="line">控制：</span><br><span class="line"><span class="string">'左右键'</span>用来改变排序的列，</span><br><span class="line"><span class="string">'r'</span>用来切换正序/倒序, </span><br><span class="line"><span class="string">'o'</span> 用来切换 <span class="comment">--only模式, </span></span><br><span class="line"><span class="string">'p'</span> 用来切换 <span class="comment">--processes 模式， </span></span><br><span class="line"><span class="string">'a'</span> 用来切换 <span class="comment">--accumulated模式, </span></span><br><span class="line"><span class="string">'q'</span> 用来推出，‘其他键’ 用来强制刷新</span><br></pre></td></tr></table></figure>
 <p>PS: 笔者很喜欢 iotop -o 的玩法，祝大家也玩的愉快。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="ci9twv3ak000mczs639pmvtcm" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-change-replacing-the-top-process-management-tools-under-linux-htop" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" class="article-date">
-  <time datetime="2014-05-12T13:14:00.000Z" itemprop="datePublished">2014-05-12</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
+<h2 id="安装">安装</h2><figure class="highlight s]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
+      <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
     
+      <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+  <entry>
+    <title><![CDATA[[转]Linux下取代top的进程管理工具 htop]]></title>
+    <link href="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/"/>
+    <id>http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/</id>
+    <published>2014-05-12T13:14:00.000Z</published>
+    <updated>2015-05-18T12:26:57.000Z</updated>
+    <content type="html"><![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 <h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
 <p><strong>Comparison between htop and top</strong></p>
 <ul>
@@ -1219,49 +916,24 @@
 <p>编辑/root/.bashrc文件，添加如下代码<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /usr/<span class="built_in">local</span>/bin/htop ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">alias</span> top=’/usr/<span class="built_in">local</span>/bin/htop’</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure></p>
 <p><code>source /root/.bashrc</code></p>
 <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9twv3ap000sczs622xz7zbi" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-installation-configuration-and-use-of-mysqlnd-ms" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" class="article-date">
-  <time datetime="2014-05-10T02:21:00.000Z" itemprop="datePublished">2014-05-10</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchin]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
+      <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
     
+      <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
+  <entry>
+    <title><![CDATA[Mysqlnd_ms的安装配置与使用]]></title>
+    <link href="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/"/>
+    <id>http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/</id>
+    <published>2014-05-10T02:21:00.000Z</published>
+    <updated>2015-05-18T12:25:39.000Z</updated>
+    <content type="html"><![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
 <p><strong>Mysqlnd_ms</strong></p>
 <p>优点：</p>
 <pre><code><span class="bullet">1. </span>PHP官方推荐的扩展，PECL安装方便
@@ -1403,49 +1075,22 @@
 <ol>
 <li>事务的默认行为也和上述第二点一样，无法拆分一个事务，所以”读／写”请求尽量不要写进同一个事务中。如果一定要写，要使用SQL Hint 给Mysqlnd_ms 一些提示。</li>
 </ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="ci9twv3an000pczs6rbxw2gxf" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-simple-steps-to-build-cool-vim-development-environment" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" class="article-date">
-  <time datetime="2014-05-05T04:05:00.000Z" itemprop="datePublished">2014-05-05</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方]]>
+    </summary>
     
-  </div>
-  <div class="article-inner">
+      <category term="php" scheme="http://www.harrycode.com/tags/php/"/>
     
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/">简单几步搭建超酷的Vim开发环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
+  <entry>
+    <title><![CDATA[简单几步搭建超酷的Vim开发环境]]></title>
+    <link href="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/"/>
+    <id>http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/</id>
+    <published>2014-05-05T04:05:00.000Z</published>
+    <updated>2015-05-18T12:21:45.000Z</updated>
+    <content type="html"><![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
 <p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
 <p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
 <h1 id="安装_spf13-vim">安装 spf13-vim</h1><h2 id="官方的安装步骤">官方的安装步骤</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl http<span class="variable">s:</span>//<span class="keyword">j</span>.mp/spf13-vim3 -L &gt; spf13-<span class="keyword">vim</span>.<span class="keyword">sh</span> &amp;&amp; <span class="keyword">sh</span> spf13-<span class="keyword">vim</span>.<span class="keyword">sh</span></span><br></pre></td></tr></table></figure>
@@ -1494,53 +1139,22 @@
 <p>我的常用配置<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nnoremap &lt;<span class="constant">F6&gt;</span> <span class="symbol">:TagbarToggle&lt;CR&gt;</span> <span class="string">"我一般把tagbar绑在&lt;F6&gt;上</span><br><span class="line">let g:tagbar_autoclose=1 "</span>在一个tag上按回车后，自动跳转到tag在文件的位置，并关闭tagbar</span><br></pre></td></tr></table></figure></p>
 <h1 id="写在最后">写在最后</h1><p>说是”简单几步”，最后还是唠唠叨叨的这么多，主要是希望大家用的更舒服些，对VIM的恐惧更少一些，上面的插件主要参考了spf13中的一些介绍，加上了自己的一些理解，应该够大家用上一段时间了。其实Github上的vim插件很多，通过Vundle可以很方便的安装以及管理，有兴趣的同学可以找一些适合自己的，慢慢的你就会觉得VIM无所不能了～ :)</p>
 <p>今天就到这里， Enjoy~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="ci9twv3ae000aczs66elgutzj" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/">vim</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-初识GitBook" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/04/29/初识GitBook/" class="article-date">
-  <time datetime="2014-04-29T07:27:00.000Z" itemprop="datePublished">2014-04-29</time>
-</a>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或]]>
+    </summary>
     
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/git/">git</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
+      <category term="vim" scheme="http://www.harrycode.com/tags/vim/"/>
     
-    
-      <header class="article-header">
-        
+  </entry>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/04/29/初识GitBook/">初识GitBook</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookIO/gitbook</a> )的产品频繁的占据视线。如果你是一个电子书爱好者，如果你有一些开源项目并希望制作优雅华美的文档，或者你只是纯粹的想把github上的一些开源图书”据为己有”， GitBook都可以帮到你。</p>
+  <entry>
+    <title><![CDATA[初识GitBook]]></title>
+    <link href="http://www.harrycode.com/2014/04/29/%E5%88%9D%E8%AF%86GitBook/"/>
+    <id>http://www.harrycode.com/2014/04/29/初识GitBook/</id>
+    <published>2014-04-29T07:27:00.000Z</published>
+    <updated>2015-05-18T12:09:26.000Z</updated>
+    <content type="html"><![CDATA[<p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookIO/gitbook</a> )的产品频繁的占据视线。如果你是一个电子书爱好者，如果你有一些开源项目并希望制作优雅华美的文档，或者你只是纯粹的想把github上的一些开源图书”据为己有”， GitBook都可以帮到你。</p>
 <p>确切的来说，GitBook是一款用Node.js库构建的命令行工具，使用这个工具可以基于GitHub/Git／Markdown等电子书源码来制作精美的电子图书，今天我们以笔者最近在读的《Go Web 编程》(<a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank" rel="external">https://github.com/astaxie/build-web-application-with-golang</a>) 尝试构建一本本地的电子图书。</p>
 <h2 id="安装Nodejs">安装Nodejs</h2><p>安装GitBook首先需要有npm+nodejs，笔者的当前环境是Ubuntu 12.04 LTS, nodejs的版本较旧，我们需要先升级下下～</p>
 <figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="instruction"> add-apt-repository </span>ppa:chris-lea/node.js</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install python-software-properties python g++ make nodejs</span><br></pre></td></tr></table></figure>
@@ -1550,182 +1164,15 @@
 <p>这样gitbook就以serve的方式启动了，此时我们可以访问 <a href="http://localhost:4000/" target="_blank" rel="external">http://localhost:4000/</a> ，就可以看到排版良好的电子书内容了</p>
 <p><img class="center" src="http://user-image.logdown.io/user/1417/blog/1391/post/196328/sEyRsqDoTMaDSJEiLmDF_2014-04-29%2016:40:19%E7%9A%84%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt="GoWeb-Book.png"></p>
 <h2 id="GitBook的其他输出方式">GitBook的其他输出方式</h2><p>除了本地的Serve方式，GitBook还支持PDF,E-Book等方式的输出，不过需要安装一些转换插件,见官方文档：<a href="https://github.com/GitbookIO/gitbook#output-formats" target="_blank" rel="external">https://github.com/GitbookIO/gitbook#output-formats</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9twv39o0000czs6c48xo0h1" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-  
-</section>
-      
-      <aside id="sidebar">
-  
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookI]]>
+    </summary>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">分类</h3>
-    <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-  
+      <category term="git" scheme="http://www.harrycode.com/tags/git/"/>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签</h3>
-    <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tool/">Tool</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-  
+      <category term="git" scheme="http://www.harrycode.com/categories/git/"/>
     
-  <div class="widget-wrap">
-    <h3 class="widget-title">标签云</h3>
-    <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
-    </div>
-  </div>
-
+  </entry>
   
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">归档</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
-    </div>
-  </div>
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">近期文章</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-    
-  
-</aside>
-      
-    </div>
-    <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      &copy; 2015 Harry<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
-      .
-      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
-    </div>
-  </div>
-</footer>
-  </div>
-  <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-  <!-- totop start -->
-<div id="totop">
-<a title="返回顶部"><img src="/img/scrollup.png"/></a>
-</div>
-
-<!-- totop end -->
-
-
-<!-- 百度分享 start -->
-
-<!-- 百度分享 end -->
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-
-
-  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
-  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
-
-
-
-<! -- mathjax config similar to math.stackexchange -->
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-tex2jax: {
-          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
-                processEscapes: true
-                    
-}
-  
-        });
-</script>
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-tex2jax: {
-            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
-                  
-}
-    
-        });
-</script>
-
-<script type="text/x-mathjax-config">
-MathJax.Hub.Queue(function() {
-            var all = MathJax.Hub.getAllJax(), i;
-            for(i=0; i < all.length; i += 1) {
-                            all[i].SourceElement().parentNode.className += ' has-jax';
-                                    
-            }
-                
-        });
-</script>
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-</script>
-
-
-<script src="/js/script.js" type="text/javascript"></script>
-
-</div>
-</body>
-</html>
+</feed>
