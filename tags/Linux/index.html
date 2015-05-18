@@ -72,6 +72,541 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-monitoring-tool-ngxtop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/20/nginx-monitoring-tool-ngxtop/" class="article-date">
+  <time datetime="2014-05-20T04:01:00.000Z" itemprop="datePublished">2014-05-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/20/nginx-monitoring-tool-ngxtop/">Nginx监控利器 Ngxtop</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop</span><br><span class="line">running for <span class="number">411</span> seconds, <span class="number">64332</span> records processed: <span class="number">156.60</span> req/sec</span><br><span class="line"></span><br><span class="line">Summary:</span><br><span class="line"><span class="string">|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span></span><br><span class="line"><span class="string">|---------+------------------+-------+-------+-------+-------|</span></span><br><span class="line"><span class="string">|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |</span></span><br><span class="line"></span><br><span class="line">Detailed:</span><br><span class="line"><span class="string">| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |</span></span><br><span class="line"><span class="string">|------------------------------------------+---------+------------------+-------+-------+-------+-------|</span></span><br><span class="line"><span class="string">| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |</span></span><br><span class="line"><span class="string">| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |</span></span><br><span class="line"><span class="string">| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span></span><br></pre></td></tr></table></figure>
+<h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
+<h2 id="pip">pip</h2><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget --<span class="keyword">no</span>-check-certificate http<span class="variable">s:</span>//bootstrap.pypa.io/<span class="built_in">get</span>-pip.<span class="keyword">py</span></span><br><span class="line"><span class="keyword">python</span> <span class="built_in">get</span>-pip.<span class="keyword">py</span></span><br></pre></td></tr></table></figure>
+<h2 id="Ngxtop">Ngxtop</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">beta-<span class="number">01</span>#  pip install ngxtop</span><br><span class="line"></span><br><span class="line">Downloading/unpacking ngxtop</span><br><span class="line">  Downloading ngxtop-<span class="number">0.0</span>.2-py2.py3-none-any.whl</span><br><span class="line">Downloading/unpacking pyparsing (from ngxtop)</span><br><span class="line">  Downloading pyparsing-<span class="number">2.0</span>.2.tar.gz (<span class="number">1.1</span>MB): <span class="number">1.1</span>MB downloaded</span><br><span class="line">  Running setup.py (<span class="string">path:</span><span class="regexp">/tmp/</span>pip_build_root<span class="regexp">/pyparsing/</span>setup.py) egg_info <span class="keyword">for</span> <span class="keyword">package</span> pyparsing</span><br><span class="line">Downloading/unpacking docopt (from ngxtop)</span><br><span class="line">  Downloading docopt-<span class="number">0.6</span>.1.tar.gz</span><br><span class="line">  Running setup.py (<span class="string">path:</span><span class="regexp">/tmp/</span>pip_build_root<span class="regexp">/docopt/</span>setup.py) egg_info <span class="keyword">for</span> <span class="keyword">package</span> docopt</span><br><span class="line">Downloading/unpacking tabulate (from ngxtop)</span><br><span class="line">  Downloading tabulate-<span class="number">0.7</span>.2.tar.gz</span><br><span class="line">  Running setup.py (<span class="string">path:</span><span class="regexp">/tmp/</span>pip_build_root<span class="regexp">/tabulate/</span>setup.py) egg_info <span class="keyword">for</span> <span class="keyword">package</span> tabulate</span><br><span class="line">Installing collected <span class="string">packages:</span> ngxtop, pyparsing, docopt, tabulate</span><br><span class="line">  Running setup.py install <span class="keyword">for</span> pyparsing</span><br><span class="line">  Running setup.py install <span class="keyword">for</span> docopt</span><br><span class="line">  Running setup.py install <span class="keyword">for</span> tabulate</span><br><span class="line">Successfully installed ngxtop pyparsing docopt tabulate</span><br><span class="line">Cleaning up...</span><br></pre></td></tr></table></figure>
+<h1 id="使用">使用</h1><p>老规矩，看看help</p>
+<p>Options:<br><code>-l &lt;file&gt;, --access-log &lt;file&gt;  access log file to parse.</code>  #指定access log<br><code>-f &lt;format&gt;, --log-format &lt;format&gt;  log format as specify in log_format directive. [default: combined]</code> #指定 log format<br><code>--no-follow  ngxtop default behavior is to ignore current lines in log and only watch for new lines as they are written to the access log. Use this flag to tell ngxtop to process the current content of the access log instead.</code> #ngxtop默认会对accesslog的新增行进行统计， 通过这个选项可以让ngxtop统计旧log<br><code>-t &lt;seconds&gt;, --interval &lt;seconds&gt;  report interval when running in follow mode [default: 2.0]</code><br><code>-g &lt;var&gt;, --group-by &lt;var&gt;  group by variable [default: request_path]</code> # 基于字段分组<br><code>-w &lt;var&gt;, --having &lt;expr&gt;  having clause [default: 1]</code> # 分组之后再筛选<br><code>-o &lt;var&gt;, --order-by &lt;var&gt;  order of output for default query [default: count]</code> # 排序字段<br><code>-n &lt;number&gt;, --limit &lt;number&gt;  limit the number of records included in report for top command [default: 10]</code> #默认显示前多少条<br><code>-a &lt;exp&gt; ..., --a &lt;exp&gt; ...  add exp (must be aggregation exp: sum, avg, min, max, etc.) into output</code> # 对输出字段做附加条件 sum/avg/min/max 可选</p>
+<p><code>-v, --verbose  more verbose output</code><br><code>-d, --debug  print every line and parsed record</code><br><code>-h, --help  print this help message.</code><br><code>--version  print version information.</code></p>
+<p>Advanced / experimental options:<br><code>-c &lt;file&gt;, --config &lt;file&gt;  allow ngxtop to parse nginx config file for log format and location.</code> # 指定nginx config文件，ngxtop 会自动解析配置文件，分析出access log的位置以及格式<br><code>-i &lt;filter-expression&gt;, --filter &lt;filter-expression&gt;  filter in, records satisfied given expression are processed.</code><br><code>-p &lt;filter-expression&gt;, --pre-filter &lt;filter-expression&gt; in-filter expression to check in pre-parsing phase.</code></p>
+<p>一些demo<br><figure class="highlight vhdl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Examples:</span><br><span class="line">    <span class="keyword">All</span> examples read nginx config <span class="keyword">file</span> <span class="keyword">for</span> <span class="keyword">access</span> log location <span class="keyword">and</span> format.</span><br><span class="line">    <span class="keyword">If</span> you want <span class="keyword">to</span> specify the <span class="keyword">access</span> log <span class="keyword">file</span> <span class="keyword">and</span> / <span class="keyword">or</span> log format, <span class="keyword">use</span> the -f <span class="keyword">and</span> -a options.</span><br><span class="line"></span><br><span class="line">    <span class="string">"top"</span> like view <span class="keyword">of</span> nginx requests</span><br><span class="line">    $ ngxtop</span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> requested path <span class="keyword">with</span> status <span class="number">404</span>:</span><br><span class="line">    $ ngxtop top request_path <span class="comment">--filter 'status == 404'</span></span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> requests <span class="keyword">with</span> highest total bytes sent</span><br><span class="line">    $ ngxtop <span class="comment">--order-by 'avg(bytes_sent) * count'</span></span><br><span class="line"></span><br><span class="line">    Top <span class="number">10</span> remote address, e.g., who<span class="attribute">'s</span> hitting you the most</span><br><span class="line">    $ ngxtop <span class="comment">--group-by remote_addr</span></span><br><span class="line"></span><br><span class="line">    Print requests <span class="keyword">with</span> <span class="number">4</span>xx <span class="keyword">or</span> <span class="number">5</span>xx status, together <span class="keyword">with</span> status <span class="keyword">and</span> http referer</span><br><span class="line">    $ ngxtop -i <span class="attribute">'status</span> &gt;= <span class="number">400</span>' print request status http_referer</span><br><span class="line"></span><br><span class="line">    Average <span class="keyword">body</span> bytes sent <span class="keyword">of</span> <span class="number">200</span> responses <span class="keyword">of</span> requested path <span class="keyword">begin</span> <span class="keyword">with</span> <span class="attribute">'foo</span>':</span><br><span class="line">    $ ngxtop avg bytes_sent <span class="comment">--filter 'status == 200 and request_path.startswith("foo")'</span></span><br><span class="line"></span><br><span class="line">    Analyze apache <span class="keyword">access</span> log from remote machine using <span class="attribute">'common</span>' log format</span><br><span class="line">    $ ssh remote tail -f /var/log/apache2/<span class="keyword">access</span>.log | ngxtop -f common</span><br></pre></td></tr></table></figure></p>
+<p>实际使用下来还是很方便的，可以很方便看到403／500／404等情况，有利于我们掌握当前的服务质量。</p>
+<p>Enjoy~</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="ci9tvozaa0008nps6usjl603x" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tool/">Tool</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-linux-server-system-monitor-tool-collecting" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/15/linux-server-system-monitor-tool-collecting/" class="article-date">
+  <time datetime="2014-05-15T08:50:00.000Z" itemprop="datePublished">2014-05-15</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/15/linux-server-system-monitor-tool-collecting/">Linux 服务端系统监控工具大起底</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
+<p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
+<p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
+<h1 id="1-_流量监控">1. 流量监控</h1><h2 id="1-1_Ifstat">1.1 Ifstat</h2><p>比较简易的网络监控工具，可以监控网卡的实时流量。当你只关心整机的流量而并不关心具体服务时，这个工具很趁手。</p>
+<h3 id="1-1-1_安装">1.1.1 安装</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/ifstat/ifstat-1.1-1.2.el6.rf.x86_64.rpm&#10;rpm -ivh ifstat-1.1-1.2.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS</span><br><span class="line">    ifstat accepts <span class="operator">the</span> following options:</span><br><span class="line"></span><br><span class="line">    -l  Enables monitoring <span class="operator">of</span> loopback interfaces <span class="keyword">for</span> which statistics are available. By default, ifstat monitors all non-loopback interfaces that are up.</span><br><span class="line">    <span class="comment"># ifstat 默认不监控环回网络接口， -l 之后可以看到环回网络接口的流量</span></span><br><span class="line">    -<span class="operator">a</span>  Enables monitoring <span class="operator">of</span> all interfaces found <span class="keyword">for</span> which statistics are available.</span><br><span class="line">    <span class="comment"># 监控所有网络接口</span></span><br><span class="line">    -z  Hides interface which counters are <span class="constant">null</span>, eg interfaces that are up but <span class="operator">not</span> used.</span><br><span class="line">    <span class="comment"># 隐藏统计数为空的网络接口</span></span><br><span class="line">    -i  Specifies <span class="operator">the</span> list <span class="operator">of</span> interfaces <span class="built_in">to</span> monitor, separated <span class="keyword">by</span> commas (<span class="keyword">if</span> <span class="operator">an</span> interface name has <span class="operator">a</span> <span class="constant">comma</span>, <span class="keyword">it</span> can be escaped <span class="operator">with</span> ’\’). Multiple instances <span class="operator">of</span> <span class="operator">the</span> options are added together.</span><br><span class="line">    <span class="comment"># -i 指定被监控的网络接口列表，逗号分割</span></span><br><span class="line">    -s  Equivalent <span class="built_in">to</span> -d snmp:[comm@][<span class="comment">#]host[/nn]] to poll a remote host through SNMP. See below for details.</span></span><br><span class="line">    <span class="comment"># 可以基于snmp协议，监控远端服务器</span></span><br><span class="line">    -h  Displays <span class="operator">a</span> <span class="keyword">short</span> help message.</span><br><span class="line">    -n  Turns off displaying <span class="operator">the</span> header periodically.</span><br><span class="line">    <span class="comment"># 关闭显示头信息(第一屏还是会有，超过一屏时就不会再有了)</span></span><br><span class="line">    -t  Adds <span class="operator">a</span> timestamp <span class="keyword">at</span> <span class="operator">the</span> beginning <span class="operator">of</span> <span class="keyword">each</span> <span class="built_in">line</span>.</span><br><span class="line">    <span class="comment"># 每行前添加时间戳</span></span><br><span class="line">    -T  Reports total bandwith <span class="keyword">for</span> all monitored interfaces.</span><br><span class="line">    <span class="comment"># 每行行尾添加一列，统计总流量</span></span><br><span class="line">    -A  Disables use <span class="operator">of</span> interface indexes: <span class="keyword">by</span> default, when polling mechanism is index based (snmp, ifmib), ifstat remembers indexes <span class="operator">of</span> monitored inter-faces <span class="built_in">to</span> poll only them. However, <span class="keyword">if</span> interfaces indexes change often (<span class="built_in">new</span> interfaces added, etc), you might loose some stats, hence this flag.Note that <span class="keyword">if</span> you ask ifstat <span class="built_in">to</span> monitor <span class="operator">a</span> non existent interface, <span class="keyword">it</span> will poll all interfaces <span class="keyword">until</span> <span class="keyword">it</span> finds <span class="operator">the</span> requested <span class="constant">one</span> (regardless <span class="operator">of</span> this flag) so you can poll <span class="keyword">for</span> <span class="operator">an</span> interface that goes up <span class="operator">and</span> down.</span><br><span class="line">    <span class="comment"># 关闭使用网络接口的索引。默认的网络接口轮寻机制是基于索引的，ifstat会从索引中找当前的网络接口而不会每次都使用系统调用。所以如果一台服务器的网络接口经常变更(譬如新增，等) 你可能会丢失一些信息。因此有了这个参数</span></span><br><span class="line">    -w  Uses fixed width columns, instead <span class="operator">of</span> enlarging them <span class="keyword">if</span> needed <span class="keyword">for</span> interfaces names <span class="built_in">to</span> fit.</span><br><span class="line">    <span class="comment"># 用固定的列宽代替自适应的列款</span></span><br><span class="line">    -W  Wrap <span class="keyword">lines</span> that are larger than <span class="operator">the</span> terminal width (implies -w). Wrapped <span class="keyword">lines</span> are prefixed <span class="operator">with</span> <span class="operator">a</span> cycling letter <span class="built_in">to</span> ease reading.</span><br><span class="line">    <span class="comment"># 如果每行的宽度超过屏幕宽度，自动换行。</span></span><br><span class="line">    -S  Keep stats updated <span class="command"><span class="keyword">on</span> <span class="title">the</span> <span class="title">same</span> <span class="title">line</span> <span class="title">if</span> <span class="title">possible</span> (<span class="title">no</span> <span class="title">scrolling</span> <span class="title">nor</span> <span class="title">wrapping</span>).</span></span><br><span class="line">    <span class="comment"># 输出结果不再是追加。而是更新同一行。</span></span><br><span class="line">    -b  Reports bandwith <span class="operator">in</span> kbits/<span class="built_in">sec</span> instead <span class="operator">of</span> kbytes/<span class="built_in">sec</span>.</span><br><span class="line">    <span class="comment"># kbit 代替 kbyte</span></span><br><span class="line">    -q  Quiet mode, warnings are <span class="operator">not</span> printed.</span><br><span class="line">    -v  Displays <span class="built_in">version</span> <span class="operator">and</span> <span class="operator">the</span> compiled-<span class="operator">in</span> drivers.</span><br><span class="line">       </span><br><span class="line">    delay</span><br><span class="line">        delay is <span class="operator">the</span> delay between updates <span class="operator">in</span> <span class="built_in">seconds</span>, which defaults <span class="built_in">to</span> <span class="number">1.</span>  A decimal <span class="built_in">number</span> can be specified <span class="keyword">for</span> intervals shorter than <span class="operator">a</span> <span class="keyword">second</span>. (<span class="built_in">min</span>-imum <span class="number">0.1</span>)</span><br><span class="line">A <span class="keyword">second</span> delay can also be specified (separated <span class="built_in">from</span> <span class="operator">the</span> <span class="keyword">first</span> <span class="constant">one</span> <span class="keyword">by</span> <span class="operator">a</span> ’/’). In that <span class="keyword">case</span> <span class="operator">the</span> <span class="keyword">first</span> delay will be used <span class="keyword">for</span> <span class="operator">the</span> <span class="keyword">first</span> poll <span class="keyword">after</span> <span class="built_in">start</span> <span class="operator">and</span> <span class="operator">the</span> <span class="keyword">second</span> <span class="constant">one</span> will be used <span class="keyword">for</span> all following polls (This can be used <span class="built_in">to</span> have <span class="operator">a</span> <span class="string">"fast"</span> <span class="built_in">start</span> when running <span class="keyword">for</span> <span class="operator">a</span> <span class="keyword">long</span> <span class="keyword">while</span> <span class="operator">with</span> <span class="operator">a</span> big delay).</span><br><span class="line">        <span class="comment"># 每次显示刷新的时间间隔。默认是1.也接受一个浮点数，最小为0.1. 接受一个第二间隔的参数，通过'/' 分割，如 0.1／3. 这种情况下，第一次显示使用0.1，后面显示的时间间隔使用3. (这种方式可以用来"快速"启动，然后缓慢轮寻)</span></span><br><span class="line">    count</span><br><span class="line">        count is <span class="operator">the</span> <span class="built_in">number</span> <span class="operator">of</span> updates <span class="keyword">before</span> stopping. If <span class="operator">not</span> specified, <span class="keyword">it</span> is unlimited.</span><br><span class="line">        <span class="comment"># 指定刷新的次数。如果不指定，默认无限。</span></span><br></pre></td></tr></table></figure></p>
+<p>通常用法：<code>ifstat -a -t -T 0.1/2</code></p>
+<h2 id="1-2_Iftop">1.2 Iftop</h2><p>和ifstat 相比，iftop提供更丰富的监控维度。可以细化到网卡甚至端口服务。当网络成为瓶颈时，这个工具可以很快帮你找出是哪个服务占用了你网卡以及流量。</p>
+<h3 id="1-2-1_安装">1.2.1 安装</h3><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//pkgs.repoforge.org/iftop/iftop-0.17-1.el6.rf.x86_64.rpm</span></span><br><span class="line">rpm -ivh iftop-<span class="number">0.17</span>-<span class="number">1</span><span class="class">.el6</span><span class="class">.rf</span><span class="class">.x86_64</span><span class="class">.rpm</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-2-2_使用">1.2.2 使用</h3><p>老规矩， 看下man<br><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS</span><br><span class="line">    -h     Print <span class="operator">a</span> summary <span class="operator">of</span> usage.</span><br><span class="line">    -n     Don’t <span class="built_in">do</span> hostname lookups. <span class="comment">#不对ip做反向解析</span></span><br><span class="line">    -N     Do <span class="operator">not</span> <span class="built_in">resolve</span> port <span class="built_in">number</span> <span class="built_in">to</span> service names <span class="comment"># 不会把port解析成服务名</span></span><br><span class="line">    -p     Run <span class="operator">in</span> promiscuous mode, so that traffic which does <span class="operator">not</span> pass directly through <span class="operator">the</span> specified interface is also counted. <span class="comment"># 运行在混杂模式中，所以不是来自指定网络接口的流量也会被统计</span></span><br><span class="line">    -P     Turn <span class="command"><span class="keyword">on</span> <span class="title">port</span> <span class="title">display</span>. #显示端口号</span></span><br><span class="line">    -b     Don’t display bar graphs <span class="operator">of</span> traffic.</span><br><span class="line">    -B     Display bandwidth rates <span class="operator">in</span> <span class="keyword">bytes</span>/<span class="built_in">sec</span> rather than bits/<span class="built_in">sec</span>. <span class="comment">#显示byte</span></span><br><span class="line">    -i interface</span><br><span class="line">        Listen <span class="built_in">to</span> packets <span class="command"><span class="keyword">on</span> <span class="title">interface</span>. #指定网络接口</span></span><br><span class="line">    -f <span class="built_in">filter</span> code</span><br><span class="line">        Use  <span class="built_in">filter</span> code <span class="built_in">to</span> select <span class="operator">the</span> packets <span class="built_in">to</span> count. Only IP packets are ever counted, so <span class="operator">the</span> specified code is evaluated <span class="keyword">as</span> (<span class="built_in">filter</span> code) <span class="operator">and</span> ip.</span><br><span class="line">    -F net/mask</span><br><span class="line">        Specifies <span class="operator">a</span> network <span class="keyword">for</span> traffic analysis.  If specified, iftop will only <span class="built_in">include</span> packets flowing <span class="operator">in</span> <span class="built_in">to</span> <span class="operator">or</span> out <span class="operator">of</span> <span class="operator">the</span> given network, <span class="operator">and</span> packet direction  is  determined  <span class="built_in">relative</span>  <span class="built_in">to</span>  <span class="operator">the</span>  network  boundary, rather than <span class="built_in">to</span> <span class="operator">the</span> interface.  You may specify mask <span class="keyword">as</span> <span class="operator">a</span> dotted quad, such <span class="keyword">as</span> /<span class="number">255.255</span>.255.0, <span class="operator">or</span> <span class="keyword">as</span> <span class="operator">a</span> single <span class="built_in">number</span> specifying <span class="operator">the</span> <span class="built_in">number</span> <span class="operator">of</span> bits <span class="built_in">set</span> <span class="operator">in</span> <span class="operator">the</span> netmask, such <span class="keyword">as</span> /<span class="number">24.</span> <span class="comment"># 指定ip区段以及掩码</span></span><br><span class="line">    -c config <span class="built_in">file</span></span><br><span class="line">        Specifies <span class="operator">an</span> alternate config <span class="built_in">file</span>.  If <span class="operator">not</span> specified, iftop will use ~/.iftoprc <span class="keyword">if</span> <span class="keyword">it</span> exists.  See below <span class="keyword">for</span> <span class="operator">a</span> description <span class="operator">of</span> config <span class="built_in">files</span> <span class="comment">#可以指定配置文件，文件格式详见 man</span></span><br></pre></td></tr></table></figure></p>
+<p>通常用法：<code>iftop -N -n -B -i em1</code></p>
+<h3 id="1-2-3_显示">1.2.3 显示</h3><p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/199171/GwYk2VoQ4eG6knaEFwb0_iftop.png" alt="iftop.png"></p>
+<ol>
+<li>第一行：当前带宽</li>
+<li>中间区域： 左-本机ip 中-远端ip 右-2／10／40 秒的实时流量</li>
+<li>底部：<br> TX：发送<br> RX：接收<br> Total：总流量<br> comm: 从iftop启动到现在产生的流量<br> peak：当前流量峰值／s<br> 右侧三列： 2／10／40 秒的平均值</li>
+</ol>
+<h3 id="1-2-4_交互操作">1.2.4 交互操作</h3><figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">Host <span class="keyword">display</span>:                          </span><br><span class="line"> <span class="keyword">n</span> - toggle DNS host resolution   #切换dns反向解析     </span><br><span class="line"> s - toggle show source host # 切换显示源主机           </span><br><span class="line"> <span class="keyword">d</span> - toggle show destination host # 切换显示目的主机     </span><br><span class="line"> t - cycle <span class="keyword">line</span> <span class="keyword">display</span> mode # 循环切换不同的展示模式 单行／多行           </span><br><span class="line"></span><br><span class="line">Port <span class="keyword">display</span>:                          </span><br><span class="line"> <span class="keyword">N</span> - toggle service resolution  #切换端口到服务解析        </span><br><span class="line"> S - toggle show source port    #切换展示源端口       </span><br><span class="line"> <span class="keyword">D</span> - toggle show destination port  #切换展示目的端口    </span><br><span class="line"> p - toggle port <span class="keyword">display</span>    #是否展示端口           </span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Sorting:</span><br><span class="line"> 1/2/3 - <span class="keyword">sort</span> <span class="keyword">by</span> 1st/2nd/3rd column #1/2/3列排序</span><br><span class="line"> &lt; - <span class="keyword">sort</span> <span class="keyword">by</span> source name #源主机排序</span><br><span class="line"> &gt; - <span class="keyword">sort</span> <span class="keyword">by</span> dest name #目的主机排序</span><br><span class="line"> o - freeze current <span class="keyword">order</span> </span><br><span class="line"></span><br><span class="line">General:</span><br><span class="line"> P - <span class="keyword">pause</span> <span class="keyword">display</span>        </span><br><span class="line"> <span class="keyword">h</span> - toggle this <span class="keyword">help</span> <span class="keyword">display</span></span><br><span class="line"> b - toggle bar <span class="keyword">graph</span> <span class="keyword">display</span></span><br><span class="line"> B - cycle bar <span class="keyword">graph</span> average</span><br><span class="line">                                   </span><br><span class="line"> j/k - scroll <span class="keyword">display</span></span><br><span class="line"> f - <span class="keyword">edit</span> filter code</span><br><span class="line"> <span class="keyword">l</span> - <span class="keyword">set</span> screen filter</span><br><span class="line"> <span class="keyword">L</span> - lin/<span class="keyword">log</span> scales</span><br><span class="line"> ! - <span class="keyword">shell</span> command</span><br><span class="line"> q - quit</span><br><span class="line"> T - toggle cummulative <span class="keyword">line</span> totals</span><br></pre></td></tr></table></figure>
+<h2 id="1-3_Iptraf">1.3 Iptraf</h2><pre><code>和iptop的功能比较类似，实时性更好一些，UI也更易懂。
+</code></pre><h3 id="1-3-1_安装">1.3.1 安装</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum <span class="keyword">install</span> iptraf</span><br></pre></td></tr></table></figure>
+<p>这东西纯界面的，menu也很清晰，就不多说了～</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/199171/mlS8w6p8Rt27r7lTk9Xc_traffic.png" alt="traffic.png"></p>
+<h1 id="2-_CPU">2. CPU</h1><h2 id="2-1_vmstat">2.1 vmstat</h2><p>vmstat可以说是最常用的cpu监控工具了，不但可以监控cpu的使用情况，还以cpu为维度，列出了请求队列，内存，io，中断等信息，方便我们从多个维度观察cpu信息，及时找出瓶颈。</p>
+<h3 id="使用">使用</h3><p><code>vmstat -t -S m 2</code> #每秒刷新，附带时间戳; 涉及到容量的单位为M(-S 的可选参数为  k/K/m/M 对应 1000/1024/1000000/1048576 bytes )</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">procs</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">memory</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">swap</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">io</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">system</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">cpu</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span> <span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">timestamp</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span></span><br><span class="line"> <span class="comment">r</span>  <span class="comment">b</span>   <span class="comment">swpd</span>   <span class="comment">free</span>   <span class="comment">buff</span>  <span class="comment">cache</span>   <span class="comment">si</span>   <span class="comment">so</span>    <span class="comment">bi</span>    <span class="comment">bo</span>   <span class="comment">in</span>   <span class="comment">cs</span> <span class="comment">us</span> <span class="comment">sy</span> <span class="comment">id</span> <span class="comment">wa</span> <span class="comment">st</span></span><br><span class="line"> <span class="comment">5</span>  <span class="comment">0</span>      <span class="comment">0</span>    <span class="comment">228</span>   <span class="comment">2137</span>  <span class="comment">18902</span>    <span class="comment">0</span>    <span class="comment">0</span>     <span class="comment">1</span>    <span class="comment">13</span>    <span class="comment">0</span>    <span class="comment">0</span>  <span class="comment">1</span>  <span class="comment">1</span> <span class="comment">98</span>  <span class="comment">0</span>  <span class="comment">0	2014</span><span class="literal">-</span><span class="comment">05</span><span class="literal">-</span><span class="comment">15</span> <span class="comment">17:53:06</span> <span class="comment">CST</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>procs-r</td>
+<td>执行队列中的进程数(等待被执行的进程数)</td>
+</tr>
+<tr>
+<td>procs-b</td>
+<td>等待I/O的进程数</td>
+</tr>
+<tr>
+<td>memory-swpd</td>
+<td>使用交换内存的大小</td>
+</tr>
+<tr>
+<td>memory-free</td>
+<td>空闲内存的大小</td>
+</tr>
+<tr>
+<td>memory-buff</td>
+<td>buffer使用的内存大小，一般对块设备读写会用到buff</td>
+</tr>
+<tr>
+<td>memory-cache</td>
+<td>cache使用的内存大小，一般对文件读写会用到cache</td>
+</tr>
+<tr>
+<td>swap-si</td>
+<td>由内存写入到交换区的大小</td>
+</tr>
+<tr>
+<td>swap-so</td>
+<td>由交换区写入到内存的大小</td>
+</tr>
+<tr>
+<td>io-bi</td>
+<td>写入块设备的块数。(单位是block)</td>
+</tr>
+<tr>
+<td>io-bo</td>
+<td>从块设备接收到的块数。(单位是block)</td>
+</tr>
+<tr>
+<td>system-in</td>
+<td>系统中断数，包括时钟中断</td>
+</tr>
+<tr>
+<td>system-cs</td>
+<td>系统的上下文切换数</td>
+</tr>
+<tr>
+<td>cpu-us</td>
+<td>用户进程使用CPU的百分比</td>
+</tr>
+<tr>
+<td>cpu-sy</td>
+<td>系统进程使用CPU的百分比</td>
+</tr>
+<tr>
+<td>cpu-id</td>
+<td>空闲PU的百分比</td>
+</tr>
+<tr>
+<td>cpu-wa</td>
+<td>等待I/O的CPU百分比</td>
+</tr>
+<tr>
+<td>cpu-st</td>
+<td>被虚拟机偷取的CPU百分比</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-2_mpstat">2.2 mpstat</h2><p>虽然 vmstat 已经很强大了，但随着多核cpu的出现，vmstat有时有些捉襟见肘。笔者之前遇到一个案例，在系统压力很大时，mysql slave服务器出现了较大的延迟，从vmstat看，io／cpu都不高。binlog同步没有延迟，但是在binlog重放时显然拖慢了整体进度。最后通过mpstat观察发现，只有一个核的使用率很高，而vmstat显示的平均值，所以整体很低。这就说明mysql的主从机制中，从服务器重放sql是单线程的，无法利用多核，难怪在系统繁忙时，数据会有延迟。好了，不吐槽了，我们接茬儿说回mpstat</p>
+<h3 id="使用-1">使用</h3><p><code>mpstat -u -P [ALL|0,1,2...]</code><br>|# -P 代表查看CPU的情况 ALL会列出全部CPU,也可以指定核编号，”,”分割<br><code>mpstat -I [SUM|CPU|ALL]</code>(不太常用，因为-P的结果中也会有中断数)<br>|# -I 代表查看CPU中断  SUM为所有cpu汇总,CPU代表列出所有核的中断，ALL为前两者之和</p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Linux <span class="number">2.6</span>.32-<span class="number">431.</span>el6.x86_64 (beta-<span class="number">01.</span>cloud) 	<span class="number">05</span>/<span class="number">15</span>/<span class="number">2014</span> 	_x86_64_	(<span class="number">24</span> CPU)</span><br><span class="line"></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">32</span> PM  CPU    <span class="variable">%usr</span>   <span class="variable">%nice</span>    <span class="variable">%sys</span> <span class="variable">%iowait</span>    <span class="variable">%irq</span>   <span class="variable">%soft</span>  <span class="variable">%steal</span>  <span class="variable">%guest</span>   <span class="variable">%idle</span></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">34</span> PM  all   <span class="number">10.17</span>    <span class="number">0.00</span>   <span class="number">11.28</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>   <span class="number">78.54</span></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">34</span> PM    <span class="number">0</span>    <span class="number">0.50</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>   <span class="number">99.50</span></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">34</span> PM    <span class="number">1</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">3.50</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>   <span class="number">96.50</span></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">34</span> PM    <span class="number">2</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>  <span class="number">100.00</span></span><br><span class="line"><span class="number">08</span>:<span class="number">56</span>:<span class="number">34</span> PM    <span class="number">3</span>   <span class="number">30.43</span>    <span class="number">0.00</span>   <span class="number">34.78</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>    <span class="number">0.00</span>   <span class="number">34.78</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>irq</td>
+<td>硬中断的CPU百分比</td>
+</tr>
+<tr>
+<td>soft</td>
+<td>软中断的CPU百分比(其他的项参考vmstat章节)</td>
+</tr>
+</tbody>
+</table>
+<h1 id="3-_I／O">3. I／O</h1><h2 id="3-1_iostat">3.1 iostat</h2><h3 id="使用-2">使用</h3><p><code>iostat -x -t [-k/-m] 3</code><br> |# -x 会展示一些扩展数据<br> |# -t 会展示刷新时间<br> |# -k 以kbytes为单位做展示<br> |# -m 以mbytes为单位做展示</p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">05</span>/<span class="number">15</span>/<span class="number">2014</span> <span class="number">06</span>:<span class="number">25</span>:<span class="number">35</span> PM</span><br><span class="line">avg-cpu:  <span class="variable">%user</span>   <span class="variable">%nice</span> <span class="variable">%system</span> <span class="variable">%iowait</span>  <span class="variable">%steal</span>   <span class="variable">%idle</span></span><br><span class="line">          <span class="number">10.38</span>    <span class="number">0.00</span>   <span class="number">10.89</span>    <span class="number">0.00</span>    <span class="number">0.00</span>   <span class="number">78.73</span></span><br><span class="line"></span><br><span class="line">Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  <span class="variable">%util</span></span><br><span class="line">sda               <span class="number">0.00</span>  <span class="number">1017.00</span>    <span class="number">0.00</span>   <span class="number">23.00</span>     <span class="number">0.00</span>  <span class="number">8320.00</span>   <span class="number">361.74</span>     <span class="number">0.01</span>    <span class="number">0.22</span>   <span class="number">0.07</span>   <span class="number">0.15</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>nice</td>
+<td>用做nice加权的进程分配的用户态cpu时间比(CPU的其它项，见vmstat章节)</td>
+</tr>
+<tr>
+<td>rrqm/s</td>
+<td>队列中每秒合并的读请求数</td>
+</tr>
+<tr>
+<td>wrqm/s</td>
+<td>队列中每秒合并的写请求数</td>
+</tr>
+<tr>
+<td>r/s</td>
+<td>每秒完成的读请求数</td>
+</tr>
+<tr>
+<td>w/s</td>
+<td>每秒完成的写请求数</td>
+</tr>
+<tr>
+<td>rsec/s</td>
+<td>每秒读取的扇区数</td>
+</tr>
+<tr>
+<td>wsec/s</td>
+<td>每秒写入的扇区数</td>
+</tr>
+<tr>
+<td>avgrq-sz</td>
+<td>平均每次io操作的扇区大小(单位为扇区)</td>
+</tr>
+<tr>
+<td>avgqu-sz</td>
+<td>I／O队列的平均长度</td>
+</tr>
+<tr>
+<td>await</td>
+<td>每次I/O请求的处理时间。这个时间包括排队时间+处理时间 (ms)</td>
+</tr>
+<tr>
+<td>svctm</td>
+<td>每次I/O请求的处理时间。这个时间不包括排队时间 (ms)</td>
+</tr>
+<tr>
+<td>%util</td>
+<td>I/O请求所占用的CPU时间百分比(<strong>这一项是衡量i/o负载的重要指标</strong>)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-2_iotop">3.2 iotop</h2><p>iostat 是从宏观上监控系统i/o的整体情况，于是它就存在个弱点，当我们发现系统i/o过高甚至成为瓶颈时，无法查看到底是哪个进程导致的io过高。这个时候就iotop出场了。<br>关于iotop的介绍，详见前几日的博文 <a href="http://harrycode.logdown.com/posts/198725-introduction-to-iotop" target="_blank" rel="external">IOTop 简介</a></p>
+<h1 id="4-_综合">4. 综合</h1><p>这个世界有小而精的东西，也永远都不缺大而全的东西</p>
+<h2 id="4-1_htop">4.1 htop</h2><p>htop是top的增强版，功能更强大，性能更好。详细的介绍参见之前的一篇博客 <a href="http://harrycode.logdown.com/posts/198662-change-replacing-the-top-process-management-tools-under-linux-htop" target="_blank" rel="external">[转]Linux下取代top的进程管理工具 htop</a></p>
+<h2 id="4-2_sar">4.2 sar</h2><p>sar可以快速收集服务器上的各项信息并显示，包括CPU，内存，I/O，中断，IP，TCP，UDP等。<br>这个工具通常都被预装在了服务器上，如果真的那么悲催居然没有，可以去找这个工具集 [sysstat][1] </p>
+<h2 id="用法">用法</h2><p><code>sar [ 选项 ] [ &lt;时间间隔&gt; [ &lt;次数&gt; ] ]</code></p>
+<p><strong>不带任何选项的sar，默认展示cpu信息</strong><br>展示的各项与mpstat一致，相关描述可参考mpstat -P的章节</p>
+<p><code>sar 2</code></p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Linux <span class="number">2.6</span>.32-<span class="number">431.</span>el6.x86_64 (beta-<span class="number">01.</span>cloud) 	<span class="number">05</span>/<span class="number">15</span>/<span class="number">2014</span> 	_x86_64_	(<span class="number">24</span> CPU)</span><br><span class="line"></span><br><span class="line"><span class="number">09</span>:<span class="number">24</span>:<span class="number">03</span> PM     CPU     <span class="variable">%user</span>     <span class="variable">%nice</span>   <span class="variable">%system</span>   <span class="variable">%iowait</span>    <span class="variable">%steal</span>     <span class="variable">%idle</span></span><br><span class="line"><span class="number">09</span>:<span class="number">24</span>:<span class="number">05</span> PM     all     <span class="number">10.09</span>      <span class="number">0.00</span>     <span class="number">11.20</span>      <span class="number">0.00</span>      <span class="number">0.00</span>     <span class="number">78.71</span></span><br><span class="line"><span class="number">09</span>:<span class="number">24</span>:<span class="number">07</span> PM     all     <span class="number">10.33</span>      <span class="number">0.00</span>     <span class="number">11.05</span>      <span class="number">0.00</span>      <span class="number">0.00</span>     <span class="number">78.62</span></span><br></pre></td></tr></table></figure>
+<p><strong>-b    I/O 和传输速率信息状况</strong></p>
+<p><code>sar -b 2</code></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Linux <span class="number">2.6</span>.<span class="number">32</span>-<span class="number">431</span><span class="class">.el6</span><span class="class">.x86_64</span> (beta-<span class="number">01</span>.cloud) 	<span class="number">05</span>/<span class="number">15</span>/<span class="number">2014</span> 	_x86_64_	(<span class="number">24</span> CPU)</span><br><span class="line"></span><br><span class="line"><span class="number">04</span>:<span class="number">17</span>:<span class="number">26</span> PM       tps      rtps      wtps   bread/s   bwrtn/s</span><br><span class="line"><span class="number">04</span>:<span class="number">17</span>:<span class="number">29</span> PM    <span class="number">481.00</span>      <span class="number">0.00</span>    <span class="number">481.00</span>      <span class="number">0.00</span>   <span class="number">4856.00</span></span><br><span class="line"><span class="number">04</span>:<span class="number">17</span>:<span class="number">32</span> PM      <span class="number">4.67</span>      <span class="number">0.00</span>      <span class="number">4.67</span>      <span class="number">0.00</span>    <span class="number">752.00</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tps</td>
+<td>每秒对物理磁盘的I/O请求数</td>
+</tr>
+<tr>
+<td>rtps</td>
+<td>每秒对物理磁盘的I/O读请求数</td>
+</tr>
+<tr>
+<td>wtps</td>
+<td>每秒对物理磁盘的I/O写请求数</td>
+</tr>
+<tr>
+<td>bread/s</td>
+<td>每秒从物理磁盘读取的数据块(block)数目。2.4及以上，一个block为512bytes</td>
+</tr>
+<tr>
+<td>bwrtn/s</td>
+<td>每秒对物理磁盘写的数据块数目</td>
+</tr>
+</tbody>
+</table>
+<p><strong>-d  块设备的使用情况</strong></p>
+<p><code>sar -p -d 2</code></p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sarLinux <span class="number">2.6</span>.<span class="number">32</span>-<span class="number">431</span>.el6.x86_64 (beta-<span class="number">01</span>.cloud) 	<span class="number">05</span><span class="regexp">/15/</span><span class="number">2014</span> 	_x86_64_	(<span class="number">24</span> CPU)</span><br><span class="line"></span><br><span class="line"><span class="number">05</span>:<span class="number">11</span>:<span class="number">06</span> PM       DEV       tps  rd_sec<span class="regexp">/s  wr_sec/</span>s  avgrq-sz  avgqu-sz     await     svctm     %util</span><br><span class="line"><span class="number">05</span>:<span class="number">11</span>:<span class="number">09</span> PM       sda      <span class="number">1.34</span>      <span class="number">0.00</span>     <span class="number">58.86</span>     <span class="number">44.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span></span><br><span class="line"></span><br><span class="line"><span class="number">05</span>:<span class="number">11</span>:<span class="number">09</span> PM       DEV       tps  rd_sec<span class="regexp">/s  wr_sec/</span>s  avgrq-sz  avgqu-sz     await     svctm     %util</span><br><span class="line"><span class="number">05</span>:<span class="number">11</span>:<span class="number">12</span> PM       sda      <span class="number">1.99</span>      <span class="number">0.00</span>    <span class="number">685.71</span>    <span class="number">344.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span>      <span class="number">0.00</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DEV</td>
+<td>被监控的块设备名称</td>
+</tr>
+<tr>
+<td>tps</td>
+<td>每秒传输给块设备的请求数(I/O请求数)。多个逻辑请求会被合并成一个物理请求</td>
+</tr>
+<tr>
+<td>rd_sec/s</td>
+<td>每秒读取的扇区数(sector)。一个扇区512bytes</td>
+</tr>
+<tr>
+<td>wr_sec/s</td>
+<td>每秒写入的扇区数(sector)。一个扇区512bytes</td>
+</tr>
+<tr>
+<td>avgrq-sz</td>
+<td>平均每次I/O请求的扇区数</td>
+</tr>
+<tr>
+<td>avgqu-sz</td>
+<td>I/O请求队列的平均长度</td>
+</tr>
+<tr>
+<td>await</td>
+<td>每次I/O请求的处理时间。这个时间包括排队时间+处理时间 (ms)</td>
+</tr>
+<tr>
+<td>svctm</td>
+<td>每次I/O请求的处理时间。这个时间不包括排队时间 (ms)</td>
+</tr>
+<tr>
+<td>%util</td>
+<td>I/O请求所占用的CPU时间百分比(<strong>这一项是衡量i/o负载的重要指标</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>-P cpu的使用情况，支持多核， 与mpstat 一致</strong></p>
+<p><code>sar -P [ALL|0,1,2...] 2</code></p>
+<p><strong>-q   队列以及负载的情况</strong></p>
+<p><code>sar -q 2</code></p>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>runq-sz</td>
+<td>准备进入执行队列的进程数</td>
+</tr>
+<tr>
+<td>plist-sz</td>
+<td>进程列表中的进程数</td>
+</tr>
+<tr>
+<td>ldavg-1</td>
+<td>最近一分钟的系统负载</td>
+</tr>
+<tr>
+<td>ldavg-5</td>
+<td>最近5分钟的系统负载</td>
+</tr>
+<tr>
+<td>ldavg-15</td>
+<td>最近15分钟的系统负载</td>
+</tr>
+</tbody>
+</table>
+<p><strong>-n  网络相关的情况</strong></p>
+<p>根据关键字来基于不同维度展示网络相关的情况，关键字包括 DEV, EDEV, NFS, NFSD, SOCK, IP, EIP, ICMP, EICMP, TCP, ETCP, UDP, SOCK6, IP6, EIP6, ICMP6, EICMP6 and UDP6， 较为常用的是 DEV和SOCK</p>
+<table>
+<thead>
+<tr>
+<th>关键字</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DEV</strong></td>
+<td>所有网络设备的活动统计</td>
+</tr>
+<tr>
+<td>IFACE</td>
+<td>网络接口名</td>
+</tr>
+<tr>
+<td>rxpck/s</td>
+<td>每秒收到的package</td>
+</tr>
+<tr>
+<td>txpck/s</td>
+<td>每秒发送的package</td>
+</tr>
+<tr>
+<td>rxkB/s</td>
+<td>每秒收到的字节数</td>
+</tr>
+<tr>
+<td>txkB/s</td>
+<td>每秒发送的字节数</td>
+</tr>
+<tr>
+<td>rxcmp/s</td>
+<td>每秒收到的压缩包数</td>
+</tr>
+<tr>
+<td>txcmp/s</td>
+<td>每秒发送的压缩包数</td>
+</tr>
+<tr>
+<td>rxmcst/s</td>
+<td>每秒收到的多播包数</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>SOCK</strong></td>
+<td>所有网络套接字的活动统计</td>
+</tr>
+<tr>
+<td>totsck</td>
+<td>使用的套接字总数</td>
+</tr>
+<tr>
+<td>tcpsck</td>
+<td>使用的Tcp套接字总数</td>
+</tr>
+<tr>
+<td>udpsck</td>
+<td>使用的Udp套接字总数</td>
+</tr>
+<tr>
+<td>rawsck</td>
+<td>使用的Raw套接字总数</td>
+</tr>
+<tr>
+<td>ip-frag</td>
+<td>使用的ip段总数</td>
+</tr>
+<tr>
+<td>tcp-tw</td>
+<td>当前Time_Wait的套接字总数</td>
+</tr>
+</tbody>
+</table>
+<p>就这么多吧，敲的手抖，把最近用到的工具简单罗列了下下，希望对大家有用。<br>需要注意一下，上面的演示都是基于CentOSd的，其他操作系统中，同样的工具输出结果会略有不同，要想了解细节还是要靠 man.</p>
+<p>Enjoy~</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="ci9tvozad000dnps61mvn3r3n" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-introduction-to-iotop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/13/introduction-to-iotop/" class="article-date">
+  <time datetime="2014-05-13T05:19:00.000Z" itemprop="datePublished">2014-05-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/13/introduction-to-iotop/">IOTop 简介</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
+<h2 id="安装">安装</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm</span></span><br><span class="line">sudo rpm -ivh iotop-<span class="number">0.6</span>-<span class="number">1</span><span class="class">.noarch</span><span class="class">.rpm</span></span><br></pre></td></tr></table></figure>
+<h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">beta-<span class="number">01</span><span class="comment"># iotop --help</span></span><br><span class="line">Usage: /usr/sbin/iotop [OPTIONS]</span><br><span class="line"></span><br><span class="line">DISK READ <span class="operator">and</span> DISK WRITE are <span class="operator">the</span> block I/O bandwidth used during <span class="operator">the</span> sampling</span><br><span class="line">period. SWAPIN <span class="operator">and</span> IO are <span class="operator">the</span> percentages <span class="operator">of</span> <span class="built_in">time</span> <span class="operator">the</span> thread spent respectively</span><br><span class="line"><span class="keyword">while</span> swapping <span class="operator">in</span> <span class="operator">and</span> waiting <span class="command"><span class="keyword">on</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">more</span> <span class="title">generally</span>. <span class="title">PRIO</span> <span class="title">is</span> <span class="title">the</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">priority</span> <span class="title">at</span></span></span><br><span class="line">which <span class="operator">the</span> thread is running (<span class="built_in">set</span> <span class="keyword">using</span> <span class="operator">the</span> ionice <span class="command"><span class="keyword">command</span>).</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Options:</span><br><span class="line">  -<span class="ruby">-version             show program<span class="string">'s version number and exit</span><br><span class="line"></span></span>  -<span class="ruby">h, --help            show this help message <span class="keyword">and</span> exit</span><br><span class="line"></span>  -<span class="ruby">o, --only            only show processes <span class="keyword">or</span> threads actually doing <span class="constant">I</span>/<span class="constant">O</span> <span class="comment">#只显示当前有IO操作的进程或线程</span></span><br><span class="line"></span>  -<span class="ruby">b, --batch           non-interactive mode <span class="comment"># 运行在非交互模式下</span></span><br><span class="line"></span>  -<span class="ruby">n <span class="constant">NUM</span>, --iter=<span class="constant">NUM</span>    number of iterations before ending [infinite] <span class="comment"># 非交互模式下展示的次数</span></span><br><span class="line"></span>  -<span class="ruby">d <span class="constant">SEC</span>, --delay=<span class="constant">SEC</span>   delay between iterations [<span class="number">1</span> second] <span class="comment">#刷新的时间间隔</span></span><br><span class="line"></span>  -<span class="ruby">p <span class="constant">PID</span>, --pid=<span class="constant">PID</span>     processes/threads to monitor [all] <span class="comment">#只显示指定进程／线程的IO信息</span></span><br><span class="line"></span>  -<span class="ruby">u <span class="constant">USER</span>, --user=<span class="constant">USER</span>  users to monitor [all] <span class="comment">#只显示指定用户的进程所发生的IO</span></span><br><span class="line"></span>  -<span class="ruby"><span class="constant">P</span>, --processes       only show processes, <span class="keyword">not</span> all threads <span class="comment"># 只显示进程而不是所有的线程</span></span><br><span class="line"></span>  -<span class="ruby">a, --accumulated     show accumulated <span class="constant">I</span>/<span class="constant">O</span> instead of bandwidth <span class="comment">#在IOTOP启动后 显示每个进程／线程处理的IO总数</span></span><br><span class="line"></span>  -<span class="ruby">k, --kilobytes       use kilobytes instead of a human friendly unit <span class="comment"># 以KB为单位进行显示</span></span><br><span class="line"></span>  -<span class="ruby">t, --time            add a timestamp on each line (implies --batch) <span class="comment"># 显示时在每行添加当前时间</span></span><br><span class="line"></span>  -<span class="ruby">q, --quiet           suppress some lines of header (implies --batch)</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Controls: left <span class="operator">and</span> <span class="constant">right</span> arrows <span class="built_in">to</span> change <span class="operator">the</span> sorting column, r <span class="built_in">to</span> invert <span class="operator">the</span></span><br><span class="line">sorting order, o <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--only option, p to toggle the --processes</span></span><br><span class="line">option, <span class="operator">a</span> <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--accumulated option, q to quit, any other key to force</span></span><br><span class="line"><span class="operator">a</span> refresh.</span><br><span class="line"></span><br><span class="line">控制：</span><br><span class="line"><span class="string">'左右键'</span>用来改变排序的列，</span><br><span class="line"><span class="string">'r'</span>用来切换正序/倒序, </span><br><span class="line"><span class="string">'o'</span> 用来切换 <span class="comment">--only模式, </span></span><br><span class="line"><span class="string">'p'</span> 用来切换 <span class="comment">--processes 模式， </span></span><br><span class="line"><span class="string">'a'</span> 用来切换 <span class="comment">--accumulated模式, </span></span><br><span class="line"><span class="string">'q'</span> 用来推出，‘其他键’ 用来强制刷新</span><br></pre></td></tr></table></figure>
+<p>PS: 笔者很喜欢 iotop -o 的玩法，祝大家也玩的愉快。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="ci9tvozaf000hnps6kb9gpzpo" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-change-replacing-the-top-process-management-tools-under-linux-htop" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" class="article-date">
@@ -309,7 +844,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9tv9jfc000c1es6hd5cyhrz" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9tvozal000onps61fv9v99b" class="article-share-link">分享到</a>
       
 
       
@@ -342,7 +877,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tool/">Tool</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -351,7 +886,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: NaNpx;">Linux</a><a href="/tags/Tools/" style="font-size: NaNpx;">Tools</a><a href="/tags/git/" style="font-size: NaNpx;">git</a><a href="/tags/php/" style="font-size: NaNpx;">php</a><a href="/tags/vim/" style="font-size: NaNpx;">vim</a>
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
     </div>
   </div>
 
@@ -360,7 +895,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -372,23 +907,23 @@
       <ul>
         
           <li>
-            <a href="/2015/05/17/hello-world/">Hello World</a>
+            <a href="/2015/05/18/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/20/nginx-monitoring-tool-ngxtop/">Nginx监控利器 Ngxtop</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/15/linux-server-system-monitor-tool-collecting/">Linux 服务端系统监控工具大起底</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/13/introduction-to-iotop/">IOTop 简介</a>
           </li>
         
           <li>
             <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
-          </li>
-        
-          <li>
-            <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
-          </li>
-        
-          <li>
-            <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/">简单几步搭建超酷的Vim开发环境</a>
-          </li>
-        
-          <li>
-            <a href="/2014/04/29/初识GitBook/">初识GitBook</a>
           </li>
         
       </ul>
