@@ -4,12 +4,12 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Archives: 2015 | 左手代码 右手年华</title>
+  <title>Archives: 2014/4 | 左手代码 右手年华</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="一个尘世迷途小码农的程序与人生">
 <meta property="og:type" content="website">
 <meta property="og:title" content="左手代码 右手年华">
-<meta property="og:url" content="http://www.harrycode.com/archives/2015/index.html">
+<meta property="og:url" content="http://www.harrycode.com/archives/2014/04/index.html">
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="一个尘世迷途小码农的程序与人生">
 <meta name="twitter:card" content="summary">
@@ -72,12 +72,16 @@
     <div class="outer">
       <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-初识GitBook" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/05/17/hello-world/" class="article-date">
-  <time datetime="2015-05-17T15:29:14.000Z" itemprop="datePublished">2015-05-17</time>
+    <a href="/2014/04/29/初识GitBook/" class="article-date">
+  <time datetime="2014-04-29T07:27:00.000Z" itemprop="datePublished">2014-04-29</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/git/">git</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -86,7 +90,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/05/17/hello-world/">Hello World</a>
+      <a class="article-title" href="/2014/04/29/初识GitBook/">初识GitBook</a>
     </h1>
   
 
@@ -94,26 +98,29 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My_New_Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookIO/gitbook</a> )的产品频繁的占据视线。如果你是一个电子书爱好者，如果你有一些开源项目并希望制作优雅华美的文档，或者你只是纯粹的想把github上的一些开源图书”据为己有”， GitBook都可以帮到你。</p>
+<p>确切的来说，GitBook是一款用Node.js库构建的命令行工具，使用这个工具可以基于GitHub/Git／Markdown等电子书源码来制作精美的电子图书，今天我们以笔者最近在读的《Go Web 编程》(<a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank" rel="external">https://github.com/astaxie/build-web-application-with-golang</a>) 尝试构建一本本地的电子图书。</p>
+<h2 id="安装Nodejs">安装Nodejs</h2><p>安装GitBook首先需要有npm+nodejs，笔者的当前环境是Ubuntu 12.04 LTS, nodejs的版本较旧，我们需要先升级下下～</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo<span class="instruction"> add-apt-repository </span>ppa:chris-lea/node.js</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install python-software-properties python g++ make nodejs</span><br></pre></td></tr></table></figure>
+<h2 id="安装GitBook">安装GitBook</h2><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm <span class="keyword">install</span> gitbook -g</span><br></pre></td></tr></table></figure>
+<h2 id="下载《Go_Web_编程》源码">下载《Go Web 编程》源码</h2><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone <span class="string">git:</span><span class="comment">//github.com/astaxie/build-web-application-with-golang.git GoWeb</span></span><br></pre></td></tr></table></figure>
+<h2 id="以Serve的方式浏览">以Serve的方式浏览</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> GoWeb/ebook <span class="comment">#进入ebook目录</span></span><br><span class="line">gitbook serve <span class="comment">#启动serve</span></span><br></pre></td></tr></table></figure>
+<p>这样gitbook就以serve的方式启动了，此时我们可以访问 <a href="http://localhost:4000/" target="_blank" rel="external">http://localhost:4000/</a> ，就可以看到排版良好的电子书内容了</p>
+<p><img class="center" src="http://user-image.logdown.io/user/1417/blog/1391/post/196328/sEyRsqDoTMaDSJEiLmDF_2014-04-29%2016:40:19%E7%9A%84%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt="GoWeb-Book.png"></p>
+<h2 id="GitBook的其他输出方式">GitBook的其他输出方式</h2><p>除了本地的Serve方式，GitBook还支持PDF,E-Book等方式的输出，不过需要安装一些转换插件,见官方文档：<a href="https://github.com/GitbookIO/gitbook#output-formats" target="_blank" rel="external">https://github.com/GitbookIO/gitbook#output-formats</a></p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/05/17/hello-world/" data-id="ci9tun3az0005g1s6vmimfbo7" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9tun3af0000g1s6avonw6o2" class="article-share-link">分享到</a>
       
 
       
 
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
+
     </footer>
   </div>
   
