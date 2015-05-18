@@ -72,10 +72,10 @@
     <div class="outer">
       <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-2014-12-03-to-hadoop-working-mechanism" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/05/18/hello-world/" class="article-date">
-  <time datetime="2015-05-18T12:34:24.000Z" itemprop="datePublished">2015-05-18</time>
+    <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" class="article-date">
+  <time datetime="2014-12-03T09:53:00.000Z" itemprop="datePublished">2014-12-03</time>
 </a>
     
   </div>
@@ -86,7 +86,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/05/18/hello-world/">Hello World</a>
+      <a class="article-title" href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
     </h1>
   
 
@@ -94,21 +94,352 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
+<p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
+<h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
+<h2 id="而对于每个作业的执行，又包含">而对于每个作业的执行，又包含</h2><p><code>输入准备 ----&gt; 任务执行 ----&gt; 输出结果</code></p>
+<h2 id="作业提交JobClient">作业提交JobClient</h2><p>JobClient的runJob方法产生一个Jobclient实例并调用其submitJob方法，然后runJob开始循环吗，并在循环中调用getTaskCompetionEvents方法，获得TaskCompletionEvent实例，每秒轮询作业进度（后面有介绍进度和状态更新），把进度写到控制台，作业完成后显示作业计数器，若失败，则把错误记录到控制台。<br>    submitJob方法作业提交的过程：</p>
+<pre><code><span class="bullet">1. </span>向JobTracker请求一个新的JobId。
+<span class="bullet">2. </span>检查作业相关路径，如果路径不正确就会返回错误。
+<span class="bullet">3. </span>计算作业输入分片及其划分信息。
+<span class="bullet">4. </span>将作业运行需要的资源（jar文件、配置文件等）复制到Shared HDFS，并复制多个副本（参数控制，默认值为10）供tasktracker访问，也会将计算的分片复制到HDFS。
+<span class="bullet">5. </span>调用JobTracker对象的submitJob()方法来真正提交作业，告诉JobTracker作业准备执行。
+</code></pre><h2 id="作业的初始化JobTracker">作业的初始化JobTracker</h2><p>JobTracker收到submitJob方法调用后，会把调用放入到一个内部队列，由作业调度器（Job scheduler）进行调度并对其初始化。Job初始化即创建一个作业对象。<br>当作业被调度后，JobTracker会创建一个代表这个作业的JobInProgress对象，并将任务和记录信息封装在这个对象中，以便跟踪任务状态和进程。<br>  初始化过程就是JobInProgress对象的initTasks方法进行初始化的。<br>  初始化步骤：</p>
+<pre><code>    <span class="number">1</span>. 从<span class="type">HDFS</span>中读取作业对应的job.<span class="built_in">split</span>信息，为后面的初始化做好准备。
+<span class="number">2</span>. 创建并初始化<span class="built_in">map</span>和<span class="built_in">reduce</span>任务。根据数据分片信息中的个数确定<span class="built_in">map</span> task的个数，然后为每个<span class="built_in">map</span> task生成一个<span class="type">TaskInProgress</span>对象来处理数据分片，先将其放入nonRunningMapCache,以便<span class="type">JobTracker</span>分配任务的时候使用。接下来根据<span class="type">JobConf</span>中的mapred.<span class="built_in">reduce</span>.tasks属性利用setNumReduceTasks()方法设置<span class="built_in">reduce</span> task的数量，然后同<span class="built_in">map</span> task创建方式。
+<span class="number">3</span>. 最后就是创建两个初始化task，进行<span class="built_in">map</span>和<span class="built_in">reduce</span>的初始化。
+</code></pre><h2 id="任务的分配JobTracker">任务的分配JobTracker</h2><p>消息传递HeartBeat： tasktracker运行一个简单循环定期发送心跳（heartbeat）给JobTracker。由心跳告知JobTracker自己是否存活，同时作为消息通道传递其它信息（请求新task）。作为心跳的一部分，tasktracker会指明自己是否已准备好运行新的任务，如果是，jobtracker会分配它一个任务。<br>分配任务所属于的作业：在Jobtracker分配任务前需先确定任务所在的作业。后面会介绍到各种作业调度算法，默认是一个FIFO的作业调度。<br>分配Map和Reduce任务：tasktracker有固定数量的任务槽,一个tasktracker可以同时运行多个Map和Reduce任务，但其准确的数量由tasktracker的核的数量和内存大小决定。默认调度器会先填满Map任务槽，再填Reduce任务槽。jobtracker会选择距离离分片文件最近的tasktracker，最理想情况下，任务是数据本地化（data-local）的,当然也可以是机架本地化（rack-local），如果不是本地化的，那么他们就需要从其他机架上检索数据。Reduce任务分配很简单，jobtracker会简单的从待运行的reduce任务列表中选取下一个来执行，不用考虑数据本地化。</p>
+<h2 id="任务的执行TaskTracker">任务的执行TaskTracker</h2><p>TaskTracker收到新任务后，就要在本地运行任务了，运行任务的第一步就是通过localizedJob将任务本地化所需要的注入配置、数据、程序等信息进行本地化。<br>  1.本地化数据：从共享文件系统将job.split 、job.jar (在分布式缓存中)复制本地，将job配置信息写入job.xml。<br>  2.新建本地工作目录：tasktracker会加压job.jar文件到本工作目录。<br>  3.调用launchTaskForJob方法发布任务（其中会新建TaskRunner实例运行任务），如果是Map任务就启用MapTaskRunner，对于Reduce就是ReduceTaskRunner。</p>
+<p>在这之后，TaskRunner会启用一个新的JVM来运行每个Map/Reduce任务，防止程序原因而导致tasktracker崩溃，但不同任务间重用JVM还是可以的，后续会讲到任务JVM重用。<br>    对于单个Map，任务执行的简单流程是：<br>  1.分配任务执行参数<br>    2.在Child临时文件中添加map任务信息（Child是运行Map和Reduce任务的主进程）<br>  3.配置log文件夹，配置map任务的通信和输出参数<br>  4.读取input split，生成RecordReader读取数据<br>  5.为Map生成MapRunnable,依次从RecordReader中接收数据，并调用Map函数进行处理。<br>  6.最后将map函数的输出调用collect收集到MapOutputBuffer（参数控制其大小）中。</p>
+<h2 id="Streaming和Pipes">Streaming和Pipes</h2><p>Streaming和Pipes都运行特殊的Map和Reduce任务，目的是运行用户提供的可执行程序并与之通信。<br>Streaming:使用标准输入输出Streaming与进程进行通信。<br>Pipes:用来监听套接字，会发送一个端口号给C++程序，两者便可建立链接。</p>
+<h2 id="进度和状态更新">进度和状态更新</h2><p>一个作业和它的任务都有状态（status），其中包括：运行成功失败状态、Map/Reduce进度、作业计数器值、状态消息。<br>状态消息与客户端的通信：<br>    1.对于Map任务Progress的追踪：progress是已经处理完的输入所占的比例。<br>  2.对于Reduce：稍复杂，reduce任务分三个阶段（每个阶段占1/3），复制、排序和Reduce处理，若reduce已执行一半的输入的话，那么任务进度便是1/3+1/3+1/6=5/6。<br>  3.任务计数器：任务有一组计数器，负责对任务运行各个事件进行计数。<br>  4.任务进度报告：如果任务报告了进度，便会设置一个标记以表明状态将被发送到tasktracker。有一个独立线程每隔三秒检查一次此标记，如果已设置，则告知tasktracker当前状态。<br>  5.tasktracker进度报告：tasktracker会每隔5秒（这个心跳是由集群大小决定，集群越大时间会越长）发送heartbeat到jobtracker，并且tasktracker运行的所有状态都会在调用中被发送到jobtracker。<br>  6.jobtracker合并各任务报告：产生一个表明所有运行作业机器所含任务状态的全局视图。<br>  前面提到的JobClient就是通过每秒查询JobTracker来接收最新状态，而且客户端JobClient的getJob方法可以得到一个RunningJob的实例，其包含了作业的所以状态信息。</p>
+<h2 id="作业的完成">作业的完成</h2><p>当jobtracker收到作业最后一个任务已完成的通知后，便把作业状态设置成成功。JobClient查询状态时，便知道任务已成功完成，于是JobClient打印一条消息告知用户，然后从runJob方法返回。<br>如果jobtracker有相应设置，也会发送一个Http作业通知给客户端，希望收到回调指令的客户端可以通过job.end.notification.url属性来进行设置。<br>jobtracker情况作业的工作状态，指示tasktracker也清空作业的工作状态，如删除中间输出。</p>
+<h2 id="失败">失败</h2><p>实际情况下，用户的代码存在软件错误进程会崩溃，机器也会产生故障，但Hadoop能很好的应对这些故障并完成作业。<br>1.任务失败<br>    子任务异常：如Map/Reduce任务中的用户代码抛出异常，子任务JVM进程会在退出前向父进程tasktracker发送错误报告，错误被记录用户日志。tasktracker会将此次task attempt标记为tailed，并释放这个任务槽运行另外一个任务。<br>    子进程JVM突然退出：可能由于JVM bug导致用户代码造成的某些特殊原因导致JVM退出，这种情况下，tasktracker会注意到进程已经退出，并将此次尝试标记为failed。<br>    任务挂起：一旦tasktracker注意一段时间没有收到进度更新，便会将任务标记为failed，JVM子进程将被自动杀死。任务失败间隔时间通常为10分钟，可以以作业或者集群为基础设置过期时间，参数为mapred.task.timeout。注意：如果参数值设置为0，则挂起的任务永远不会释放掉它的任务槽，随着时间的推移会降低整个集群的效率。<br>    任务失败尝试次数：jobtracker得知一个tasktracker失败后，它会重新调度该任务执行，当然，jobtracker会尝试避免重新调度失败过的tasktracker任务。如果一个任务尝试次数超过4次，它将不再被重试。这个值是可以设置的，对于Map任务，参数是mapred.map.max.attempts,对于reduce任务，则由mapred.reduce.max.attempts属性控制。如果次数超过限制，整个作业都会失败。当然，有时我们不希望少数几个任务失败就终止运行的整个作业，因为即使有些任务失败，作业的一些结果可能还是有用的，这种情况下，可以为作业设置在不触发作业失败情况下的允许任务失败的最大百分比，Map任务和Reduce任务可以独立控制，参数为mapred.max.map.failures.percent 和mapred.max.reduce.failures.percent。<br>    任务尝试中止（kill）：任务终止和任务失败不同，task attempt可以中止是因为他是一个推测副本或因为它所处的tasktracker失败，导致jobtracker将它上面的所有task attempt标记为killed。被终止的task attempt不会被计入任务运行尝试次数，因为尝试中止并不是任务的错。<br>2.tasktracker失败<br>    tasktracker由于崩溃或者运行过慢而失败，他将停止向jobtracker发送心跳（或很少发送心跳）。jobtracker注意已停止发送心跳的tasktracker（过期时间由参数mapred.tasktracker.expiry.interval设置，单位毫秒），并将它从等待调度的tasktracker池中移除。如果是未完成的作业，jobtracker会安排次tasktracker上已经运行成功的Map任务重新运行，因为此时reduce任务已无法访问（中间输出存放在失败的tasktracker的本地文件系统上）。<br>    即使tasktracker没有失败，也有可能被jobtracker列入黑名单。如果tasktracker上面的失败任务数量远远高于集群的平均失败任务次数，他就会被列入黑名单，被列入黑名单的tasktracker可以通过重启从jobtracker黑名单中移除。<br>3.jobtracker失败<br>    老版本的JobTracker失败属于单点故障，这种情况下作业注定失败。</p>
+<h2 id="作业调度">作业调度</h2><p>早期作业调度FIFO：按作业提交顺序先进先出。可以设置优先级，通过设置mapred.job.priority属性或者JobClient的setJobPriority()方法制定优先级（优先级别：VERY_HIGH,HIGH,NORMAL,LOW,VERY_LOW）。注意FIFO调度算法不支持抢占（preemption）,所以高优先级作业仍然会被那些已经开始的长时间运行的低优先级作业所阻塞。<br>Fair Scheduler：目标是让每个用户公平地共享集群能力。当集群存在很多作业时，空闲的任务槽会以”让每个用户共享集群“的方式进行分配。默认每个用户都有自己的作业池。FairScheduler支持抢占，所以，如果一个池在特定的一段时间未得到公平地资源共享，它会终止池中得到过多的资源任务，以便把任务槽让给资源不足的池。FairScheduler是一个后续模块，使用它需要将其jar文件放在Hadoop的类路径下。可以通过参数map.red.jobtracker.taskScheduler属性配置（值为org.apache.hadoop.mapred.FairScheduler）<br>Capacity Scheduler：<br>集群由很多队列组成，每个队列都有一个分配能力，这一点与FairScheduler类似，只不过在每个队列内部，作业根据FIFO方式进行调度。本质上说，Capacity Scheduler允许用户或组织为每个用户模拟一个独立使用FIFO的集群。</p>
+<h2 id="shuffle和排序">shuffle和排序</h2><p>MapReduce确保每个Reducer的输入都是按键排序的。系统执行排序的过程-将map输出作为输入传给reducer的过程称为shuffle。shuffle属于不断被优化和改进的代码库的一部分，从许多方面来看，shuffle是MapReduce的心脏。<br>整个shuffle的流程应该是这样：<br>    map结果划分partition  排序sort 分割spill   合并同一划分   合并同一划分  合并结果排序 reduce处理 输出<br>  <strong>Map端：</strong><br>    写入缓冲区：Map函数的输出，是由collector处理的，它并不是简单的将结果写到磁盘。它利用缓冲的方式写到内存，并处于效率的考虑进行预排序。每个map都有一个环形的内存缓冲区，用于任务输出，默认缓冲区大小为100MB（由参数io.sort.mb调整），一旦缓冲区内容达到阈值（默认0.8），后台进程边开始把内容写到磁盘（spill），在写磁盘过程中，map输出继续被写到缓冲区，但如果缓冲区被填满，map会阻塞知道写磁盘过程完成。写磁盘将按照轮询方式写到mapred.local.dir属性制定的作业特定子目录中。<br>    写出缓冲区：collect将缓冲区的内容写出时，会调用sortAndSpill函数，这个函数作用主要是创建spill文件，按照key值对数据进行排序，按照划分将数据写入文件，如果配置了combiner类，会先调用combineAndSpill函数再写文件。sortAndSpill每被调用一次，就会写一个spill文件。<br>    合并所有Map的spill文件：TaskTracker会在每个map任务结束后对所有map产生的spill文件进行merge，merge规则是根据分区将各个spill文件中数据同一分区中的数据合并在一起，并写入到一个已分区且排序的map输出文件中。待唯一的已分区且已排序的map输出文件写入最后一条记录后，map端的shuffle阶段就结束了。<br>    在写磁盘前，线程首先根据数据最终要传递到的reducer把数据划分成响应的分区（partition），在每个分区中，后台线程按键进行内排序，如果有一个combiner,它会在排序后的输出上运行。<br>    内存达到溢出写的阈值时，就会新建一个溢出写文件，因为map任务完成其最后一个输出记录之后，会有几个溢出写文件。在任务完成前，溢出写文件会被合并成一个已分区且已排序的输出文件。配置属性io.sort.facor控制一次最多能合并多少流，默认值是10。<br>    如果已经指定combiner,并且写次数至少为3（通过min.mum.spills.for.combine设置）时，则combiner就会在输出文件写到磁盘之前运行。运行combiner的意义在于使map输出更紧凑，舍得写到本地磁盘和传给reducer的数据更少。<br>    写磁盘时压缩：写磁盘时压缩会让写的速度更快，节约磁盘空间，并且减少传给reducer的数据量。默认情况下，输出是不压缩的，但可以通过设置mapred.compress.map.output值为true，就可以启用压缩。使用的压缩库是由mapred.map.output.compression.codec制定。<br>    reducer获得文件分区的工作线程：reducer通过http方式得到输出文件的分区，用于文件分区的工作线程数量由tracker.http.threads属性指定，此设置针对的是每个tasktracker，而不是每个map任务槽。默认值为40，在大型集群上此值可以根据需要而增加。</p>
+<p><strong>Reduce端：</strong><br>    复制阶段：reduce会定期向JobTracker获取map的输出位置，一旦拿到输出位置，reduce就会从对应的TaskTracker上复制map输出到本地（如果map输出很小，则会被复制到TaskTracker节点的内存中，否则会被让如磁盘），而不会等到所有map任务结束（当然这个也有参数控制）。<br>    合并阶段：从各个TaskTracker上复制的map输出文件（无论在磁盘还是内存）进行整合，并维持数据原来的顺序。<br>    Reduce阶段：从合并的文件中顺序拿出一条数据进行reduce函数处理，然后将结果输出到本地HDFS。<br>    Map的输出文件位于运行map任务的tasktracker的本地磁盘，现在，tasktracker要为分区文件运行reduce任务。每个任务完成时间可能不同，但是只要有一个任务完成，reduce任务就开始复制其输出，这就是reduce任务的复制阶段（copy phase）。reduce任务有少量复制线程，因此能够并行取得map输出。默认值是5个线程，可以通过mapred.reduce.parallel.copies属性设置。<br>    Reducer如何得知从哪个tasktracker获得map输出：map任务完成后会通知其父tasktracker状态已更新，tasktracker进而通知（通过heart beat）jobtracker。因此，JobTracker就知道map输出和tasktracker之间的映射关系，reducer中的一个线程定期询问jobtracker以便获知map输出位置。由于reducer有可能失败，因此tasktracker并没有在第一个reducer检索到map输出时就立即从磁盘上删除它们，相反他会等待jobtracker告示它可以删除map输出时才删除，这是作业完成后最后执行的。<br>    如果map输出很小，则会被直接复制到reduce tasktracker的内存缓冲区（大小由mapred.job.shuffle.input.buffer.percent控制，占堆空间的百分比），否则，map输出被复制到磁盘。一旦内存缓冲区达到阈值大小（由mapred.iob.shuffle.merge.percent）<br>或达到map输出阈值大小（mapred.inmem.threadhold），则合并后溢出写到磁盘中。<br>    随着磁盘上副本增多，后台线程会将他们合并为更大的、排好序的文件。注意：为了合并，压缩的map输出必须在内存中被解压缩。<br>    排序阶段：复制阶段完成后，reduce任务会进入排序阶段，更确切的说是合并阶段，这个阶段将合并map输出，维持其顺序排列。合并是循环进行的，由合并因子决定每次合并的输出文件数量。但让有可能会产生中间文件。<br>    reduce阶段：在最后reduce阶段，会直接把排序好的文件输入reduce函数，不会对中间文件进行再合并，最后的合并即可来自内存，也可来自磁盘。此阶段的输出会直接写到文件系统，一般为hdfs。</p>
+<p><strong>细节：</strong><br>这里合并是并非平均合并，比如有40个文件，合并因子为10，我们并不是每趟合并10个，合并四趟。而是第一趟合并4个，后三趟合并10，在最后一趟中4个已合并的文件和余下6个未合并会直接并入reduce。</p>
+<h2 id="配置调优">配置调优</h2><p>调优总原则：在保证Map函数和Reduce函数能够得到足够内存的前提下，给shuffle过程提供更多的内存空间。<br>    1.编写map和reduce函数时尽量少占用内存空间。<br>    2.设置JVM内存大小（mapred.child.java.opts），任务节点内存大小应该尽量大（关于内存请见集群构建中的环境配置笔记）。<br>    3.Map端：避免多次溢出写磁盘。估算map输出大小，调整io.sort.mb（map输出内存缓冲区大小），如果可以，可增加其值。注意mapreduce计数器会记录作业在整个运行过程溢出写磁盘的记录数，这对调优很有帮助。<br>    4.Reduce端：中间数据全部驻留内存可获得最佳性能。如果reduce函数内存需求不大，那么可以把mapred.inmem.threadhold输出阈值调为0（即不写溢出），把mapred.job.shuffle.input.buffer.percent reduce 值设为1（即reduce内存缓冲区最大）会带来性能提升。<br>    5.提高Hadoop缓冲区：默认为4KB,应该在集群中增加这个值。</p>
+<h2 id="任务的执行">任务的执行</h2><h3 id="推测执行">推测执行</h3><p>为了避免由于一个任务执行慢而是整个作业执行过慢的情况，hadoop 提供了一种推测执行的机制：即hadoop不会尝试诊断或修复执行慢的任务（其实不可能办到），而是在一个任务比预期慢的时候启动另一个相同的任务作为备份。<br>    一个任务和其推测任务任何一个成功完成，另一个就会中止。<br>    推测执行是一种优化措施，默认情况下推测执行是启用的。可以基于集群或基于每个作业，单独为map或reduce任务启用或禁用该项功能。mapred.map.tasks.speculative.execution  默认值为 true;mapred.reduce.tasks.speculative.execution 默认值为 true。推测执行目的是减少作业执行时间，但这是以集群效率为代价的，一般而言，集群管理员倾向于在集群上关闭该功能，而让用户根据个别需要而开启该功能。</p>
+<h3 id="任务JVM重用">任务JVM重用</h3><p>Hadoop在自己的java虚拟机上运行任务，而且会为每个任务启动一个新的JVM，启动时间大约为1秒。参数mapred.job.reuse.jvm.num.tasks制定给定作业每个JVM运行任务的最大数，默认值为1，若设置为-1，则不限任务数量。JobConf中的setNumTasksToExecutePerJvm方法也可设置这个属性。计算超短任务或密集型任务也可以受益于JVM重用机制。共享JVM的另一个非常有用的地方是：作业个任务之间共享状态，任务可以较快的访问共享数据。<br>    跳过坏数据：<br>    通过开启skipnode来控制。</p>
+<p>本节相关参数：</p>
+<ol>
+<li>mapred.submit.replication 运行作业资源的副本数。</li>
+<li>mapred.reduce.task 作业的Reduce任务数量，可通过setNumReduceTasks()方法设置。</li>
+<li>tasktracker任务槽数量。</li>
+<li>心跳发送周期、任务进度报告周期、tasktracker进度报告周期、JobClient轮询周期。</li>
+<li>job.end.notification.url 作业完成时客户端接收作业完成回调指令的参数。</li>
+<li>本节会产生各种状态信息。</li>
+<li>mapred.task.timeout 任务挂起的最大等待时间。</li>
+<li>mapred.map.max.attempts 、mapred.reduce.max.attempts 任务失败最大尝试次数</li>
+<li>mapred.max.map.failures.percent 、mapred.max.reduce.failures.percent 允许错误但不触发作业失败的任务数的百分比。</li>
+<li>mapred.tasktracker.expiry.interval tasktracker向jobtracker发送心跳的过期时间，默认10分钟，单位毫秒。</li>
+<li>mapred.job.priority 作业调度优先级。</li>
+<li>map.red.jobtracker.taskScheduler 配置作业调度算法参数（值org.apache.hadoop.mapred.FairScheduler）。</li>
+<li>io.sort.mb 默认map输出缓冲区大小参数 默认值100MB。</li>
+<li>io.sort.spill.percent 写缓冲区内容阈值参数 默认值0.8。</li>
+<li>mapred.local.dir map函数输出写磁盘目录。</li>
+<li>io.sort.facor map溢出写文件一次被合并的数目 默认值是10(设置成100是很常见的)</li>
+<li>mapred.compress.map.output Map输出写磁盘时是否启用压缩参数 默认值为false。</li>
+<li>mapred.map.output.compression.codec Map输出磁盘启用压缩的压缩库</li>
+<li>tracker.http.threads reducer 每个tasktracker获得文件分区的工作线程数量，针对一个tasktracker 默认值是40。</li>
+<li>mapred.reduce.parallel.copies reduce任务复制map输出文件线程数量 默认值是5。</li>
+<li>mapred.job.shuffle.input.buffer.percent shuffle复制阶段，分配给map 输出存缓冲区占堆栈空间的百分比，默认值0.7。</li>
+<li>mapred.inmem.threadhold map输出阈值。</li>
+<li>io.sort.record.percent 存储map输出记录边界的io.sort.mb的比例（内存缓冲区所占栈空间比例），剩余空间空间存储记录本身。</li>
+<li>min.num.spills.for.combine 运行combiner所需要的最少溢出写文件数 默认值为3。</li>
+<li>mapred.reduce.copy.backoff reducer获取一个map输出所花最大时间，单位是秒，默认值300</li>
+<li>mapred.ijob.shufffle.merge.percent map输出缓冲区使用阈值的比例，启动合并输出 默认值为0.66.</li>
+<li>mapred.inmem.merge.threadhold 启动map输出和磁盘溢出写过程的map输出阈值，默认值1000.</li>
+<li>mapred.iob.reduce.input.buffer.percent 在reduce过程中，内从中保存map输出的空间占整个堆内存空间的比例。默认值为0。默认情况下，map输出都合并到磁盘上，以便为reducer提供尽可能多的内存，如果reducer需要的内存较少，可以增加此值来最小化磁盘访问次数。</li>
+</ol>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/05/18/hello-world/" data-id="ci9tvozak000nnps6axck05jd" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="ci9twbaof000vnss6o7m1ev11" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-understand-mapreduce-data-flow" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-understand-mapreduce-data-flow/" class="article-date">
+  <time datetime="2014-12-03T09:45:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
+<span class="bullet">1. </span>输入数据
+<span class="bullet">2. </span>MapReduce程序
+<span class="bullet">3. </span>配置信息     
+</code></pre><p>  Hadoop工作时会将job分成若干个task：map任务和reduce任务<br>  有两类节点控制作业执行的过程：JobTracker和TaskTracker</p>
+<pre><code>-<span class="ruby"> <span class="constant">JobTracker</span>：记录作业整体进度，对<span class="constant">TaskTracker</span>进行调度
+</span>-<span class="ruby"> <span class="constant">TaskTracker</span>：执行task任务并向<span class="constant">JobTracker</span>汇报    </span>
+</code></pre><h1 id="大块数据先流入map">大块数据先流入map</h1><p>  Hadoop会将输入数据划分成等长的数据块，成为数据分片。Hadoop会为每个分片构建一个map任务。并行的处理分片时间肯定会少于处理整个大数据块的时间，但由于各个节点性能及作业运行情况的不同，每个分片的处理时间可能不一样，因此，把数据分片切分的更细可以得到更好的负载均衡。<br>  但另一方面，分片太小的话，管理分片和构建map任务的时间将会增多。因此，需要在hadoop分片大小和处理分片时间之间做一个权衡。对大多数作业来说，一个分片大小为64MB比较合适，其实，Hadoop的默认块大小也是64MB。<br>  我们上面看到了hadoop的数据块大小与最佳分片大小相同，这样的话，数据分片就不容易跨数据块存储，因此，一个map任务的输入分片便可以直接读取本地数据块，这就避免了再从其它节点读取分片数据，从而节省了网络开销。<br>  map的任务输出是写入到本地磁盘而非HDFS的。那么为什么呢？因为map任务输出的是中间结果，一旦map任务完成即会被删除，如果把它存入HDFS中并实现备份容错，未免有点大题小做。如果一个map任务失败，hadoop会再另一个节点重启map一个map任务。</p>
+<h1 id="数据从map流入reduce">数据从map流入reduce</h1><p>  而reduce任务并不具备数据本地化优势——单个reduce任务的输入通常来自所有mapper输出。一般排序过的map输出需要通过网络传输发送到运行reduce任务的节点，并在reduce端进行合并。reduce的输出通常需要存储到HDFS中以实现可靠存储。每个reduce输出HDFS块第一个复本会存储在本地节点，而其它复本则存储到其它节点，因此reduce输出也需要占用网络带宽。</p>
+<p>  如下图：一个reduce任务的MapReduce任务数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195323354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<p>  reduce任务的数量并非由输入数据大小决定，而是特别指定。如有多个reduce任务，则每个map任务都会对其输出进行分区（partition），因为每个reduce任务会建一个分区。相同键的记录都会被partition到同一个分区中。具体的分区方式由分区函数来控制，一般通过hash函数来分区。<br>  我们把map任务和reduce任务之间的数据流称为shuffle，因为每个reduce任务的输入都来自多个map任务，因此，这个阶段比较复杂，而shuffle过程中的参数调整对job运行的总时间是有非常大的影响的，一般MapReduce的调优主要就是调整shuffle阶段的参数。</p>
+<p>如下图：多个reduce任务的数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195403671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="如何减少从map到reduce的数据量">如何减少从map到reduce的数据量</h1><p>  集群上的可用带宽限制了MapReduce的作业数量，因为map的中间结果传递给reduce是要经过网络传输的，因此最重要的一点就是尽量减少map和reduce任务间传输的数据量。不过，Hadoop允许用户针对map任务的输出指定一个合并函数（combiner），用合并函数的输出作为reduce函数的输入，但需要注意，合并函数的运用不应该改变reduce函数的计算结果。</p>
+<p>  例如有两个map的输出分别是map1={0,20,10};map2={15,25}，求最大值，我们可以对先每个map的数据的数据进行合并，合并完成之后再传输给reducer：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">map1=&#123;<span class="number">0</span>,<span class="number">20</span>,<span class="number">10</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">20</span>&#125;;</span><br><span class="line">map2=&#123;<span class="number">15</span>,<span class="number">25</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">25</span>&#125;;</span><br><span class="line">reducer-&gt;&#123;<span class="number">25</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>  即 max(0,20,10,15,25)=max(max(0,20,10),max(15,25))=25</p>
+<p>如下图：将combiner后的输出作为reducer的输入<br><img class="center" src="http://img.blog.csdn.net/20141201195417081?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<p>  但需要特别注意的是，并不是任何场景都是可以用combiner的，比如把上面的例子改成求平均值：<br>    combiner后的reducer的结果:       <code>avg(avg(0,20,10),avg(15,25))=avg(10,20)=15;</code><br>    没有进行combiner的reducer结果：  <code>avg(0,20,10,15,25)=14;</code></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="ci9twbanq0006nss69mqm38yb" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-briefly-introduce-each-major-module-of-hadoop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" class="article-date">
+  <time datetime="2014-12-03T09:29:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
+<h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），每个进程都有各自的角色，有的仅运行在单个服务器上，有的则运行在集群多个服务器上，它们包括：
+</code></pre><p>NameNode<br>Secondary NameNode<br>DataNode<br>JobTracker<br>TaskTracker<br>     Hadoop是一个分布式存储与计算系统，分布式存储部分是HDFS，分布式计算部分是MapReduce，它们都是遵循主/从（Master/Slave)结构，上面前3个组件属于分布式存储部分，后面2个组件属于分布式计算部分，下面详细介绍一下它们。</p>
+<h1 id="二、NameNode">二、NameNode</h1><pre><code><span class="comment">前面说了，NameNode属于HDFS</span><span class="string">,</span><span class="comment">它位于HDSF的主端，由它来指导DataNode执行底层I/O任务。NameNode相当于HDFS的书记员，它会跟踪文件如何被分割成文件块，而这些块又是被哪些节点存储，以及分布式文件系统整体运行状态是否正常等。</span>
+<span class="comment">运行NameNode会消耗大量内存和IO资源，因此为减轻机器负载，驻留NameNode的服务器通常不会存储用户数据或者进行MapReduce计算任务，这也就意味着一台NameNode服务器不会同时是DataNode或者TaskTracker服务器。</span>
+<span class="comment">不过NameNode的重要性也带来了一个负面影响</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">单点故障。对于其他任何守护进程，其驻留节点发生软件或硬件故障，Hadoop集群还可平稳运行，但是对于NameNode来说，则不可以。不过后面版本（2</span><span class="string">.</span><span class="comment">0以后的版本）已经解决此问题。</span>
+</code></pre><h1 id="三、DataNode">三、DataNode</h1><pre><code>集群中每一个从节点都会驻留一个DataNode的守护进程，用来将HDFS数据库写入或读取到本地文件系统中。当对HDFS文件进行读写时，文件会被分割成多个块，有NameNode告知客户端每个数据驻留在哪个DataNode，客户端直接与DataNode进行通信，DataNode还会与其它DataNode通信，复制这些块以实现冗余。
+</code></pre><p><img class="center" src="http://img.blog.csdn.net/20140718163718921?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
+<p>NameNode跟踪源数据，DataNode提供数据块的备份存储并持续不断地向NameNode报告，以保持元数据最新状态。</p>
+<h1 id="四、_Secondary_NameNode">四、 Secondary NameNode</h1><pre><code>SNN是一个监测HDFS的辅助进程，它只与NameNode进程通信，根据集群配置时间间隔获取HDFS元数据快照，我们知道HDFS有单点故障，SNN快照有助于减少宕机而导致的数据丢失风险，其一般也单独占一台服务器。
+</code></pre><h1 id="五、_JobTracker">五、 JobTracker</h1><pre><code>它是应用程序和Hadoop之间的纽带，监控MapReduce作业执行过程，一旦提交代码到集群，JobTracker就会确定执行计划，包括决定处理哪些文件、为不同的任务分配节点以及监控所有任务运行。每个集群只有一个JobTracker进程，一般运行在主节点。
+</code></pre><h1 id="六、_TaskTracker">六、 TaskTracker</h1><pre><code>TaskTracker管理各个任务在从节点上的执行情况。它负责执行有JobTracker分配的单项任务，虽然每个从节点只有一个TaskTracker运行，但每个TaskTracker可以生产多个JVM来并行地处理多<span class="keyword">Map</span>或<span class="keyword">Reduce</span>任务。TaskTracker的一个职责是不断的与JobTracker通信，即“心跳”。
+</code></pre><p>下面再来整体看一下整个Hadoop拓扑结构</p>
+<p>下面就是一个典型的Hadoop拓扑图，主动结构，NameNode和JobTracker位于主端，DataNode和TaskTracker位于从端。<br><img class="center" src="http://img.blog.csdn.net/20140718163814687?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
+<p>客户端向JobTracker发送Job任务，JobTracker会把Job切分，并分配不同的Map和Reduce任务到每一台机器。<br><img class="center" src="http://img.blog.csdn.net/20140718164110271?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="ci9twbanv0009nss6jysr93nl" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
+  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
+<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
+<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
+<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
+<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
+<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
+<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
+<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
+<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="ci9twbant0007nss6x8xwfqtj" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-to-quickly-grasp-mapreduce-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/" class="article-date">
+  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
+<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
+<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
+<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
+<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
+<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
+<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
+<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
+<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="ci9twbanu0008nss6g45mq6lk" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-today-is-my-birthday-and-my-country" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/06/26/today-is-my-birthday-and-my-country/" class="article-date">
+  <time datetime="2014-06-26T08:58:00.000Z" itemprop="datePublished">2014-06-26</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/06/26/today-is-my-birthday-and-my-country/">今天是我的生日,我的祖国</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>今天是我的生日，我的祖国。</p>
+<p>过去的一年里发生了很多，失去了至亲，换了房子搬了家，接来了娘，换了工作。</p>
+<p>青春的颜色逐渐褪去殆尽，余下的是生活的琐碎和每日回家的温暖。</p>
+<p>很难注名的去感谢谁谁谁，但希望你们一直再我身边，原谅着我的任性与偏执，理解着我的执着与坚持。</p>
+<p>许愿这么老土的事情就留给别人吧，有些事情要亲力亲为才有意义。</p>
+<p>如果一定要给过去的一岁填个横批。</p>
+<p>我希望是——不曾虚度。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="ci9twbano0005nss67hxp01xl" class="article-share-link">分享到</a>
       
 
       
@@ -160,7 +491,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="ci9tvozaa0008nps6usjl603x" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="ci9twbao4000dnss6zyfv17nq" class="article-share-link">分享到</a>
       
 
       
@@ -592,7 +923,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="ci9tvozad000dnps61mvn3r3n" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="ci9twbao6000inss6ctmqdrol" class="article-share-link">分享到</a>
       
 
       
@@ -641,7 +972,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="ci9tvozaf000hnps6kb9gpzpo" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="ci9twbao8000mnss6krk0ikzc" class="article-share-link">分享到</a>
       
 
       
@@ -893,7 +1224,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9tvozal000onps61fv9v99b" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9twbaod000snss6xsyocv9f" class="article-share-link">分享到</a>
       
 
       
@@ -1077,7 +1408,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="ci9tvozai000knps6uja8om7j" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="ci9twbaob000pnss640zhekh0" class="article-share-link">分享到</a>
       
 
       
@@ -1168,7 +1499,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="ci9tvoza20005nps6c2b7inzs" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="ci9twbanx000anss6mdvey1a1" class="article-share-link">分享到</a>
       
 
       
@@ -1224,7 +1555,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9tvoz910000nps6xdisybat" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9twband0000nss6lt5ut2n7" class="article-share-link">分享到</a>
       
 
       
@@ -1275,7 +1606,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1287,23 +1618,23 @@
       <ul>
         
           <li>
-            <a href="/2015/05/18/hello-world/">Hello World</a>
+            <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
           </li>
         
           <li>
-            <a href="/2014/05/20/nginx-monitoring-tool-ngxtop/">Nginx监控利器 Ngxtop</a>
+            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
           </li>
         
           <li>
-            <a href="/2014/05/15/linux-server-system-monitor-tool-collecting/">Linux 服务端系统监控工具大起底</a>
+            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
           </li>
         
           <li>
-            <a href="/2014/05/13/introduction-to-iotop/">IOTop 简介</a>
+            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
           </li>
         
           <li>
-            <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
+            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
           </li>
         
       </ul>

@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>[转] 理解MapReduce数据流 | 左手代码 右手年华</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="先理解MapReduce作业组成一个完整的MapReduce作业称作job，它包括三部分：
+1. 输入数据
+2. MapReduce程序
+3. 配置信息     
+  Hadoop工作时会将job分成若干个task：map任务和reduce任务  有两类节点控制作业执行的过程：JobTracker和TaskTracker
+- JobTracker：记录作业整体进度，对TaskTracker进行调度">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[转] 理解MapReduce数据流">
+<meta property="og:url" content="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/index.html">
+<meta property="og:site_name" content="左手代码 右手年华">
+<meta property="og:description" content="先理解MapReduce作业组成一个完整的MapReduce作业称作job，它包括三部分：
+1. 输入数据
+2. MapReduce程序
+3. 配置信息     
+  Hadoop工作时会将job分成若干个task：map任务和reduce任务  有两类节点控制作业执行的过程：JobTracker和TaskTracker
+- JobTracker：记录作业整体进度，对TaskTracker进行调度">
+<meta property="og:image" content="http://img.blog.csdn.net/20141201195323354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141201195403671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20141201195417081?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[转] 理解MapReduce数据流">
+<meta name="twitter:description" content="先理解MapReduce作业组成一个完整的MapReduce作业称作job，它包括三部分：
+1. 输入数据
+2. MapReduce程序
+3. 配置信息     
+  Hadoop工作时会将job分成若干个task：map任务和reduce任务  有两类节点控制作业执行的过程：JobTracker和TaskTracker
+- JobTracker：记录作业整体进度，对TaskTracker进行调度">
+  
+    <link rel="alternative" href="/atom.xml" title="左手代码 右手年华" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">左手代码 右手年华</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一个尘世迷途小码农的程序与人生</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="www.harrycode.com">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-to-understand-mapreduce-data-flow" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-understand-mapreduce-data-flow/" class="article-date">
+  <time datetime="2014-12-03T09:45:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      [转] 理解MapReduce数据流
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
+<span class="bullet">1. </span>输入数据
+<span class="bullet">2. </span>MapReduce程序
+<span class="bullet">3. </span>配置信息     
+</code></pre><p>  Hadoop工作时会将job分成若干个task：map任务和reduce任务<br>  有两类节点控制作业执行的过程：JobTracker和TaskTracker</p>
+<pre><code>-<span class="ruby"> <span class="constant">JobTracker</span>：记录作业整体进度，对<span class="constant">TaskTracker</span>进行调度
+</span>-<span class="ruby"> <span class="constant">TaskTracker</span>：执行task任务并向<span class="constant">JobTracker</span>汇报    </span>
+</code></pre><h1 id="大块数据先流入map">大块数据先流入map</h1><p>  Hadoop会将输入数据划分成等长的数据块，成为数据分片。Hadoop会为每个分片构建一个map任务。并行的处理分片时间肯定会少于处理整个大数据块的时间，但由于各个节点性能及作业运行情况的不同，每个分片的处理时间可能不一样，因此，把数据分片切分的更细可以得到更好的负载均衡。<br>  但另一方面，分片太小的话，管理分片和构建map任务的时间将会增多。因此，需要在hadoop分片大小和处理分片时间之间做一个权衡。对大多数作业来说，一个分片大小为64MB比较合适，其实，Hadoop的默认块大小也是64MB。<br>  我们上面看到了hadoop的数据块大小与最佳分片大小相同，这样的话，数据分片就不容易跨数据块存储，因此，一个map任务的输入分片便可以直接读取本地数据块，这就避免了再从其它节点读取分片数据，从而节省了网络开销。<br>  map的任务输出是写入到本地磁盘而非HDFS的。那么为什么呢？因为map任务输出的是中间结果，一旦map任务完成即会被删除，如果把它存入HDFS中并实现备份容错，未免有点大题小做。如果一个map任务失败，hadoop会再另一个节点重启map一个map任务。</p>
+<h1 id="数据从map流入reduce">数据从map流入reduce</h1><p>  而reduce任务并不具备数据本地化优势——单个reduce任务的输入通常来自所有mapper输出。一般排序过的map输出需要通过网络传输发送到运行reduce任务的节点，并在reduce端进行合并。reduce的输出通常需要存储到HDFS中以实现可靠存储。每个reduce输出HDFS块第一个复本会存储在本地节点，而其它复本则存储到其它节点，因此reduce输出也需要占用网络带宽。</p>
+<p>  如下图：一个reduce任务的MapReduce任务数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195323354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<p>  reduce任务的数量并非由输入数据大小决定，而是特别指定。如有多个reduce任务，则每个map任务都会对其输出进行分区（partition），因为每个reduce任务会建一个分区。相同键的记录都会被partition到同一个分区中。具体的分区方式由分区函数来控制，一般通过hash函数来分区。<br>  我们把map任务和reduce任务之间的数据流称为shuffle，因为每个reduce任务的输入都来自多个map任务，因此，这个阶段比较复杂，而shuffle过程中的参数调整对job运行的总时间是有非常大的影响的，一般MapReduce的调优主要就是调整shuffle阶段的参数。</p>
+<p>如下图：多个reduce任务的数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195403671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="如何减少从map到reduce的数据量">如何减少从map到reduce的数据量</h1><p>  集群上的可用带宽限制了MapReduce的作业数量，因为map的中间结果传递给reduce是要经过网络传输的，因此最重要的一点就是尽量减少map和reduce任务间传输的数据量。不过，Hadoop允许用户针对map任务的输出指定一个合并函数（combiner），用合并函数的输出作为reduce函数的输入，但需要注意，合并函数的运用不应该改变reduce函数的计算结果。</p>
+<p>  例如有两个map的输出分别是map1={0,20,10};map2={15,25}，求最大值，我们可以对先每个map的数据的数据进行合并，合并完成之后再传输给reducer：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">map1=&#123;<span class="number">0</span>,<span class="number">20</span>,<span class="number">10</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">20</span>&#125;;</span><br><span class="line">map2=&#123;<span class="number">15</span>,<span class="number">25</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">25</span>&#125;;</span><br><span class="line">reducer-&gt;&#123;<span class="number">25</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>  即 max(0,20,10,15,25)=max(max(0,20,10),max(15,25))=25</p>
+<p>如下图：将combiner后的输出作为reducer的输入<br><img class="center" src="http://img.blog.csdn.net/20141201195417081?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<p>  但需要特别注意的是，并不是任何场景都是可以用combiner的，比如把上面的例子改成求平均值：<br>    combiner后的reducer的结果:       <code>avg(avg(0,20,10),avg(15,25))=avg(10,20)=15;</code><br>    没有进行combiner的reducer结果：  <code>avg(0,20,10,15,25)=14;</code></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="ci9twbanq0006nss69mqm38yb" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          [转]  Hadoop工作机制
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">[转] 简要介绍Hadoop的各个主要模块</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+      
+      <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tool/">Tool</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Harry<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+
+<!-- 百度分享 start -->
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<! -- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+                processEscapes: true
+                    
+}
+  
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+                  
+}
+    
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Queue(function() {
+            var all = MathJax.Hub.getAllJax(), i;
+            for(i=0; i < all.length; i += 1) {
+                            all[i].SourceElement().parentNode.className += ' has-jax';
+                                    
+            }
+                
+        });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
