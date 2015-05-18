@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>[转]Linux下取代top的进程管理工具 htop | 左手代码 右手年华</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文转自  http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html
+htop 简介This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and require">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[转]Linux下取代top的进程管理工具 htop">
+<meta property="og:url" content="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/index.html">
+<meta property="og:site_name" content="左手代码 右手年华">
+<meta property="og:description" content="本文转自  http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html
+htop 简介This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and require">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/EO2b6zTCT8eEv3oi8sRi_12224048-e798f9f6de94490885989b39970a8270.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/bbtswYdaQsO6nxRL7Gea_12224050-75be8605449248f999bde75c6697522f.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/YPmTpe7bQBOnHyFrEaQE_12224052-570be85130854977aa4bc9f796fb0eb1.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/AxJXcJalQGal98aIFO3i_12224053-eca0d56c388240e495c0b3226ed45472.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9v3VH9ClSouJgF6vH0X3_12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rk8VkpY2RI6pM4Qodmoe_12224056-2f6114304f37492095545a4ad6a68986.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/hxFqEnM7RJO7KmynsnHu_12224059-a5ece1fdc31e420da897d01167e97550.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/tpHBqvDqSCyZsmVipLSy_12224101-da92613d580148e7a74b5bde960bbbb8.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/N4ST8R9wSh2X2l5EQ6Tt_12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/1ltROwUtTz6WPjCs0PrQ_12224105-44b98e747b494234929f8af4e3eeb5e4.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/qShoFiiTICm4u6C9kpWg_12224111-2f34d96612bd420ebcf9471c7339fc63.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9cuJq5SGQfm4Jt87QcnB_12224113-0e383c20b0e74196a393586b72a67ba1.jpg">
+<meta property="og:image" content="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rj7joHcVQLai0GctiCHa_12224116-5b7ca92b8c644464a65a11204e346f49.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[转]Linux下取代top的进程管理工具 htop">
+<meta name="twitter:description" content="本文转自  http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html
+htop 简介This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and require">
+  
+    <link rel="alternative" href="/atom.xml" title="左手代码 右手年华" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">左手代码 右手年华</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一个尘世迷途小码农的程序与人生</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="www.harrycode.com">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-change-replacing-the-top-process-management-tools-under-linux-htop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" class="article-date">
+  <time datetime="2014-05-12T13:14:00.000Z" itemprop="datePublished">2014-05-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      [转]Linux下取代top的进程管理工具 htop
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+<h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
+<p><strong>Comparison between htop and top</strong></p>
+<ul>
+<li>In ‘htop’ you can scroll the list vertically and horizontally to see all processes and complete command lines.</li>
+<li>In ‘top’ you are subject to a delay for each unassigned key you press (especially annoying when multi-key escape sequences are triggered by accident).</li>
+<li>‘htop’ starts faster (‘top’ seems to collect data for a while before displaying anything).</li>
+<li>In ‘htop’ you don’t need to type the process number to kill a process, in ‘top’ you do.</li>
+<li>In ‘htop’ you don’t need to type the process number or the priority value to renice a process, in ‘top’ you do.</li>
+<li>‘htop’ supports mouse operation, ‘top’ doesn’t</li>
+<li>‘top’ is older, hence, more used and tested.</li>
+</ul>
+<p>htop 是Linux系统中的一个互动的进程查看器，一个文本模式的应用程序(在控制台或者X终端中)，需要ncurses。<br>与Linux传统的top相比，htop更加人性化。它可让用户交互式操作，支持颜色主题，可横向或纵向滚动浏览进程列表，并支持鼠标操作。</p>
+<p><strong>与top相比，htop有以下优点：</strong></p>
+<ul>
+<li>可以横向或纵向滚动浏览进程列表，以便看到所有的进程和完整的命令行。</li>
+<li>在启动上，比top 更快。</li>
+<li>杀进程时不需要输入进程号。</li>
+<li>htop 支持鼠标操作。</li>
+<li>top 已经很老了。</li>
+</ul>
+<p>htop 官网：<a href="http://htop.sourceforge.net/" target="_blank" rel="external">http://htop.sourceforge.net/</a></p>
+<h1 id="htop_安装">htop 安装</h1><p><strong>a. 源码包安装</strong><br><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># tar zxvf htop-1.0.2.tar.gz</span></span><br><span class="line"><span class="preprocessor"># cd htop-1.0.2</span></span><br><span class="line"><span class="preprocessor"># ./configure</span></span><br><span class="line"><span class="preprocessor"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure></p>
+<p>若出现错误：<br>configure: error: You may want to use —disable-unicode or install libncursesw.<br>则需安装 ncurses-devel<br><code>yum install ncurses-devel</code></p>
+<p><strong>b. RHEL/CentOS 安装</strong></p>
+<p>可以通过 yum install htop 来安装它，但前提是要添加epel 的yum源，具体请参考 CentOS yum 源的配置与使用。<br><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt</span></span><br><span class="line"><span class="preprocessor"># wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm</span></span><br><span class="line"><span class="preprocessor"># rpm -K rpmforge-release-0.5.3-1.el6.rf.*.rpm</span></span><br><span class="line"><span class="preprocessor"># rpm -i rpmforge-release-0.5.3-1.el6.rf.*.rpm</span></span><br><span class="line"><span class="preprocessor"># yum install htop</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="htop_参数">htop 参数</h1><p>键入htop 命令，打开htop。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/EO2b6zTCT8eEv3oi8sRi_12224048-e798f9f6de94490885989b39970a8270.jpg" alt="12224048-e798f9f6de94490885989b39970a8270.jpg"></p>
+<p>上面左上角显示CPU、内存、交换区的使用情况，右边显示任务、负载、开机时间，下面就是进程实时状况。<br>下面是 F1~F10 的功能和对应的字母快捷键。</p>
+<table>
+<thead>
+<tr>
+<th>Shortcut Key</th>
+<th>Function Key</th>
+<th>Description</th>
+<th>中文说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>h, ?</td>
+<td>F1</td>
+<td>Invoke htop Help</td>
+<td>查看htop使用说明</td>
+</tr>
+<tr>
+<td>S</td>
+<td>F2</td>
+<td>Htop Setup Menu</td>
+<td>htop 设定</td>
+</tr>
+<tr>
+<td>/</td>
+<td>F3</td>
+<td>Search for a Process</td>
+<td>搜索进程</td>
+</tr>
+<tr>
+<td>\</td>
+<td>F4</td>
+<td>Incremental process filtering</td>
+<td>增量进程过滤器</td>
+</tr>
+<tr>
+<td>t</td>
+<td>F5</td>
+<td>Tree View</td>
+<td>显示树形结构</td>
+</tr>
+<tr>
+<td>&lt;, &gt;</td>
+<td>F6</td>
+<td>Sort by a column</td>
+<td>选择排序方式</td>
+</tr>
+<tr>
+<td>[</td>
+<td>F7</td>
+<td>Nice - (change priority)</td>
+<td>可减少nice值，这样就可以提高对应进程的优先级</td>
+</tr>
+<tr>
+<td>]</td>
+<td>F8</td>
+<td>Nice + (change priority)</td>
+<td>可增加nice值，这样就可以降低对应进程的优先级</td>
+</tr>
+<tr>
+<td>k</td>
+<td>F9</td>
+<td>Kill a Process</td>
+<td>可对进程传递信号</td>
+</tr>
+<tr>
+<td>q</td>
+<td>F10</td>
+<td>Quit htop</td>
+<td>结束htop</td>
+</tr>
+</tbody>
+</table>
+<p><strong>命令行选项（COMMAND-LINE OPTIONS）</strong></p>
+<p>-C —no-color　　　　 　　 使用一个单色的配色方案<br>-d —delay=DELAY　　　　 设置延迟更新时间，单位秒<br>-h —help　　　　　　  　　 显示htop 命令帮助信息<br>-u —user=USERNAME　　  只显示一个给定的用户的过程<br>-p —pid=PID,PID…　　　    只显示给定的PIDs<br>-s —sort-key COLUMN　    依此列来排序<br>-v –version　　　　　　　   显示版本信息</p>
+<p><strong>交互式命令（INTERACTIVE COMMANDS）</strong></p>
+<table>
+<thead>
+<tr>
+<th>上下键或PgUP, PgDn</th>
+<th>选定想要的进程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>左右键或Home, End</td>
+<td>移动字段，当然也可以直接用鼠标选定进程；</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>标记/取消标记一个进程。命令可以作用于多个进程，例如 “kill”，将应用于所有已标记的进程</td>
+</tr>
+<tr>
+<td>U</td>
+<td>取消标记所有进程</td>
+</tr>
+<tr>
+<td>s</td>
+<td>选择某一进程，按s:用strace追踪进程的系统调用</td>
+</tr>
+<tr>
+<td>l</td>
+<td>显示进程打开的文件: 如果安装了lsof，按此键可以显示进程所打开的文件</td>
+</tr>
+<tr>
+<td>I</td>
+<td>倒转排序顺序，如果排序是正序的，则反转成倒序的，反之亦然</td>
+</tr>
+<tr>
+<td>+, -</td>
+<td>When in tree view mode, expand or collapse subtree. When a subtree is collapsed a “+” sign shows to the left of the process name.</td>
+</tr>
+<tr>
+<td>a (在有多处理器的机器上)</td>
+<td>设置 CPU affinity: 标记一个进程允许使用哪些CPU</td>
+</tr>
+<tr>
+<td>u</td>
+<td>显示特定用户进程</td>
+</tr>
+<tr>
+<td>M</td>
+<td>按Memory 使用排序</td>
+</tr>
+<tr>
+<td>P</td>
+<td>按CPU 使用排序</td>
+</tr>
+<tr>
+<td>T</td>
+<td>按Time+ 使用排序</td>
+</tr>
+<tr>
+<td>F</td>
+<td>跟踪进程: 如果排序顺序引起选定的进程在列表上到处移动，让选定条跟随该进程。这对监视一个进程非常有用：通过这种方式，你可以让一个进程在屏幕上一直可见。使用方向键会停止该功能。</td>
+</tr>
+<tr>
+<td>K</td>
+<td>显示/隐藏内核线程</td>
+</tr>
+<tr>
+<td>H</td>
+<td>显示/隐藏用户线程</td>
+</tr>
+<tr>
+<td>Ctrl-L</td>
+<td>刷新</td>
+</tr>
+<tr>
+<td>Numbers</td>
+<td>PID 查找: 输入PID，光标将移动到相应的进程上</td>
+</tr>
+</tbody>
+</table>
+<h1 id="htop_使用">htop 使用</h1><h2 id="显示自带帮助">显示自带帮助</h2><p>鼠标点击Help或者按F1 显示自带帮助</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/bbtswYdaQsO6nxRL7Gea_12224050-75be8605449248f999bde75c6697522f.jpg" alt="12224050-75be8605449248f999bde75c6697522f.jpg"></p>
+<h2 id="htop_设定">htop 设定</h2><p>鼠标点击Setup或者按下F2 之后进入htop 设定的页面，Meters 页面设定了顶端的一些信息显示，顶端的显示又分为左右两侧，到底能显示些什么可以在最右侧那栏新增，要新增到上方左侧（F5）或是右侧（F6）都可以，这就是个人设定的范围了。这里多加了一个时钟。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/YPmTpe7bQBOnHyFrEaQE_12224052-570be85130854977aa4bc9f796fb0eb1.jpg" alt="12224052-570be85130854977aa4bc9f796fb0eb1.jpg"></p>
+<p>上方左右两栏的显示方式分为Text Bar Graph Led 四种，下图我就把 cpu memory swap 改成文本模式显示，然后右栏的改成Bar 显示，clock 用LED方式显示。数据显示都差不多，只是这样看有点不习惯了。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/AxJXcJalQGal98aIFO3i_12224053-eca0d56c388240e495c0b3226ed45472.jpg" alt="12224053-eca0d56c388240e495c0b3226ed45472.jpg"></p>
+<p>关于Display options 的设定，可要根据管理者自己的需要来设定。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9v3VH9ClSouJgF6vH0X3_12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg" alt="12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg"></p>
+<p>颜色选择，除了基本的颜色显示之外，htop 还提供了换面板的功能，其实也只是改变一些色彩显示的设定，虽然说不能自定义到细部的颜色显示，但是至少提供了几种风格可以选择。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rk8VkpY2RI6pM4Qodmoe_12224056-2f6114304f37492095545a4ad6a68986.jpg" alt="12224056-2f6114304f37492095545a4ad6a68986.jpg"></p>
+<p>最后一项的设定是调整 Columns 的显示，就是在一般htop 指令进来希望可以看到的什么样的数据及信息，字段的调整可以在这边做个人化的设定，一般使用系统默认值就好了。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/hxFqEnM7RJO7KmynsnHu_12224059-a5ece1fdc31e420da897d01167e97550.jpg" alt="12224059-a5ece1fdc31e420da897d01167e97550.jpg"></p>
+<h2 id="搜索进程">搜索进程</h2><p>鼠标点击Search 或者按下F3 或者输入”/“， 输入进程名进行搜索，例如搜索ssh</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/tpHBqvDqSCyZsmVipLSy_12224101-da92613d580148e7a74b5bde960bbbb8.jpg" alt="12224101-da92613d580148e7a74b5bde960bbbb8.jpg"></p>
+<h2 id="过滤器">过滤器</h2><p>按下F4，进入过滤器，相当于关键字搜索，不区分大小写，例如过滤dev</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/N4ST8R9wSh2X2l5EQ6Tt_12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg" alt="12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg"></p>
+<h2 id="显示树形结构">显示树形结构</h2><p>输入”t”或按下F5，显示树形结构，意思跟pstree 差不多，能看到所有程序树状执行的结构，这对于系统管理来说相当方便，理清程序是如何产生的，当然树状结构的浏览也可以依照其他数据来排序。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/1ltROwUtTz6WPjCs0PrQ_12224105-44b98e747b494234929f8af4e3eeb5e4.jpg" alt="12224105-44b98e747b494234929f8af4e3eeb5e4.jpg"></p>
+<h2 id="选择排序方式">选择排序方式</h2><p>按下F6 就可以选择依照什么来排序，最常排序的内容就是cpu 和memory 吧！</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/qShoFiiTICm4u6C9kpWg_12224111-2f34d96612bd420ebcf9471c7339fc63.jpg" alt="12224111-2f34d96612bd420ebcf9471c7339fc63.jpg"></p>
+<h2 id="操作进程">操作进程</h2><p>F7、F8分别对应nice-和nice+，F9对应kill给进程发信号，选好信号回车就OK了</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9cuJq5SGQfm4Jt87QcnB_12224113-0e383c20b0e74196a393586b72a67ba1.jpg" alt="12224113-0e383c20b0e74196a393586b72a67ba1.jpg"></p>
+<h2 id="显示某个用户的进程，在左侧选择用户">显示某个用户的进程，在左侧选择用户</h2><p>输入”u”，在左侧选择用户</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rj7joHcVQLai0GctiCHa_12224116-5b7ca92b8c644464a65a11204e346f49.jpg" alt="12224116-5b7ca92b8c644464a65a11204e346f49.jpg"></p>
+<h1 id="Alias_top">Alias top</h1><p>也许你用惯了top，我们也可以用top来打开htop。</p>
+<p>编辑/root/.bashrc文件，添加如下代码<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /usr/<span class="built_in">local</span>/bin/htop ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">alias</span> top=’/usr/<span class="built_in">local</span>/bin/htop’</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure></p>
+<p><code>source /root/.bashrc</code></p>
+<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9tv9jfc000c1es6hd5cyhrz" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/05/17/hello-world/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Hello World
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Mysqlnd_ms的安装配置与使用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+      
+      <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Linux/" style="font-size: NaNpx;">Linux</a><a href="/tags/Tools/" style="font-size: NaNpx;">Tools</a><a href="/tags/git/" style="font-size: NaNpx;">git</a><a href="/tags/php/" style="font-size: NaNpx;">php</a><a href="/tags/vim/" style="font-size: NaNpx;">vim</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/05/17/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/">简单几步搭建超酷的Vim开发环境</a>
+          </li>
+        
+          <li>
+            <a href="/2014/04/29/初识GitBook/">初识GitBook</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Harry<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+
+<!-- 百度分享 start -->
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<! -- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+                processEscapes: true
+                    
+}
+  
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+                  
+}
+    
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Queue(function() {
+            var all = MathJax.Hub.getAllJax(), i;
+            for(i=0; i < all.length; i += 1) {
+                            all[i].SourceElement().parentNode.className += ' has-jax';
+                                    
+            }
+                
+        });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>

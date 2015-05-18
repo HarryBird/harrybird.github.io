@@ -108,12 +108,448 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/05/17/hello-world/" data-id="ci9tv2wgw0008tss670kgsm1b" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/05/17/hello-world/" data-id="ci9tv9jfa000b1es6h5ktikjq" class="article-share-link">分享到</a>
       
 
       
 
       
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-change-replacing-the-top-process-management-tools-under-linux-htop" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" class="article-date">
+  <time datetime="2014-05-12T13:14:00.000Z" itemprop="datePublished">2014-05-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+<h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
+<p><strong>Comparison between htop and top</strong></p>
+<ul>
+<li>In ‘htop’ you can scroll the list vertically and horizontally to see all processes and complete command lines.</li>
+<li>In ‘top’ you are subject to a delay for each unassigned key you press (especially annoying when multi-key escape sequences are triggered by accident).</li>
+<li>‘htop’ starts faster (‘top’ seems to collect data for a while before displaying anything).</li>
+<li>In ‘htop’ you don’t need to type the process number to kill a process, in ‘top’ you do.</li>
+<li>In ‘htop’ you don’t need to type the process number or the priority value to renice a process, in ‘top’ you do.</li>
+<li>‘htop’ supports mouse operation, ‘top’ doesn’t</li>
+<li>‘top’ is older, hence, more used and tested.</li>
+</ul>
+<p>htop 是Linux系统中的一个互动的进程查看器，一个文本模式的应用程序(在控制台或者X终端中)，需要ncurses。<br>与Linux传统的top相比，htop更加人性化。它可让用户交互式操作，支持颜色主题，可横向或纵向滚动浏览进程列表，并支持鼠标操作。</p>
+<p><strong>与top相比，htop有以下优点：</strong></p>
+<ul>
+<li>可以横向或纵向滚动浏览进程列表，以便看到所有的进程和完整的命令行。</li>
+<li>在启动上，比top 更快。</li>
+<li>杀进程时不需要输入进程号。</li>
+<li>htop 支持鼠标操作。</li>
+<li>top 已经很老了。</li>
+</ul>
+<p>htop 官网：<a href="http://htop.sourceforge.net/" target="_blank" rel="external">http://htop.sourceforge.net/</a></p>
+<h1 id="htop_安装">htop 安装</h1><p><strong>a. 源码包安装</strong><br><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># tar zxvf htop-1.0.2.tar.gz</span></span><br><span class="line"><span class="preprocessor"># cd htop-1.0.2</span></span><br><span class="line"><span class="preprocessor"># ./configure</span></span><br><span class="line"><span class="preprocessor"># make &amp;&amp; make install</span></span><br></pre></td></tr></table></figure></p>
+<p>若出现错误：<br>configure: error: You may want to use —disable-unicode or install libncursesw.<br>则需安装 ncurses-devel<br><code>yum install ncurses-devel</code></p>
+<p><strong>b. RHEL/CentOS 安装</strong></p>
+<p>可以通过 yum install htop 来安装它，但前提是要添加epel 的yum源，具体请参考 CentOS yum 源的配置与使用。<br><figure class="highlight vala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor"># rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt</span></span><br><span class="line"><span class="preprocessor"># wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm</span></span><br><span class="line"><span class="preprocessor"># rpm -K rpmforge-release-0.5.3-1.el6.rf.*.rpm</span></span><br><span class="line"><span class="preprocessor"># rpm -i rpmforge-release-0.5.3-1.el6.rf.*.rpm</span></span><br><span class="line"><span class="preprocessor"># yum install htop</span></span><br></pre></td></tr></table></figure></p>
+<h1 id="htop_参数">htop 参数</h1><p>键入htop 命令，打开htop。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/EO2b6zTCT8eEv3oi8sRi_12224048-e798f9f6de94490885989b39970a8270.jpg" alt="12224048-e798f9f6de94490885989b39970a8270.jpg"></p>
+<p>上面左上角显示CPU、内存、交换区的使用情况，右边显示任务、负载、开机时间，下面就是进程实时状况。<br>下面是 F1~F10 的功能和对应的字母快捷键。</p>
+<table>
+<thead>
+<tr>
+<th>Shortcut Key</th>
+<th>Function Key</th>
+<th>Description</th>
+<th>中文说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>h, ?</td>
+<td>F1</td>
+<td>Invoke htop Help</td>
+<td>查看htop使用说明</td>
+</tr>
+<tr>
+<td>S</td>
+<td>F2</td>
+<td>Htop Setup Menu</td>
+<td>htop 设定</td>
+</tr>
+<tr>
+<td>/</td>
+<td>F3</td>
+<td>Search for a Process</td>
+<td>搜索进程</td>
+</tr>
+<tr>
+<td>\</td>
+<td>F4</td>
+<td>Incremental process filtering</td>
+<td>增量进程过滤器</td>
+</tr>
+<tr>
+<td>t</td>
+<td>F5</td>
+<td>Tree View</td>
+<td>显示树形结构</td>
+</tr>
+<tr>
+<td>&lt;, &gt;</td>
+<td>F6</td>
+<td>Sort by a column</td>
+<td>选择排序方式</td>
+</tr>
+<tr>
+<td>[</td>
+<td>F7</td>
+<td>Nice - (change priority)</td>
+<td>可减少nice值，这样就可以提高对应进程的优先级</td>
+</tr>
+<tr>
+<td>]</td>
+<td>F8</td>
+<td>Nice + (change priority)</td>
+<td>可增加nice值，这样就可以降低对应进程的优先级</td>
+</tr>
+<tr>
+<td>k</td>
+<td>F9</td>
+<td>Kill a Process</td>
+<td>可对进程传递信号</td>
+</tr>
+<tr>
+<td>q</td>
+<td>F10</td>
+<td>Quit htop</td>
+<td>结束htop</td>
+</tr>
+</tbody>
+</table>
+<p><strong>命令行选项（COMMAND-LINE OPTIONS）</strong></p>
+<p>-C —no-color　　　　 　　 使用一个单色的配色方案<br>-d —delay=DELAY　　　　 设置延迟更新时间，单位秒<br>-h —help　　　　　　  　　 显示htop 命令帮助信息<br>-u —user=USERNAME　　  只显示一个给定的用户的过程<br>-p —pid=PID,PID…　　　    只显示给定的PIDs<br>-s —sort-key COLUMN　    依此列来排序<br>-v –version　　　　　　　   显示版本信息</p>
+<p><strong>交互式命令（INTERACTIVE COMMANDS）</strong></p>
+<table>
+<thead>
+<tr>
+<th>上下键或PgUP, PgDn</th>
+<th>选定想要的进程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>左右键或Home, End</td>
+<td>移动字段，当然也可以直接用鼠标选定进程；</td>
+</tr>
+<tr>
+<td>Space</td>
+<td>标记/取消标记一个进程。命令可以作用于多个进程，例如 “kill”，将应用于所有已标记的进程</td>
+</tr>
+<tr>
+<td>U</td>
+<td>取消标记所有进程</td>
+</tr>
+<tr>
+<td>s</td>
+<td>选择某一进程，按s:用strace追踪进程的系统调用</td>
+</tr>
+<tr>
+<td>l</td>
+<td>显示进程打开的文件: 如果安装了lsof，按此键可以显示进程所打开的文件</td>
+</tr>
+<tr>
+<td>I</td>
+<td>倒转排序顺序，如果排序是正序的，则反转成倒序的，反之亦然</td>
+</tr>
+<tr>
+<td>+, -</td>
+<td>When in tree view mode, expand or collapse subtree. When a subtree is collapsed a “+” sign shows to the left of the process name.</td>
+</tr>
+<tr>
+<td>a (在有多处理器的机器上)</td>
+<td>设置 CPU affinity: 标记一个进程允许使用哪些CPU</td>
+</tr>
+<tr>
+<td>u</td>
+<td>显示特定用户进程</td>
+</tr>
+<tr>
+<td>M</td>
+<td>按Memory 使用排序</td>
+</tr>
+<tr>
+<td>P</td>
+<td>按CPU 使用排序</td>
+</tr>
+<tr>
+<td>T</td>
+<td>按Time+ 使用排序</td>
+</tr>
+<tr>
+<td>F</td>
+<td>跟踪进程: 如果排序顺序引起选定的进程在列表上到处移动，让选定条跟随该进程。这对监视一个进程非常有用：通过这种方式，你可以让一个进程在屏幕上一直可见。使用方向键会停止该功能。</td>
+</tr>
+<tr>
+<td>K</td>
+<td>显示/隐藏内核线程</td>
+</tr>
+<tr>
+<td>H</td>
+<td>显示/隐藏用户线程</td>
+</tr>
+<tr>
+<td>Ctrl-L</td>
+<td>刷新</td>
+</tr>
+<tr>
+<td>Numbers</td>
+<td>PID 查找: 输入PID，光标将移动到相应的进程上</td>
+</tr>
+</tbody>
+</table>
+<h1 id="htop_使用">htop 使用</h1><h2 id="显示自带帮助">显示自带帮助</h2><p>鼠标点击Help或者按F1 显示自带帮助</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/bbtswYdaQsO6nxRL7Gea_12224050-75be8605449248f999bde75c6697522f.jpg" alt="12224050-75be8605449248f999bde75c6697522f.jpg"></p>
+<h2 id="htop_设定">htop 设定</h2><p>鼠标点击Setup或者按下F2 之后进入htop 设定的页面，Meters 页面设定了顶端的一些信息显示，顶端的显示又分为左右两侧，到底能显示些什么可以在最右侧那栏新增，要新增到上方左侧（F5）或是右侧（F6）都可以，这就是个人设定的范围了。这里多加了一个时钟。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/YPmTpe7bQBOnHyFrEaQE_12224052-570be85130854977aa4bc9f796fb0eb1.jpg" alt="12224052-570be85130854977aa4bc9f796fb0eb1.jpg"></p>
+<p>上方左右两栏的显示方式分为Text Bar Graph Led 四种，下图我就把 cpu memory swap 改成文本模式显示，然后右栏的改成Bar 显示，clock 用LED方式显示。数据显示都差不多，只是这样看有点不习惯了。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/AxJXcJalQGal98aIFO3i_12224053-eca0d56c388240e495c0b3226ed45472.jpg" alt="12224053-eca0d56c388240e495c0b3226ed45472.jpg"></p>
+<p>关于Display options 的设定，可要根据管理者自己的需要来设定。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9v3VH9ClSouJgF6vH0X3_12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg" alt="12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg"></p>
+<p>颜色选择，除了基本的颜色显示之外，htop 还提供了换面板的功能，其实也只是改变一些色彩显示的设定，虽然说不能自定义到细部的颜色显示，但是至少提供了几种风格可以选择。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rk8VkpY2RI6pM4Qodmoe_12224056-2f6114304f37492095545a4ad6a68986.jpg" alt="12224056-2f6114304f37492095545a4ad6a68986.jpg"></p>
+<p>最后一项的设定是调整 Columns 的显示，就是在一般htop 指令进来希望可以看到的什么样的数据及信息，字段的调整可以在这边做个人化的设定，一般使用系统默认值就好了。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/hxFqEnM7RJO7KmynsnHu_12224059-a5ece1fdc31e420da897d01167e97550.jpg" alt="12224059-a5ece1fdc31e420da897d01167e97550.jpg"></p>
+<h2 id="搜索进程">搜索进程</h2><p>鼠标点击Search 或者按下F3 或者输入”/“， 输入进程名进行搜索，例如搜索ssh</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/tpHBqvDqSCyZsmVipLSy_12224101-da92613d580148e7a74b5bde960bbbb8.jpg" alt="12224101-da92613d580148e7a74b5bde960bbbb8.jpg"></p>
+<h2 id="过滤器">过滤器</h2><p>按下F4，进入过滤器，相当于关键字搜索，不区分大小写，例如过滤dev</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/N4ST8R9wSh2X2l5EQ6Tt_12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg" alt="12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg"></p>
+<h2 id="显示树形结构">显示树形结构</h2><p>输入”t”或按下F5，显示树形结构，意思跟pstree 差不多，能看到所有程序树状执行的结构，这对于系统管理来说相当方便，理清程序是如何产生的，当然树状结构的浏览也可以依照其他数据来排序。</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/1ltROwUtTz6WPjCs0PrQ_12224105-44b98e747b494234929f8af4e3eeb5e4.jpg" alt="12224105-44b98e747b494234929f8af4e3eeb5e4.jpg"></p>
+<h2 id="选择排序方式">选择排序方式</h2><p>按下F6 就可以选择依照什么来排序，最常排序的内容就是cpu 和memory 吧！</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/qShoFiiTICm4u6C9kpWg_12224111-2f34d96612bd420ebcf9471c7339fc63.jpg" alt="12224111-2f34d96612bd420ebcf9471c7339fc63.jpg"></p>
+<h2 id="操作进程">操作进程</h2><p>F7、F8分别对应nice-和nice+，F9对应kill给进程发信号，选好信号回车就OK了</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9cuJq5SGQfm4Jt87QcnB_12224113-0e383c20b0e74196a393586b72a67ba1.jpg" alt="12224113-0e383c20b0e74196a393586b72a67ba1.jpg"></p>
+<h2 id="显示某个用户的进程，在左侧选择用户">显示某个用户的进程，在左侧选择用户</h2><p>输入”u”，在左侧选择用户</p>
+<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rj7joHcVQLai0GctiCHa_12224116-5b7ca92b8c644464a65a11204e346f49.jpg" alt="12224116-5b7ca92b8c644464a65a11204e346f49.jpg"></p>
+<h1 id="Alias_top">Alias top</h1><p>也许你用惯了top，我们也可以用top来打开htop。</p>
+<p>编辑/root/.bashrc文件，添加如下代码<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ <span class="operator">-f</span> /usr/<span class="built_in">local</span>/bin/htop ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">alias</span> top=’/usr/<span class="built_in">local</span>/bin/htop’</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure></p>
+<p><code>source /root/.bashrc</code></p>
+<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="ci9tv9jfc000c1es6hd5cyhrz" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linux/">Linux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Tools/">Tools</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-installation-configuration-and-use-of-mysqlnd-ms" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" class="article-date">
+  <time datetime="2014-05-10T02:21:00.000Z" itemprop="datePublished">2014-05-10</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
+<p><strong>Mysqlnd_ms</strong></p>
+<p>优点：</p>
+<pre><code><span class="bullet">1. </span>PHP官方推荐的扩展，PECL安装方便
+</code></pre><ol>
+<li>基于PHP扩展对SQL进行解析，进而分离请求，对业务层代码改动小，性能损失也小</li>
+<li>扩展本身已经在社区打滚有些年头了，较稳定，口碑好</li>
+<li>入门级文档清晰，易配置易上手</li>
+<li>有连接池</li>
+<li><p>功能强大，支持SQL Hint， 事务，最终／Session/强一致性等场景</p>
+<p>缺点：</p>
+<ol>
+<li>基于扩展的封装，扩展的实现对上层透明。扩展本身缺乏debug工具， 所以真遇到问题可能比较难查</li>
+</ol>
+</li>
+<li>Failover 策略较基础</li>
+<li>缺乏中文文档</li>
+<li><p>强一致性的场景会有些坑</p>
+<p><strong>Mysql-Proxy</strong></p>
+<p>优点:</p>
+<ol>
+<li>来自Mysql官方的解决方案</li>
+</ol>
+</li>
+<li>性能好，资源占用少</li>
+<li>有连接池</li>
+<li>配置简单／文档众多</li>
+<li><p>应有广泛，口碑好</p>
+<p>缺点:</p>
+<ol>
+<li>需要第三方脚本(Lua)支持</li>
+</ol>
+</li>
+</ol>
+<p>鉴于”对业务层代码改动要小”这个需求，以及笔者对Mysql-Proxy 使用较少，所以在简单比较之后，果断选择了Mysqlnd_ms。</p>
+<h1 id="安装">安装</h1><figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">1. </span>wget http://pecl.php.net/get/mysqlnd_ms-1.5.2.tgz </span><br><span class="line"><span class="bullet">2. </span>tar xzvf mysqlnd_ms-1.5.2.tgz</span><br><span class="line"><span class="bullet">3. </span>cd mysqlnd_ms-1.5.2</span><br><span class="line"><span class="bullet">4. </span>/path/to/phpize</span><br><span class="line"><span class="bullet">5. </span>./configure --enable-mysqlnd-ms --with-php-config=/usr/local/php/bin/php-config</span><br><span class="line"><span class="bullet">6. </span>make</span><br><span class="line"><span class="bullet">7. </span>make install</span><br><span class="line"><span class="bullet">8. </span>sudo /etc/init.d/php-fpm restart</span><br><span class="line"><span class="bullet">9. </span>/path/to/php -m | grep mysql #看到"mysqlnd_ms"扩展表示安装成功</span><br></pre></td></tr></table></figure>
+<h1 id="配置">配置</h1><h2 id="1-_创建配置文件_/usr/local/etc/php/php-d/mysqlnd_ms-ini">1. 创建配置文件 /usr/local/etc/php/php.d/mysqlnd_ms.ini</h2><figure class="highlight nix"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">extension=</span><span class="string">"/usr/local/php-5.5.9/lib/php/extensions/no-debug-non-zts-20121212/mysqlnd_ms.so"</span> </span><br><span class="line">; 启动mysqlnd_ms</span><br><span class="line">mysqlnd_ms.<span class="variable">enable=</span><span class="number">1</span></span><br><span class="line">; 加载的主从配置文件</span><br><span class="line">mysqlnd_ms.<span class="variable">config_file=</span><span class="string">"/usr/local/etc/php/php.d/mysqlnd_ms.conf"</span> </span><br><span class="line">; 是否禁用读写分离</span><br><span class="line">mysqlnd_ms.<span class="variable">disable_rw_split=</span><span class="number">0</span></span><br><span class="line">; mysqlnd 日志输出格式(线上环境可选)</span><br><span class="line">mysqlnd.<span class="variable">debug=</span><span class="string">"d:t:x:A,/tmp/mysqlnd.trace"</span> </span><br><span class="line">;<span class="variable">SERVER_QUERY_NO_GOOD_INDEX_USED=</span><span class="number">16</span></span><br><span class="line">;<span class="variable">SERVER_QUERY_NO_INDEX_USED=</span><span class="number">32</span></span><br><span class="line">;<span class="variable">SERVER_QUERY_WAS_SLOW=</span><span class="number">1024</span></span><br><span class="line">; 日志掩码</span><br><span class="line">mysqlnd.<span class="variable">log_mask=</span><span class="number">1072</span></span><br><span class="line"></span><br><span class="line">; 网络读缓存大小</span><br><span class="line">; <span class="number">64</span>K</span><br><span class="line">mysqlnd.<span class="variable">net_read_buffer_size=</span><span class="number">65536</span></span><br><span class="line">; 网络读等待时间</span><br><span class="line">mysqlnd.<span class="variable">net_read_timeout=</span><span class="number">600</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-_创建主从策略文件_/usr/local/etc/php/php-d/mysqlnd_ms-conf_(位置由mysqlnd_ms-ini指定)">2. 创建主从策略文件 /usr/local/etc/php/php.d/mysqlnd_ms.conf (位置由mysqlnd_ms.ini指定)</h2><p>Demo 主从写成了同一个库<br><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="collection">&#123;</span><br><span class="line">    <span class="string">"master-slave"</span>: <span class="collection">&#123; // section 对应一组服务</span><br><span class="line">        <span class="string">"master"</span>: <span class="collection">&#123; // 主库配置<span class="list">(默认主库只包含一项)</span></span><br><span class="line">            <span class="string">"master_0"</span>: <span class="collection">&#123;</span><br><span class="line">                <span class="string">"host"</span>: <span class="string">"192.168.100.100"</span>,//host必选 其他可为空。 扩展优先使用本文件中的配置，如果为空，再去使用php连接mysql时使用的参数</span><br><span class="line">                <span class="string">"port"</span>: <span class="string">"3306"</span>,</span><br><span class="line">                <span class="string">"socket"</span>: <span class="string">"\/var\/data\/mysql\/mysql.sock"</span>,</span><br><span class="line">                <span class="string">"db"</span>: <span class="string">"master-slave"</span>,</span><br><span class="line">                <span class="string">"user"</span>: <span class="string">"root"</span>,</span><br><span class="line">                <span class="string">"password"</span>: <span class="string">""</span>,</span><br><span class="line">                <span class="string">"connect_flags"</span>: <span class="number">0</span></span><br><span class="line">            &#125;</span></span><br><span class="line">        &#125;</span>,</span><br><span class="line">        <span class="string">"slave"</span>: <span class="collection">&#123; // 从库配置<span class="list">(可配置多项，slave为空会在php处报warning)</span></span><br><span class="line">            <span class="string">"slave_0"</span>: <span class="collection">&#123;</span><br><span class="line">                <span class="string">"host"</span>: <span class="string">"192.168.100.101"</span>,</span><br><span class="line">                <span class="string">"port"</span>: <span class="string">"3306"</span>,</span><br><span class="line">                <span class="string">"socket"</span>: <span class="string">"\/var\/data\/mysql\/mysql.sock"</span>,</span><br><span class="line">                <span class="string">"db"</span>: <span class="string">"master-slave"</span>,</span><br><span class="line">                <span class="string">"user"</span>: <span class="string">"root"</span>,</span><br><span class="line">                <span class="string">"password"</span>: <span class="string">""</span>,</span><br><span class="line">                <span class="string">"connect_flags"</span>: <span class="number">0</span>                                                                   </span><br><span class="line">            &#125;</span>,</span><br><span class="line">            <span class="string">"slave_1"</span>: <span class="collection">&#123;</span><br><span class="line">                <span class="string">"host"</span>: <span class="string">"192.168.100.102"</span>,</span><br><span class="line">                <span class="string">"port"</span>: <span class="string">"3306"</span>,</span><br><span class="line">                <span class="string">"socket"</span>: <span class="string">"\/var\/data\/mysql\/mysql.sock"</span>,</span><br><span class="line">                <span class="string">"db"</span>: <span class="string">"master-slave"</span>,</span><br><span class="line">                <span class="string">"user"</span>: <span class="string">"root"</span>,</span><br><span class="line">                <span class="string">"password"</span>: <span class="string">""</span>,</span><br><span class="line">                <span class="string">"connect_flags"</span>: <span class="number">0</span>                        </span><br><span class="line">            &#125;</span>,</span><br><span class="line">        &#125;</span>,   </span><br><span class="line">        <span class="string">"lazy_connections"</span>: <span class="number">1</span>, //只在执行sql之前才连接数据库</span><br><span class="line">        <span class="string">"server_charset"</span> : <span class="string">"utf8"</span> //服务端编码</span><br><span class="line">    &#125;</span>   </span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>/etc/init.d/php-fpm restart  #重启fpm生效</p>
+<h2 id="3-_一些基本的参数说明">3. 一些基本的参数说明</h2><table>
+<thead>
+<tr>
+<th style="text-align:left">参数名称</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">master</td>
+<td style="text-align:left">主库配置</td>
+</tr>
+<tr>
+<td style="text-align:left">host</td>
+<td style="text-align:left">ip or hostname</td>
+</tr>
+<tr>
+<td style="text-align:left">port</td>
+<td style="text-align:left">端口</td>
+</tr>
+<tr>
+<td style="text-align:left">socket</td>
+<td style="text-align:left">连接套接字</td>
+</tr>
+<tr>
+<td style="text-align:left">db</td>
+<td style="text-align:left">库名字</td>
+</tr>
+<tr>
+<td style="text-align:left">user</td>
+<td style="text-align:left">用户名</td>
+</tr>
+<tr>
+<td style="text-align:left">password</td>
+<td style="text-align:left">用户密码</td>
+</tr>
+<tr>
+<td style="text-align:left">connect_flags</td>
+<td style="text-align:left">连接参数</td>
+</tr>
+<tr>
+<td style="text-align:left">slave</td>
+<td style="text-align:left">从库配置</td>
+</tr>
+<tr>
+<td style="text-align:left">global_transaction_id_injection</td>
+<td style="text-align:left">GTID的配置 详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
+</tr>
+<tr>
+<td style="text-align:left">filter</td>
+<td style="text-align:left">选择从库的策略 random/roundrobin/user/user_multi/node_groups 策略详情详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
+</tr>
+<tr>
+<td style="text-align:left">failover</td>
+<td style="text-align:left">故障转移 disabled (默认), master(读从失败就连主库),loop_before_master(读从失败轮寻其他从库再读主库)</td>
+</tr>
+<tr>
+<td style="text-align:left">lazy_connections</td>
+<td style="text-align:left">被动连接</td>
+</tr>
+<tr>
+<td style="text-align:left">server_charset</td>
+<td style="text-align:left">服务端字符集</td>
+</tr>
+<tr>
+<td style="text-align:left">trx_stickiness</td>
+<td style="text-align:left">事务控制策略</td>
+</tr>
+</tbody>
+</table>
+<h1 id="使用">使用</h1><ol>
+<li><p>通常情况下，使用mysqlnd_ms 不需要改动业务端的代码，只需要在连接数据库时，使用配置中的host，即可实现主从分离，如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">&lt;?php</span></span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$dbh</span>  = <span class="keyword">new</span>  PDO ( <span class="string">'mysql:host=master-slave;dbname=master-slave'</span> ,  <span class="string">'root'</span> ,  <span class="string">''</span> );</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Master */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'show tables'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Slave */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'SELECT * from test LIMIT 1'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$dbh</span>  =  <span class="keyword">null</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> ( PDOException <span class="variable">$e</span> )</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">print</span>  <span class="string">"Error!: "</span>  .  <span class="variable">$e</span> -&gt; getMessage () .  <span class="string">"&lt;br/&gt;"</span> ;</span><br><span class="line">        <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (<span class="keyword">Exception</span> <span class="variable">$e</span>)</span><br><span class="line">&#123;</span><br><span class="line">    var_dump(<span class="variable">$e</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>采取主从分离，就一定存在着同步延迟的问题。 在一个繁忙的服务中，主／从同步会存在延迟。mysqlnd_ms 将这种场景细分为：</p>
+</li>
+</ol>
+<ul>
+<li>最终一致性：用户可能无法立即看到自己写入的数据</li>
+<li>session一致性：用户自己可以立即看到自己写入的数据</li>
+<li>强一致性：所有的用户都可以立即看到其他用户的写入的数据</li>
+</ul>
+<p>mysqlnd_ms 针对不同的场景，提供不同的策略。如果对延迟比较敏感(如：用户提交表单后，页面立即跳转展示用户提交的数据)，在编码的过程中还需要参考下述文档</p>
+<ol>
+<li>SQL Hints: <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php</a></li>
+<li>事务： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php</a></li>
+<li>服务级别和一致性： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php</a></li>
+<li>Global transaction IDs (GTID)： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php</a></li>
+<li>Cache integration： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php</a></li>
+</ol>
+<h1 id="一些陷阱">一些陷阱</h1><ol>
+<li>Mysqlnd_ms 的行为是这样的。 所有的Select 操作会访问从库， 除Select 其他的所有操作都访问主库，包括(SHOW, SET等)。<br>所以习惯使用mysql变量来编程的同学要注意了，如：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span> @id=<span class="number">2</span>;</span>(主库)</span><br><span class="line"><span class="operator"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> id:=@id（从库）;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面的第二条语句会因为在从库找不到id这个变量而报错， 这种情况要SQL Hint 给Mysql一些提示</p>
+<ol>
+<li>Mysqlnd_ms 并不支持 <em>mysqli</em> 的multi_statements。 如使用mysqli_multi_query() 来批量执行SQL<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">"SELECT * FROM &#123;$table&#125; WHERE .."</span>;</span><br><span class="line"><span class="variable">$sql</span> .= <span class="string">"INSERT INTO &#123;$table&#125;"</span>;</span><br><span class="line"><span class="variable">$mysqli</span> -&gt; multi_query (<span class="variable">$sql</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面的第一条SQL会被识别为访问从库，Mysqlnd_ms 无法拆分一个批量操作，所以第二条Insert 也会进从库而造成数据不一致。</p>
+<ol>
+<li>事务的默认行为也和上述第二点一样，无法拆分一个事务，所以”读／写”请求尽量不要写进同一个事务中。如果一定要写，要使用SQL Hint 给Mysqlnd_ms 一些提示。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="ci9tv9jf800081es6zo7nhdvu" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
+
     </footer>
   </div>
   
@@ -197,7 +633,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="ci9tv2wgv0005tss6du2ord8w" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="ci9tv9jf000051es6qxp082uf" class="article-share-link">分享到</a>
       
 
       
@@ -253,7 +689,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9tv2wgj0000tss6rhb2o769" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="ci9tv9jec00001es6kdf8umjy" class="article-share-link">分享到</a>
       
 
       
@@ -286,7 +722,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -295,7 +731,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/git/" style="font-size: NaNpx;">git</a><a href="/tags/vim/" style="font-size: NaNpx;">vim</a>
+      <a href="/tags/Linux/" style="font-size: NaNpx;">Linux</a><a href="/tags/Tools/" style="font-size: NaNpx;">Tools</a><a href="/tags/git/" style="font-size: NaNpx;">git</a><a href="/tags/php/" style="font-size: NaNpx;">php</a><a href="/tags/vim/" style="font-size: NaNpx;">vim</a>
     </div>
   </div>
 
@@ -304,7 +740,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -317,6 +753,14 @@
         
           <li>
             <a href="/2015/05/17/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/">[转]Linux下取代top的进程管理工具 htop</a>
+          </li>
+        
+          <li>
+            <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
           </li>
         
           <li>
