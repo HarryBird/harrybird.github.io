@@ -72,6 +72,65 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-manual-note-CORE-FUNC" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/" class="article-date">
+  <time datetime="2015-07-05T06:30:00.000Z" itemprop="datePublished">2015-07-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
+<p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
+<p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">    debug_connection <span class="number">127.0</span>.0.1;</span><br><span class="line">    debug_connection localhost;</span><br><span class="line">    debug_connection <span class="number">192.0</span>.2.0/<span class="number">24</span>;</span><br><span class="line">    <span class="string">debug_connection :</span>:<span class="number">1</span>;</span><br><span class="line">    debug_connection <span class="number">2001</span>:<span class="number">0</span><span class="string">db8:</span>:/<span class="number">32</span>;</span><br><span class="line">    debug_connection <span class="string">unix:</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>debug_points abort | stop</code><br>当发生严重的内部错误，开启此选项会创建一个core-file（abort）或停止进程已便于后续分析。</p>
+<p><code>lock_file file</code><br>nginx使用锁机制来实现<code>accept_mutex</code>，并将访问串行化到共享内存。大部分系统的锁操作是原子的，这条指令会被忽略。另外一部分系统使用文件锁，这条指令指定了锁文件的前缀。默认值为 <code>lock_file logs/nginx.lock</code></p>
+<p><code>multi_accept on | off</code><br>关闭时一个worker进程每次接受一个请求。开启时，每接到一个请求，就尽可能的取走全部的请求。</p>
+<p><code>pcre_jit on | off</code><br>开启/关闭正则表达式的”实时编译”。PCRE JIT可以显著提升处理正则表达式的速度。当使用PCRE源码库编译nginx时(—with-pcre=)， 应该使用nginx的—with-pcre-jit编译选项开启JIT支持。</p>
+<p><code>thread_pool name threads=number [max_queue=number]</code><br>定义线程池的名字，线程数量以及任务队列的最大长度。一个请求事件，如果线程池中的所有线程都处于忙碌状态，请求会被塞入任务队列。 <code>max_queue</code> 定义了任务队列的最大长度，默认值为65535。当任务队列溢出，任务将会以一个error进入完成状态。</p>
+<p><code>timer_resolution interval</code><br>降低定时器的精度，进而减少gettimeofday()的系统调用数。默认情况下，每当有内核事件，都会调用gettimeofday()。使用此指令后，nginx只在固定时间间隔后才会调用。</p>
+<p><code>worker_connections number</code><br>设置每个worker 进程可以处理的最大并发连接数。需要注意的是，这个数字包含所有连接(如后端连接以及其它的)，而不仅仅是客户端连接。另一个需要注意的是，实际的并发连接数不能超过当前打开文件的最大限制。这个限制可以使用<code>worker_rlimit_nofile</code>来指定。</p>
+<p><code>worker_cpu_affinity cpumask ...</code><br>绑定worker进程到指定cpu。每个cpu用一个掩码来标识，需要为每个worker进程单独指定。worker进程默认不会绑定到cpu<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">比如</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">4</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0001</span> <span class="number">0010</span> <span class="number">0100</span> <span class="number">1000</span>;</span><br><span class="line">将每个工作进程分别绑定至不同的CPU，而</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">2</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0101</span> <span class="number">1010</span>;</span><br><span class="line">将第一个工作进程绑定至CPU0<span class="regexp">/CPU2，将第二个工作进程绑定至CPU1/</span>CPU3。</span><br></pre></td></tr></table></figure></p>
+<p><code>worker_processes number | auto</code><br>定义worker进程数。建议设置为当前cpu的核数，<code>auto</code> 会自动检测。</p>
+<p><code>worker_rlimit_core size</code><br>定义worker进程core文件的尺寸。</p>
+<p><code>worker_rlimit_nofile number</code><br>定义worker进程打开文件的最大数</p>
+<p><code>working_directory directory</code><br>定义worker进程的工作目录。主要用来写core-file。worker进程需要有写权限。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cibq3ipoe000jgh6aa3j6372y" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-2014-12-03-to-hadoop-working-mechanism" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" class="article-date">
@@ -158,7 +217,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibp7o302000w0i6ac91g127u" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibq3ipoq000zgh6ad1ut13h1" class="article-share-link">分享到</a>
       
 
       
@@ -215,7 +274,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibp7o2zj00070i6aq62ioxvp" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibq3ipo30007gh6aqtyo6fe0" class="article-share-link">分享到</a>
       
 
       
@@ -270,7 +329,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibp7o2zn000a0i6agveq68x7" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibq3ipo9000agh6arrd8roy5" class="article-share-link">分享到</a>
       
 
       
@@ -331,7 +390,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibp7o2zk00080i6a5zdkb0qq" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibq3ipo50008gh6ati6ipwvl" class="article-share-link">分享到</a>
       
 
       
@@ -392,7 +451,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibp7o2zm00090i6av30m5xn7" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibq3ipo70009gh6ax3h4b4h7" class="article-share-link">分享到</a>
       
 
       
@@ -439,7 +498,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cibp7o2zc00060i6a90enr1go" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cibq3ipo10006gh6a6kj853j3" class="article-share-link">分享到</a>
       
 
       
@@ -491,7 +550,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cibp7o2zq000e0i6ar1vqohxc" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cibq3ipoc000egh6ai8ne91s2" class="article-share-link">分享到</a>
       
 
       
@@ -923,7 +982,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cibp7o2zs000j0i6assopc8v3" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cibq3ipoh000mgh6ahnbcjcqg" class="article-share-link">分享到</a>
       
 
       
@@ -972,7 +1031,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibp7o2zv000n0i6af0wltlvk" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibq3ipok000qgh6an0h4ws0w" class="article-share-link">分享到</a>
       
 
       
@@ -1224,7 +1283,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cibp7o300000t0i6admp089xn" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cibq3ipoo000wgh6ak1stw5o7" class="article-share-link">分享到</a>
       
 
       
@@ -1408,7 +1467,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cibp7o2zy000q0i6asu0pu3nt" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cibq3ipom000tgh6aahsemags" class="article-share-link">分享到</a>
       
 
       
@@ -1499,7 +1558,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cibp7o2zp000b0i6arxvo1o2d" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cibq3ipoa000bgh6ao7l1jumb" class="article-share-link">分享到</a>
       
 
       
@@ -1555,7 +1614,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cibp7o2z700010i6apuh7l238" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cibq3ipnp0001gh6afrlh45dl" class="article-share-link">分享到</a>
       
 
       
@@ -1579,7 +1638,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1606,7 +1665,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1616,6 +1675,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
+          </li>
         
           <li>
             <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
@@ -1631,10 +1694,6 @@
         
           <li>
             <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce-1/">[转] 快速理解MapReduce</a>
           </li>
         
       </ul>

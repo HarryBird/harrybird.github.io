@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Nginx手册阅读笔记 —— 核心指令 | 左手代码 右手年华</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="URL: [http://nginx.org/en/docs/ngx_core_module.html]accept_mutex on | off如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [http://huoding.com/2013/08/24/281]
+acce">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx手册阅读笔记 —— 核心指令">
+<meta property="og:url" content="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/index.html">
+<meta property="og:site_name" content="左手代码 右手年华">
+<meta property="og:description" content="URL: [http://nginx.org/en/docs/ngx_core_module.html]accept_mutex on | off如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [http://huoding.com/2013/08/24/281]
+acce">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nginx手册阅读笔记 —— 核心指令">
+<meta name="twitter:description" content="URL: [http://nginx.org/en/docs/ngx_core_module.html]accept_mutex on | off如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [http://huoding.com/2013/08/24/281]
+acce">
+  
+    <link rel="alternative" href="/atom.xml" title="左手代码 右手年华" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]><script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script><![endif]-->
+  
+</head>
+<body>
+<div id="container">
+  <div id="wrap">
+    <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">左手代码 右手年华</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一个尘世迷途小码农的程序与人生</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="http://www.baidu.com/baidu" method="get" accept-charset="utf-8" class="search-form">
+          <input type="search" name="word" maxlength="20" class="search-form-input" placeholder="Search">
+          <input type="submit" value="" class="search-form-submit">
+          <input name=tn type=hidden value="bds">
+          <input name=cl type=hidden value="3">
+          <input name=ct type=hidden value="2097152">
+          <input type="hidden" name="si" value="www.harrycode.com">
+        </form>
+      </div>
+    </div>
+  </div>
+</header>
+    <div class="outer">
+      <section id="main"><article id="post-nginx-manual-note-CORE-FUNC" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/" class="article-date">
+  <time datetime="2015-07-05T06:30:00.000Z" itemprop="datePublished">2015-07-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Nginx手册阅读笔记 —— 核心指令
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
+<p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
+<p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">    debug_connection <span class="number">127.0</span>.0.1;</span><br><span class="line">    debug_connection localhost;</span><br><span class="line">    debug_connection <span class="number">192.0</span>.2.0/<span class="number">24</span>;</span><br><span class="line">    <span class="string">debug_connection :</span>:<span class="number">1</span>;</span><br><span class="line">    debug_connection <span class="number">2001</span>:<span class="number">0</span><span class="string">db8:</span>:/<span class="number">32</span>;</span><br><span class="line">    debug_connection <span class="string">unix:</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>debug_points abort | stop</code><br>当发生严重的内部错误，开启此选项会创建一个core-file（abort）或停止进程已便于后续分析。</p>
+<p><code>lock_file file</code><br>nginx使用锁机制来实现<code>accept_mutex</code>，并将访问串行化到共享内存。大部分系统的锁操作是原子的，这条指令会被忽略。另外一部分系统使用文件锁，这条指令指定了锁文件的前缀。默认值为 <code>lock_file logs/nginx.lock</code></p>
+<p><code>multi_accept on | off</code><br>关闭时一个worker进程每次接受一个请求。开启时，每接到一个请求，就尽可能的取走全部的请求。</p>
+<p><code>pcre_jit on | off</code><br>开启/关闭正则表达式的”实时编译”。PCRE JIT可以显著提升处理正则表达式的速度。当使用PCRE源码库编译nginx时(—with-pcre=)， 应该使用nginx的—with-pcre-jit编译选项开启JIT支持。</p>
+<p><code>thread_pool name threads=number [max_queue=number]</code><br>定义线程池的名字，线程数量以及任务队列的最大长度。一个请求事件，如果线程池中的所有线程都处于忙碌状态，请求会被塞入任务队列。 <code>max_queue</code> 定义了任务队列的最大长度，默认值为65535。当任务队列溢出，任务将会以一个error进入完成状态。</p>
+<p><code>timer_resolution interval</code><br>降低定时器的精度，进而减少gettimeofday()的系统调用数。默认情况下，每当有内核事件，都会调用gettimeofday()。使用此指令后，nginx只在固定时间间隔后才会调用。</p>
+<p><code>worker_connections number</code><br>设置每个worker 进程可以处理的最大并发连接数。需要注意的是，这个数字包含所有连接(如后端连接以及其它的)，而不仅仅是客户端连接。另一个需要注意的是，实际的并发连接数不能超过当前打开文件的最大限制。这个限制可以使用<code>worker_rlimit_nofile</code>来指定。</p>
+<p><code>worker_cpu_affinity cpumask ...</code><br>绑定worker进程到指定cpu。每个cpu用一个掩码来标识，需要为每个worker进程单独指定。worker进程默认不会绑定到cpu<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">比如</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">4</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0001</span> <span class="number">0010</span> <span class="number">0100</span> <span class="number">1000</span>;</span><br><span class="line">将每个工作进程分别绑定至不同的CPU，而</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">2</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0101</span> <span class="number">1010</span>;</span><br><span class="line">将第一个工作进程绑定至CPU0<span class="regexp">/CPU2，将第二个工作进程绑定至CPU1/</span>CPU3。</span><br></pre></td></tr></table></figure></p>
+<p><code>worker_processes number | auto</code><br>定义worker进程数。建议设置为当前cpu的核数，<code>auto</code> 会自动检测。</p>
+<p><code>worker_rlimit_core size</code><br>定义worker进程core文件的尺寸。</p>
+<p><code>worker_rlimit_nofile number</code><br>定义worker进程打开文件的最大数</p>
+<p><code>working_directory directory</code><br>定义worker进程的工作目录。主要用来写core-file。worker进程需要有写权限。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cibq3ipoe000jgh6aa3j6372y" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">[转]  Hadoop工作机制</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+      
+      <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Linux/">Linux</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tool/">Tool</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tools/">Tools</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/git/">git</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/php/">php</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vim/">vim</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">近期文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
+          </li>
+        
+          <li>
+            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    
+  
+</aside>
+      
+    </div>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Harry<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      .
+      Theme by <a href="https://github.com/xiangming/landscape-plus" target="_blank">Landscape-plus</a>
+    </div>
+  </div>
+</footer>
+  </div>
+  <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+  <!-- totop start -->
+<div id="totop">
+<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+</div>
+
+<!-- totop end -->
+
+
+<!-- 百度分享 start -->
+
+<!-- 百度分享 end -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+
+<! -- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+                processEscapes: true
+                    
+}
+  
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+                  
+}
+    
+        });
+</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Queue(function() {
+            var all = MathJax.Hub.getAllJax(), i;
+            for(i=0; i < all.length; i += 1) {
+                            all[i].SourceElement().parentNode.className += ' has-jax';
+                                    
+            }
+                
+        });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+</div>
+</body>
+</html>
