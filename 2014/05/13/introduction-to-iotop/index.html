@@ -7,23 +7,24 @@
   <title>IOTop 简介 | 左手代码 右手年华</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="简介IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况
-安装12wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpmsudo rpm -ivh iotop-0.6-1.noarch.rpm
+安装1wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&amp;#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm
 使用简单翻译下 —help ，用法很简单
-12345">
+1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IOTop 简介">
 <meta property="og:url" content="http://www.harrycode.com/2014/05/13/introduction-to-iotop/index.html">
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="简介IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况
-安装12wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpmsudo rpm -ivh iotop-0.6-1.noarch.rpm
+安装1wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&amp;#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm
 使用简单翻译下 —help ，用法很简单
-12345">
+1">
+<meta property="og:updated_time" content="2015-05-18T12:36:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IOTop 简介">
 <meta name="twitter:description" content="简介IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况
-安装12wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpmsudo rpm -ivh iotop-0.6-1.noarch.rpm
+安装1wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&amp;#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm
 使用简单翻译下 —help ，用法很简单
-12345">
+1">
   
     <link rel="alternative" href="/atom.xml" title="左手代码 右手年华" type="application/atom+xml">
   
@@ -102,18 +103,18 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
-<h2 id="安装">安装</h2><figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm</span></span><br><span class="line">sudo rpm -ivh iotop-<span class="number">0.6</span>-<span class="number">1</span><span class="class">.noarch</span><span class="class">.rpm</span></span><br></pre></td></tr></table></figure>
+<h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">beta-<span class="number">01</span><span class="comment"># iotop --help</span></span><br><span class="line">Usage: /usr/sbin/iotop [OPTIONS]</span><br><span class="line"></span><br><span class="line">DISK READ <span class="operator">and</span> DISK WRITE are <span class="operator">the</span> block I/O bandwidth used during <span class="operator">the</span> sampling</span><br><span class="line">period. SWAPIN <span class="operator">and</span> IO are <span class="operator">the</span> percentages <span class="operator">of</span> <span class="built_in">time</span> <span class="operator">the</span> thread spent respectively</span><br><span class="line"><span class="keyword">while</span> swapping <span class="operator">in</span> <span class="operator">and</span> waiting <span class="command"><span class="keyword">on</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">more</span> <span class="title">generally</span>. <span class="title">PRIO</span> <span class="title">is</span> <span class="title">the</span> <span class="title">I</span>/<span class="title">O</span> <span class="title">priority</span> <span class="title">at</span></span></span><br><span class="line">which <span class="operator">the</span> thread is running (<span class="built_in">set</span> <span class="keyword">using</span> <span class="operator">the</span> ionice <span class="command"><span class="keyword">command</span>).</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Options:</span><br><span class="line">  -<span class="ruby">-version             show program<span class="string">'s version number and exit</span><br><span class="line"></span></span>  -<span class="ruby">h, --help            show this help message <span class="keyword">and</span> exit</span><br><span class="line"></span>  -<span class="ruby">o, --only            only show processes <span class="keyword">or</span> threads actually doing <span class="constant">I</span>/<span class="constant">O</span> <span class="comment">#只显示当前有IO操作的进程或线程</span></span><br><span class="line"></span>  -<span class="ruby">b, --batch           non-interactive mode <span class="comment"># 运行在非交互模式下</span></span><br><span class="line"></span>  -<span class="ruby">n <span class="constant">NUM</span>, --iter=<span class="constant">NUM</span>    number of iterations before ending [infinite] <span class="comment"># 非交互模式下展示的次数</span></span><br><span class="line"></span>  -<span class="ruby">d <span class="constant">SEC</span>, --delay=<span class="constant">SEC</span>   delay between iterations [<span class="number">1</span> second] <span class="comment">#刷新的时间间隔</span></span><br><span class="line"></span>  -<span class="ruby">p <span class="constant">PID</span>, --pid=<span class="constant">PID</span>     processes/threads to monitor [all] <span class="comment">#只显示指定进程／线程的IO信息</span></span><br><span class="line"></span>  -<span class="ruby">u <span class="constant">USER</span>, --user=<span class="constant">USER</span>  users to monitor [all] <span class="comment">#只显示指定用户的进程所发生的IO</span></span><br><span class="line"></span>  -<span class="ruby"><span class="constant">P</span>, --processes       only show processes, <span class="keyword">not</span> all threads <span class="comment"># 只显示进程而不是所有的线程</span></span><br><span class="line"></span>  -<span class="ruby">a, --accumulated     show accumulated <span class="constant">I</span>/<span class="constant">O</span> instead of bandwidth <span class="comment">#在IOTOP启动后 显示每个进程／线程处理的IO总数</span></span><br><span class="line"></span>  -<span class="ruby">k, --kilobytes       use kilobytes instead of a human friendly unit <span class="comment"># 以KB为单位进行显示</span></span><br><span class="line"></span>  -<span class="ruby">t, --time            add a timestamp on each line (implies --batch) <span class="comment"># 显示时在每行添加当前时间</span></span><br><span class="line"></span>  -<span class="ruby">q, --quiet           suppress some lines of header (implies --batch)</span></span><br></pre></td></tr></table></figure>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Controls: left <span class="operator">and</span> <span class="constant">right</span> arrows <span class="built_in">to</span> change <span class="operator">the</span> sorting column, r <span class="built_in">to</span> invert <span class="operator">the</span></span><br><span class="line">sorting order, o <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--only option, p to toggle the --processes</span></span><br><span class="line">option, <span class="operator">a</span> <span class="built_in">to</span> toggle <span class="operator">the</span> <span class="comment">--accumulated option, q to quit, any other key to force</span></span><br><span class="line"><span class="operator">a</span> refresh.</span><br><span class="line"></span><br><span class="line">控制：</span><br><span class="line"><span class="string">'左右键'</span>用来改变排序的列，</span><br><span class="line"><span class="string">'r'</span>用来切换正序/倒序, </span><br><span class="line"><span class="string">'o'</span> 用来切换 <span class="comment">--only模式, </span></span><br><span class="line"><span class="string">'p'</span> 用来切换 <span class="comment">--processes 模式， </span></span><br><span class="line"><span class="string">'a'</span> 用来切换 <span class="comment">--accumulated模式, </span></span><br><span class="line"><span class="string">'q'</span> 用来推出，‘其他键’ 用来强制刷新</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01# iotop --help&#10;Usage: /usr/sbin/iotop [OPTIONS]&#10;&#10;DISK READ and DISK WRITE are the block I/O bandwidth used during the sampling&#10;period. SWAPIN and IO are the percentages of time the thread spent respectively&#10;while swapping in and waiting on I/O more generally. PRIO is the I/O priority at&#10;which the thread is running (set using the ionice command).</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Options:&#10;  --version             show program&#39;s version number and exit&#10;  -h, --help            show this help message and exit&#10;  -o, --only            only show processes or threads actually doing I/O #&#21482;&#26174;&#31034;&#24403;&#21069;&#26377;IO&#25805;&#20316;&#30340;&#36827;&#31243;&#25110;&#32447;&#31243;&#10;  -b, --batch           non-interactive mode # &#36816;&#34892;&#22312;&#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#10;  -n NUM, --iter=NUM    number of iterations before ending [infinite] # &#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#23637;&#31034;&#30340;&#27425;&#25968;&#10;  -d SEC, --delay=SEC   delay between iterations [1 second] #&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#10;  -p PID, --pid=PID     processes/threads to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#36827;&#31243;&#65295;&#32447;&#31243;&#30340;IO&#20449;&#24687;&#10;  -u USER, --user=USER  users to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;&#25152;&#21457;&#29983;&#30340;IO&#10;  -P, --processes       only show processes, not all threads # &#21482;&#26174;&#31034;&#36827;&#31243;&#32780;&#19981;&#26159;&#25152;&#26377;&#30340;&#32447;&#31243;&#10;  -a, --accumulated     show accumulated I/O instead of bandwidth #&#22312;IOTOP&#21551;&#21160;&#21518; &#26174;&#31034;&#27599;&#20010;&#36827;&#31243;&#65295;&#32447;&#31243;&#22788;&#29702;&#30340;IO&#24635;&#25968;&#10;  -k, --kilobytes       use kilobytes instead of a human friendly unit # &#20197;KB&#20026;&#21333;&#20301;&#36827;&#34892;&#26174;&#31034;&#10;  -t, --time            add a timestamp on each line (implies --batch) # &#26174;&#31034;&#26102;&#22312;&#27599;&#34892;&#28155;&#21152;&#24403;&#21069;&#26102;&#38388;&#10;  -q, --quiet           suppress some lines of header (implies --batch)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Controls: left and right arrows to change the sorting column, r to invert the&#10;sorting order, o to toggle the --only option, p to toggle the --processes&#10;option, a to toggle the --accumulated option, q to quit, any other key to force&#10;a refresh.&#10;&#10;&#25511;&#21046;&#65306;&#10;&#39;&#24038;&#21491;&#38190;&#39;&#29992;&#26469;&#25913;&#21464;&#25490;&#24207;&#30340;&#21015;&#65292;&#10;&#39;r&#39;&#29992;&#26469;&#20999;&#25442;&#27491;&#24207;/&#20498;&#24207;, &#10;&#39;o&#39; &#29992;&#26469;&#20999;&#25442; --only&#27169;&#24335;, &#10;&#39;p&#39; &#29992;&#26469;&#20999;&#25442; --processes &#27169;&#24335;&#65292; &#10;&#39;a&#39; &#29992;&#26469;&#20999;&#25442; --accumulated&#27169;&#24335;, &#10;&#39;q&#39; &#29992;&#26469;&#25512;&#20986;&#65292;&#8216;&#20854;&#20182;&#38190;&#8217; &#29992;&#26469;&#24378;&#21046;&#21047;&#26032;</span><br></pre></td></tr></table></figure>
 <p>PS: 笔者很喜欢 iotop -o 的玩法，祝大家也玩的愉快。</p>
 
       
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibq3ipok000qgh6an0h4ws0w" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibyy1cwg000qg3s6w4w7i05b" class="article-share-link">分享到</a>
       
 
       
@@ -155,7 +156,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -173,7 +174,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Tool/" style="font-size: 10px;">Tool</a> <a href="/tags/Tools/" style="font-size: 15px;">Tools</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a>
     </div>
   </div>
 
@@ -182,7 +183,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -192,6 +193,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
+          </li>
         
           <li>
             <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
@@ -207,10 +212,6 @@
         
           <li>
             <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
           </li>
         
       </ul>

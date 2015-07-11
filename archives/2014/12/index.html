@@ -158,7 +158,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibq3ipoq000zgh6ad1ut13h1" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibyy1cwm000zg3s6suivnnz2" class="article-share-link">分享到</a>
       
 
       
@@ -206,7 +206,7 @@
 <p>  reduce任务的数量并非由输入数据大小决定，而是特别指定。如有多个reduce任务，则每个map任务都会对其输出进行分区（partition），因为每个reduce任务会建一个分区。相同键的记录都会被partition到同一个分区中。具体的分区方式由分区函数来控制，一般通过hash函数来分区。<br>  我们把map任务和reduce任务之间的数据流称为shuffle，因为每个reduce任务的输入都来自多个map任务，因此，这个阶段比较复杂，而shuffle过程中的参数调整对job运行的总时间是有非常大的影响的，一般MapReduce的调优主要就是调整shuffle阶段的参数。</p>
 <p>如下图：多个reduce任务的数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195403671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <h1 id="如何减少从map到reduce的数据量">如何减少从map到reduce的数据量</h1><p>  集群上的可用带宽限制了MapReduce的作业数量，因为map的中间结果传递给reduce是要经过网络传输的，因此最重要的一点就是尽量减少map和reduce任务间传输的数据量。不过，Hadoop允许用户针对map任务的输出指定一个合并函数（combiner），用合并函数的输出作为reduce函数的输入，但需要注意，合并函数的运用不应该改变reduce函数的计算结果。</p>
-<p>  例如有两个map的输出分别是map1={0,20,10};map2={15,25}，求最大值，我们可以对先每个map的数据的数据进行合并，合并完成之后再传输给reducer：<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">map1=&#123;<span class="number">0</span>,<span class="number">20</span>,<span class="number">10</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">20</span>&#125;;</span><br><span class="line">map2=&#123;<span class="number">15</span>,<span class="number">25</span>&#125;-&gt;combiner-&gt;&#123;<span class="number">25</span>&#125;;</span><br><span class="line">reducer-&gt;&#123;<span class="number">25</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>  例如有两个map的输出分别是map1={0,20,10};map2={15,25}，求最大值，我们可以对先每个map的数据的数据进行合并，合并完成之后再传输给reducer：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">map1=&#123;0,20,10&#125;-&#62;combiner-&#62;&#123;20&#125;;&#10;map2=&#123;15,25&#125;-&#62;combiner-&#62;&#123;25&#125;;&#10;reducer-&#62;&#123;25&#125;</span><br></pre></td></tr></table></figure></p>
 <p>  即 max(0,20,10,15,25)=max(max(0,20,10),max(15,25))=25</p>
 <p>如下图：将combiner后的输出作为reducer的输入<br><img class="center" src="http://img.blog.csdn.net/20141201195417081?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <p>  但需要特别注意的是，并不是任何场景都是可以用combiner的，比如把上面的例子改成求平均值：<br>    combiner后的reducer的结果:       <code>avg(avg(0,20,10),avg(15,25))=avg(10,20)=15;</code><br>    没有进行combiner的reducer结果：  <code>avg(0,20,10,15,25)=14;</code></p>
@@ -215,7 +215,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibq3ipo30007gh6aqtyo6fe0" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibyy1cw10007g3s6q33b84ll" class="article-share-link">分享到</a>
       
 
       
@@ -270,7 +270,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibq3ipo9000agh6arrd8roy5" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibyy1cw6000ag3s6jeupra8r" class="article-share-link">分享到</a>
       
 
       
@@ -331,7 +331,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibq3ipo50008gh6ati6ipwvl" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibyy1cw30008g3s6ht98gtlv" class="article-share-link">分享到</a>
       
 
       
@@ -392,7 +392,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibq3ipo70009gh6ax3h4b4h7" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibyy1cw50009g3s6jl47ebfx" class="article-share-link">分享到</a>
       
 
       
@@ -414,7 +414,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -432,7 +432,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Tool/" style="font-size: 10px;">Tool</a> <a href="/tags/Tools/" style="font-size: 15px;">Tools</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a>
     </div>
   </div>
 
@@ -441,7 +441,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -451,6 +451,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
+          </li>
         
           <li>
             <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
@@ -466,10 +470,6 @@
         
           <li>
             <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
           </li>
         
       </ul>

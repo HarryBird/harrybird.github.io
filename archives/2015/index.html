@@ -72,6 +72,199 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-manual-note-HTTP-CORE-MODULE" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" class="article-date">
+  <time datetime="2015-07-11T10:03:27.000Z" itemprop="datePublished">2015-07-11</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>URL： [<a href="http://nginx.org/en/docs/http/ngx\_http\_core\_module.html" target="_blank" rel="external">http://nginx.org/en/docs/http/ngx\_http\_core\_module.html</a>]</p>
+<hr>
+<p><code>aio on | off | threads[=pool]</code><br>如果是Linux/FreeBSD系统，这个选项用来开启/关闭AIO。<br>在Linux系统中，AIO需要内核版本2.6.22以上的支持。另外AIO的同时需要打开DirectIO，否则读操作将被阻塞:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /video/ &#123;&#10;    aio            on;&#10;    directio       512;&#10;    output_buffers 1 128k;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在Linux系统中，当AIO与sendfile同时开启时，当文件尺寸大于directio指令的值时，AIO生效; 当文件尺寸小于directio指令的尺寸时，sendfile生效。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /video/ &#123;&#10;    sendfile       on;&#10;    aio            on;&#10;    directio       8m;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>文件读写也可以使用多线程方式而不必阻塞worker进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /video/ &#123;&#10;    sendfile       on;&#10;    aio            threads;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>alias path</code><br>定义了对指定路径的替换路径。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /i/ &#123;&#10;    alias /data/w3/images/;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当访问 <code>/i/a.jpg</code> 时 文件<code>/data/w3/images/a.jpg</code>被发送。<br>path的值可以包含变量，除了<code>$document_root</code> 和 <code>$realpath_root</code>。如果<code>alias</code>被定义在了一个包含正则表达式的<code>location</code>内，<code>alias</code>可以引用到表达式所捕捉的变量：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location ~ ^/users/(.+\.(?:gif|jpe?g|png))$ &#123;&#10;    alias /data/w3/images/$1;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果<code>location</code> 匹配的是<code>alias</code> 路径的最后一部分:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /images/ &#123;&#10;    alias /data/w3/images/;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最好使用<code>root</code>指令来替代:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /images/ &#123;&#10;    root /data/w3;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>chunked_transfer_encoding on | off</code><br>用来开启/关闭 http/1.1 中的分块编码传输。当客户端不支持分块传输时，这个指令才有用。</p>
+<p><code>client_body_buffer_size size</code><br>设置用于读取客户端请求Body的buffer大小。当客户端请求Body大于这个buffer，整个请求Body或Body的一部分将被写入临时文件。buffer的默认值通常为内存页的2倍大小。32位操作系统为8K，64位操作系统为16K.</p>
+<p><code>client_body_in_file_only on | clean | off</code><br>决定nginx是否将整个请求Body写入临时文件。 开启时，临时文件在请求结束后并不会被移除。 如果设置为clean， 临时文件将在请求结束后移除。</p>
+<p><code>client_body_in_single_buffer on | off</code><br>决定了nginx是否将整个请求Body写入一个单独的buffer。如果使用了<code>$request_body</code>变量时，推荐使用这个指令，用来省去多次的拷贝操作。</p>
+<p><code>client_body_temp_path path [level1 [level2 [level3]]]</code><br>定义客户端请求Body临时文件存放的目录位置。最多支持3级目录</p>
+<p><code>client_body_timeout time</code><br>定义读取客户端请求Body的超时时间。这个超时设置的是两次读请求之间的最大间隔时间而不是整个请求Body的传输时间。 如果客户端在这个时间间隔内没传输任何数据，客户端将得到一个408错误。</p>
+<p><code>client_header_buffer_size size</code><br>设置读取请求头的buffer大小。对于大部分请求，1Kb的buffer就足够了。但如果一个请求包含长的cookie或者来自一个WAP客户端， 请求头可能会大于1Kb。如果一个请求头不能完整的放入这块空间， Nginx将根据<code>large_client_header_buffers</code>指令的设置继续分配。</p>
+<p><code>client_header_timeout time</code><br>设置读取客户端请求头的超时时间。如果客户端在这个时间内没有传输完成整个请求头， 客户端将得到一个408错误。</p>
+<p><code>client_max_body_size size</code><br>设置客户端请求Body的最大长度。 这个长度被定义在请求头”Content-Length”中。如果请求Body的长度超过这个值， 将得到一个413的回执。请求注意浏览器不能正确的显示这个错误。把size设置为0可以忽略掉这个检查。</p>
+<p><code>connection_pool_size size</code><br>可以精确调整Nginx为每个连接分配的内存。这个指令对Nginx的整体性能影响较小，通常不需要调整。</p>
+<p><code>default_type mime-type</code><br>定义响应的默认MIME类型。设置文件扩展名与MIME类型的对应关系，可以使用<code>types</code>指令。</p>
+<p><code>directio size | off</code><br>当读取的文件大于等于指定尺寸时，启动directIO。这条指令将自动关闭sendfile。 它在传输大文件或使用aio时非常有用。</p>
+<p><code>directio_alignment size</code><br>设置directIO的对齐偏移。大多数情况下，512byte就够了。但Linux下的XFS需要4K</p>
+<p><code>disable_symlinks off</code><br><code>disable_symlinks on | if_not_owner [from=part]</code><br>定义符号链接的处理方式。<br>off： 默认行为，允许路径中出现符号链接。<br>on： 如果路径中的任何部分有符号链接，请求被拒绝。<br>if_not_owner： 如果路径中的任何部分有符号链接，并且其指向的文件的所有者与符号链接的所有者不同，请求被拒绝。<br>from=part: 当开启符号链接检查时(on/if_not_owner)， 路径的所有部分都会被检查。使用<code>form=part</code>可以避免对以<code>part</code>开头的部分做检查，只检查后面的部分。这个参数值可以包含变量。如： <code>disable_symlinks on from=$document_root</code></p>
+<p><code>error_page code ... [=[response]] uri</code><br>定义http错误信息对应的页。如果当前的作用域没有<code>error_page</code>指令，会继承父作用域的配置。uri的值可以包含变量。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error_page 404             /404.html;&#10;error_page 500 502 503 504 /50x.html;</span><br></pre></td></tr></table></figure></p>
+<p>可以使用<code>=response</code>选项来改变响应值，如:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error_page 404 =200 /empty.gif;</span><br></pre></td></tr></table></figure></p>
+<p>如果错误响应码还需要被其它代理服务或者CGI服务处理，而这个服务处理后会返回不同的响应码(如：200，302)，可以直接使用代理服务的返回码:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error_page 404 = /404.php;</span><br></pre></td></tr></table></figure></p>
+<p>也可以针对响应吗做跳转:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error_page 403      http://example.com/forbidden.html;&#10;error_page 404 =301 http://example.com/notfound.html;</span><br></pre></td></tr></table></figure></p>
+<p>如果在内部跳转之后不想改变URI，可以把错误处理传给另一个location:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    error_page 404 = @fallback;&#10;&#125;&#10;&#10;&#10;location @fallback &#123;&#10;    proxy_pass http://backend;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果uri的处理过程导致了错误，最后一次的错误码会返回给客户端。</p>
+<p><code>etag on | off</code><br>用来开启或关闭在静态资源请求的响应头里，自动生成”ETAG”字段的功能。</p>
+<p><code>if_modified_since off | exact | before</code><br>指定服务端响应的修改时间与请求头中的”If-Modified-Since”中值的比较方法：<br>off: 忽略 “If-Modified-Since”请求头<br>exact: 精确比较<br>before: 响应的修改时间小于等于”If-Modified-Since”中指定的时间。</p>
+<p><code>ignore_invalid_headers on | off</code><br>控制是否忽略请求头中的非法字段名。合法名字由数字/字母/连字符/下划线组成。</p>
+<p><code>internal</code><br>指定了被指向的location仅仅接受内部请求。对于外部请求，客户端会得到404响应。内部请求被定义如下：</p>
+<ul>
+<li>请求是被 <code>error_page</code>, <code>index</code>, <code>random_index</code>, <code>try_files</code> 指令重定向的</li>
+<li>由后端返回的”X-Accel-Redirect”协议头所引起的重定向</li>
+<li>被<code>rewrite</code>重定向的请求</li>
+<li>由<code>ngx_http_ssi_module</code>和<code>ngx_http_addition_module</code>模块的”include virtual”指令产生的子请求</li>
+</ul>
+<p><code>keepalive_disable none | browser ...</code><br>对一些异常行为的浏览器关闭长连接功能。browser参数指定了哪些浏览器受到影响。</p>
+<ul>
+<li>msie6 对老版本的IE浏览器，当收到POST请求时，关闭长连接</li>
+<li>safari 对MAC OS X 以及 同类操作系统上的 safari以及同内核的浏览器，关闭长连接功能。</li>
+<li>none 对所有浏览器开启长连接功能</li>
+</ul>
+<p><code>keepalive_requests number</code><br>设置一个长连接可处理的最大请求数。超过这个数字后，连接会关闭。</p>
+<p><code>keepalive_timeout timeout [header_timeout]</code><br>第一个参数设置客户长连接在服务端维持的时间。设置为0表示关闭长连接。可选的第二个参数可以在响应头设置<code>Keep-Alive: timeout=time</code>字段。两个参数可以不同。 <code>Keep-Alive: timeout=time</code> 响应头可以被 Mozilla 和 konqueror浏览器识别。MSIE浏览器60秒后主动关闭。</p>
+<p><code>large_client_header_buffers number size</code><br>设置用来读取客户端超大请求头的buffer块数以及每块的大小。一个请求行不能超过1个缓存块的大小，否则客户端会得到414响应码。一个请求头字段不能超过1个缓存块的大小，否则客户端会得到400响应码。buffer只有在需要时才会被分配。默认每块buffer的大小为8Kb。即使请求处理完成后服务端保持长连接，这些缓存也会被释放掉。</p>
+<p><code>limit_except method ... { ... }</code><br>限制请求某location的方法。method值可为: GET, HEAD, POST, PUT, DELETE, MKCOL, COPY, MOVE, OPTIONS, PROPFIND, PROPPATCH, LOCK, UNLOCK, or PATCH. 允许GET请求同时也允许了HEAD。配置中的其它方法可以使用 <code>ngx_http_access_module</code> 和 <code>ngx_http_auth_basic_module</code>的指令来限制：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">limit_except GET &#123;&#10;    allow 192.168.1.0/32;&#10;    deny  all;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上配置对除GET和HEAD的其它方法进行访问限制。</p>
+<p><code>limit_rate rate</code><br>限制对客户端的响应传输速率。 <code>rate</code> 为每秒的字节数。0为禁用限速。限制是针对每个请求的，所以如果一个客户端同时打开2个连接，整体速率是设置值的2倍左右。 也可以通过设置<code>$limit_rate</code>变量来达到限速，这对根据条件来完成限速的情况非常有用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    if ($slow) &#123;&#10;        set $limit_rate 4k;&#10;    &#125;&#10;    ...&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果是来自中间代理的响应，也可以通过设置”X-Accel-Limit-Rate”来完成限速。这个功能可以通过  <code>proxy_ignore_headers</code>, <code>fastcgi_ignore_headers</code>, <code>uwsgi_ignore_headers</code> 和 <code>scgi_ignore_headers</code> 指令来关闭。</p>
+<p><code>limit_rate_after size</code><br>设置不限速响应大小。 超出此流量的部分进行限速<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /flv/ &#123;&#10;    flv;&#10;    limit_rate_after 500k;&#10;    limit_rate       50k;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>lingering_close off | on | always</code><br>控制Nginx怎样关闭一个连接。</p>
+<ul>
+<li>on： 默认值。当Nginx识别到客户端会发送更多数据时，Nginx在关闭请求前会尽量接收以及处理更多数据。</li>
+<li>always: Nginx无条件等待并处理客户端发送的数据</li>
+<li>off: Nginx 没有任何等待而直接关闭。这种行为打破了协议，不应该在正常情况下使用。</li>
+</ul>
+<p><code>lingering_time time</code><br>当 <code>lingering_close</code> 有效时， 这个指令设置Nginx接受但忽略客户端额外传输数据的最大时间。这个时间之后连接被关闭，即使客户端还有更多的数据。</p>
+<p><code>lingering_timeout time</code><br>当 <code>lingering_close</code> 有效时，这条指令指定服务端接受客户端更多数据最长等待时间。如果在这个时间间隔内没收到任何数据，连接将关闭。否则服务端将读数据并忽略它，然后继续等待更多数据。 等待-读取-忽略 这个循环会一直重复，但不会超过 <code>lingering_time</code>指定的时间。</p>
+<p><code>listen address[:port] [default_server] [ssl] [spdy] [proxy_protocol] [setfib=number] [fastopen=number] [backlog=number] [rcvbuf=size] [sndbuf=size] [accept_filter=filter] [deferred] [bind] [ipv6only=on|off] [reuseport] [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];</code><br><code>listen port [default_server] [ssl] [spdy] [proxy_protocol] [setfib=number] [fastopen=number] [backlog=number] [rcvbuf=size] [sndbuf=size] [accept_filter=filter] [deferred] [bind] [ipv6only=on|off] [reuseport] [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]];</code><br><code>listen unix:path [default_server] [ssl] [spdy] [proxy_protocol] [backlog=number] [rcvbuf=size] [sndbuf=size] [accept_filter=filter] [deferred] [bind] [so_keepalive=on|off|[keepidle]:[keepintvl]:[keepcnt]]</code><br>设置接收请求的服务器监听协议。 如果是IP协议，需要设置地址和端口; 如果是UNIX套接字，设置sock文件的路径。可以既包含地址和端口，也可以只有地址或只有端口。 地址也可以是个域名，如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listen 127.0.0.1:8000;&#10;listen 127.0.0.1;&#10;listen 8000;&#10;listen *:8000;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listen localhost:8000;</span><br></pre></td></tr></table></figure>
+<p>UNIX套接字需要指定”unix:”前缀:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listen unix:/var/run/nginx.sock;</span><br></pre></td></tr></table></figure></p>
+<p>如果只给出地址，端口默认为80.<br>如果没有指定这个指令， 如果是超级用户，默认监听 <code>*:80</code>， 否则监听<code>*:8000</code><br>如果携带<code>default_server</code>参数，当前虚拟主机会成为指定address:port的默认主机。 如果没有这个参数，第一个具备address:port的主机将成为默认虚拟主机。<br><code>ssl</code>参数允许指定所有这个端口接受的请求都工作在SSL模式。这将使server以更加紧凑的配置方式处理HTTP 以及 HTTPS请求。<br><code>spdy</code>参数允许在这个端口接受SPDY连接。 正常情况下，<code>ssl</code>参数也需要同时被指定，但是nginx可以被配置成接受SPDY连接但不开启SSL。<br><code>proxy_protocol</code>参数使这个端口接受的所有连接都使用<code>PROXY_protocol</code><br><code>listen</code>指令可以有需要额外的参数，用户套接字相关的系统调用。这些参数可以使用于任何listen命令，但是对于每个address:port只能使用一次。</p>
+<ul>
+<li>fastopen=number 针对监听的socket 启动”TCP FAST OPEN”并且限制还没有完成3次握手的连接队列的长度。</li>
+<li>backlog=number 系统调用listen()时设定backlog参数以限制连接队列(完成3次握手)的最大长度。FreeBSD以及MAC OS这个值默认为-1， 其它系统这个值为511.</li>
+<li>rcvbuf=size 设置监听socket的接收buffer(SO_RCVBUF选项)</li>
+<li>sndbuf=size 设置监听socket的发送buffer(SO_SNDBUF选项)</li>
+<li>deferred 在Linux系统中使用延迟的accept(TCP_DEFER_ACCEPT选项)</li>
+</ul>
+<p><code>location [ = | ~ | ~* | ^~ ] uri { ... }</code><br>为一个请求URI进行配置。<br>路径的匹配是在URI规范化之后，即从”%XX”解码， 解析相对路径，将相邻的多个斜线解析成一个斜线。<br>一个路径既可以是前缀字符串也可以是一个常规的表达式。正则表达式可以前置 <code>~*</code>(不区分大小写匹配)，或 <code>~</code>(区分大小写)。 为了根据URI找到匹配的路径，Nginx首先通过固定前缀进行检查。 在所有的固定前缀中， 最长匹配的路径优先被选择并记录。之后根据配置文件中出现的顺序，检查正则表达。第一次匹配上后，Nginx停止表达式搜索，使用匹配的路径。如果没有匹配的表达式，Nginx使用之前记录的前缀路径。<br>路径配置可以嵌套，但也有些例外。<br>对大小写不敏感的操作系统如Mac OS X 和 Cygwin， 匹配前缀路径时忽略大小写。比较仅比较单字节编码。<br>表达式可以包含捕获，以供后面的其它指令使用。<br>如果最长匹配的路径有 <code>^~</code> 前置，正则表达式将不被检查。<br>如果使用<code>=</code>前置，对请求URI与路径进行精确匹配。如果一个精确匹配命中，搜索过程将终止。例如：如果 “/”的请求经常发生， 定义 “location=/”可以在第一次命中就停止搜索，以提高这些请求的处理速度。 这样的路径不能包含嵌套路径。一些例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location = / &#123;&#10;    [ configuration A ]&#10;&#125;&#10;location / &#123;&#10;    [ configuration B ]&#10;&#125;&#10;location /documents/ &#123;&#10;    [ configuration C ]&#10;&#125;&#10;location ^~ /images/ &#123;&#10;    [ configuration D ]&#10;&#125;&#10;location ~* \.(gif|jpg|jpeg)$ &#123;&#10;    [ configuration E ]&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>“/“ 请求会匹配 A, “/index.html” 请求会匹配B， “/document/document.html”请求会匹配C， “/images/1.gif”会匹配D， “/document/1.jpg”会匹配E<br>如果使用”@”前缀来定义一个路径， 这样的路径并不用于处理正规的请求，而是用来做请求跳转。 这些路径不能嵌套，也不能包含嵌套路径。</p>
+<p><code>log_not_found on | off</code><br>设置是否记录404错误进error_log</p>
+<p><code>log_subrequest on | off</code><br>设置是否记录子请求记录进access_log</p>
+<p><code>max_ranges number</code><br>在包含”byte-range”的请求中，限制最大的请求范围。超出这个范围的请求被按照没有指定“byte-range”处理。默认没有最大范围。如果设置为0， 将完全不支持”byte-range”请求。</p>
+<p><code>merge_slashes on | off</code><br>设置是否合并URI中两个相邻的斜线为一个斜线。<br>合并行为是为了矫正URI，然后进行路径的前缀匹配或正则表达式匹配。 否则 “//scripts/one.php” 请求将无法匹配 <code>location /scripts/</code>而被当做普通的静态文件处理。 所以请求需要被转换成 “/scripts/one.php”<br>如果URI中包含 base64-encode 的部分，可能需要禁用这个配置，因为 base64使用字符“/”。尽管如此， 为了安全考虑， 最好避免禁用这个配置。</p>
+<p><code>msie_padding on | off</code><br>对于MSIE浏览器，如果返回状态值大于400， 这个指令通过添加注释的方式使响应体增加至512字节。</p>
+<p><code>msie_refresh on | off</code><br>MSIE浏览器用页面刷新取代页面重定向。</p>
+<p><code>open_file_cache off</code><br><code>open_file_cache max=N [inactive=time]</code><br>可用来存储:</p>
+<ul>
+<li>打开的文件描述符，他们的尺寸以及修改次数。</li>
+<li>已存在的目录信息</li>
+<li>文件的查找错误信息，如 “file not found”, “no read permission”等等。<br>{应该单独使用<code>open_file_cache_errors</code>指令来缓存错误信息}<br>指令有下列参数：</li>
+<li>max：设置缓存中元素的最大数量；缓存溢出时通过LRU(最近最少使用)方式来移除</li>
+<li>off 关闭缓存</li>
+<li>inactive 设置一个时间，在这个时间内如果缓存中的元素没有被访问即被移除。默认60秒<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">open_file_cache          max=1000 inactive=20s;&#10;open_file_cache_valid    30s;&#10;open_file_cache_min_uses 2;&#10;open_file_cache_errors   on;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><code>open_file_cache_errors on | off</code><br>设置是否缓存文件查找错误结果信息。</p>
+<p><code>open_file_cache_min_uses number</code><br>设置 <code>open_file_cache</code>指令中 inactive参数的指定时间内，元素被访问的最少次数。多于这个次数的元素被留驻在缓存中，少于这个数字的元素被移除缓存。</p>
+<p><code>open_file_cache_valid time</code><br>设置检查<code>open_file_cache</code>中元素的间隔时间。</p>
+<p><code>output_buffers number size</code><br>设置从硬盘读取响应体时缓存的数量和大小。</p>
+<p><code>postpone_output size</code><br>推迟发送的字节数。如果可能，Nginx将发送的数据攒到size字节再发送给客户端。</p>
+<p><code>recursive_error_pages on | off</code><br>设置是否<code>error_page</code>指令可以设置多重重定向。如果允许，重定向次数也有限制。</p>
+<p><code>request_pool_size size</code><br>用来精确调整每个请求的内存分配。这个指令对性能影响较小，通常情况可以不用。</p>
+<p><code>reset_timedout_connection on | off</code><br>是否重置超时的连接。重置操作如下： </p>
+<ul>
+<li>关闭socket之前，设置SO_LINGER选项的超时值为0</li>
+<li>当socket关闭， TCP RST 被发送给客户端，所有这个socket占用的内存被释放</li>
+<li>这样可以避免一个已被关闭的socket长时间处于FIN_WAIT1状态一直不释放<br>注意： 超时的长连接仍然被正常关闭。</li>
+</ul>
+<p><code>resolver address ... [valid=time] [ipv6=on|off]</code><br>配置用来解析后端服务器地址的dns, 如：<code>resolver 127.0.0.1 [::1]:5353;</code><br>这个地址可以是一个域名或IP地址， 有一个可选的端口。如果端口没有指定，默认使用53端口。已轮询的方式请求多台dns。<br>解析时Nginx会同时查找IPv4和IPv6地址。如果不想查找IPv6地址，可以指定 <code>ipv6=off</code>参数。<br>默认情况下，Nginx会使用查询结果的TTL来作为缓存结果的时间。可以使用<code>valid</code>参数来指定这个时间。 <code>resolver 127.0.0.1 [::1]:5353 valid=30s;</code></p>
+<p><code>resolver_timeout time</code><br>设置名字解析的超时时间。</p>
+<p><code>root path</code><br>设置请求的根目录。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /i/ &#123;&#10;    root /data/w3;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>“/i/top.gif” 请求会被返回 “/data/w3/i/top.gif”<br>路径可以包含 $document_root以及$realpath_root 之外的变量。<br>文件路径由root+URI构造。 如果希望改变URI，可以使用 <code>alias</code>指令。</p>
+<p><code>satisfy all | any</code><br>配置访问控制的模式。 是<code>ngx_http_access_module</code> ，<code>ngx_http_auth_basic_module</code>, <code>ngx_http_auth_request_module</code> 三个模块都通过才能访问还是任一模块通过即可访问。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    satisfy any;&#10;    allow 192.168.1.0/32;&#10;    deny  all;&#10;    auth_basic           &#34;closed site&#34;;&#10;    auth_basic_user_file conf/htpasswd;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>send_timeout time</code><br>设置传输响应到客户端的超时时间。 这个超时时间仅指两次相邻的写操作的时间间隔，而不是整体传输的时间。如果在这个时间内，客户端未接收到任何响应， 连接被关闭。</p>
+<p><code>sendfile on | off</code><br>设置是否开启 sendfile()</p>
+<p><code>sendfile_max_chunk size</code><br>如果设置一个非0值，可以限制一个sendfile()调用的数据传输数量。</p>
+<p><code>server { ... }</code><br>为一个虚拟主机添加配置。没有明显区分基于IP与基于域名的虚拟主机。其中的listen指令描述了所有可以接受请求的地址和端口，<code>server_name</code> 指令列出了所有的主机名字。详细的实例可以在 [<a href="http://nginx.org/en/docs/http/request\_processing.html" target="_blank" rel="external">http://nginx.org/en/docs/http/request\_processing.html</a>] 中找到</p>
+<p><code>server_name name ...</code><br>设置虚拟主机的名字，如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name example.com www.example.com;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>第一个名字为首要主机名。<br>主机名可以包含一个 <code>*</code>， 可以放在主机名的开始或结束<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name example.com *.example.com www.example.*;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>也可以在主机名中使用正则表达式，名字前缀<code>~</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name www.example.com ~^www\d+\.example\.com$;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>正则表达式可以进行捕获，捕获的变量可以被后续其它命令使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name ~^(www\.)?(.+)$;&#10;    location / &#123;&#10;        root /sites/$2;&#10;    &#125;&#10;&#125;&#10;&#10;server &#123;&#10;    server_name _;&#10;    location / &#123;&#10;        root /sites/default;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>主机名中命名捕获的变量，可以被后续其它命令使用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name ~^(www\.)?(?&#60;domain&#62;.+)$;&#10;    location / &#123;&#10;        root /sites/$domain;&#10;    &#125;&#10;&#125;&#10;&#10;server &#123;&#10;    server_name _;&#10;    location / &#123;&#10;        root /sites/default;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>如果命令的参数被设置为 “$hostname”， 服务器的机器名将被使用。<br>也可以指定一个空得主机名，如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">server &#123;&#10;    server_name www.example.com &#34;&#34;;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>它可以让虚拟主机处理没有”Host”请求头的请求，而不是让指定了地址和端口的默认虚拟主机来处理。 这也是默认设置。<br>当通过名字来查找虚拟主机时，如果主机名匹配了多个变体(如 既包含通配符又包含正则表达式匹配)， 第一个匹配的变体将被使用，下面是匹配优先级：</p>
+<ul>
+<li>精确的名字</li>
+<li>在名字开始处的最长通配符，如 <code>*.example.com</code></li>
+<li>在名字结尾处的最长通配符，如<code>mail.*</code></li>
+<li>第一个匹配的正则表达式<br>关于主机名的详细描述还有一篇独立的文档 [<a href="http://nginx.org/en/docs/http/server\_names.html" target="_blank" rel="external">http://nginx.org/en/docs/http/server\_names.html</a>]</li>
+</ul>
+<p><code>server_names_hash_bucket_size size</code><br>设置主机名hash表的桶大小。默认值取决于处理器缓存线的大小。详细的hash表的设置还有一篇独立的文档 [<a href="http://nginx.org/en/docs/hash.html" target="_blank" rel="external">http://nginx.org/en/docs/hash.html</a>]</p>
+<p><code>server_names_hash_max_size size</code><br>设置主机名hash表的最大尺寸。 详细的hash表的设置还有一篇独立的文档 [<a href="http://nginx.org/en/docs/hash.html" target="_blank" rel="external">http://nginx.org/en/docs/hash.html</a>]</p>
+<p><code>server_tokens on | off</code><br>设置在错误页以及响应的“Server”头部中，是否展示nginx版本信息。</p>
+<p><code>tcp_nodelay on | off</code><br>设置是否使用<code>TCP_NODELAY</code>选项。这个选项仅在将一个连接转化为长连接时启用。</p>
+<p><code>tcp_nopush on | off</code><br>设置是否在FreeBSD中开启<code>TCP_NOPUSH</code>选项 或 在Linux中开启 <code>TCP_CORK</code>选项。 这个选项只有在使用<code>sendfile</code>时启用， 启用这个选项会：</p>
+<ul>
+<li>响应头会和文件的起始部分的在一个数据包中发送。</li>
+<li>一次性发送一个完整的文件。</li>
+</ul>
+<p><code>try_files file ... uri</code><br><code>try_files file ... =code</code><br>按指定的顺序检查文件是否存在，并使用第一个找到的文件来处理请求，处理的过程在当前的上下文中进行。文件的路径时通过 <code>root</code> <code>alias</code> 指令的设置 与 file参数结合而成。也可以通过在参数的结尾加斜线来判断目录是否存在，如 “$uri/”。 如果没有文件被找到， 会向uri参数指定的地址发起一个内部重定向。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /images/ &#123;&#10;    try_files $uri /images/default.gif;&#10;&#125;&#10;location = /images/default.gif &#123;&#10;    expires 30s;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>uri</code>参数也可以指定一个location。<br>从 0.7.15版本开始， 最后一个参数也可以是响应吗：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    try_files $uri $uri/index.html $uri.html =404;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>代理Mongrel<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    try_files /system/maintenance.html&#10;    $uri $uri/index.html $uri.html&#10;    @mongrel;&#10;&#125;&#10;&#10;location @mongrel &#123;&#10;    proxy_pass http://mongrel;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下面两个例子功能相同<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    try_files $uri $uri/ @drupal;&#10;&#125;&#10;location / &#123;&#10;    error_page 404 = @drupal;&#10;    log_not_found off;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>try_file</code> 在把请求发给FastCGI之前，先检查PHP文件是否存在<br>如 Wordpress 和 Joomla中的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;&#10;    try_files $uri $uri/ @wordpress;&#10;&#125;&#10;&#10;location ~ \.php$ &#123;&#10;    try_files $uri @wordpress;&#10;    fastcgi_pass ...;&#10;    fastcgi_param SCRIPT_FILENAME /path/to$fastcgi_script_name;&#10;    ... other fastcgi_param&#39;s&#10;&#125;&#10;&#10;location @wordpress &#123;&#10;    fastcgi_pass ...;&#10;    fastcgi_param SCRIPT_FILENAME /path/to/index.php;&#10;    ... other fastcgi_param&#39;s&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>types</code><br>设置文件扩展名与响应中得MIME Types 间的映射关系。 扩展名不区分大小写。多个扩展名可以映射到一个type上。如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">types &#123;&#10;    application/octet-stream bin exe dll;&#10;    application/octet-stream deb;&#10;    application/octet-stream dmg;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>随Nginx发行的 conf/mime.types文件包含了很全面的映射关系。<br>为了使一个特殊的路径为所有的请求都生成”application/octet-stream” MIME type， 可以使用如下的配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /download/ &#123;&#10;    types        &#123; &#125;&#10;    default_type application/octet-stream;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>types_hash_bucket_size size</code><br>设置 types 哈希表的桶的大小。</p>
+<p><code>types_hash_max_size size</code><br>设置 types 哈希表的最大尺寸。</p>
+<p><code>underscores_in_headers on | off</code><br>设置客户端是否可以在请求头中使用下划线。如果禁止，请求头中包含下划线的字段将被标记为无效字段，转给 <code>ignore_invalid_headers</code>处理。<br>如果在默认主机server级的配置中开启，这个设置将对其中监听相同地址和端口的所有虚拟主机生效。</p>
+<p><code>variables_hash_bucket_size size</code><br>设置变量的哈希表的桶的大小。</p>
+<p><code>variables_hash_max_size size</code><br>设置变量的哈希表的最大尺寸。</p>
+<p><em>内嵌变量</em></p>
+<p><code>ngx_http_core_module</code> 模块支持内嵌变量，变量名与Apache对应。 首先这些变量代表着客户端请求头字段，如 <code>$http_user_agent</code> <code>$http_cookie</code>等等。 也有些其它变量：</p>
+<p><code>$arg_name</code> 任意请求参数名的值<br><code>$args</code> 请求的参数串<br><code>$binary_remote_addr</code> 客户端请求地址的2进制形式， 4字节长度<br><code>$body_bytes_sent</code> 响应给客户端的字节数，不包含响应体的头信息。<br><code>$bytes_sent</code>  响应给客户端的字节数<br><code>$connection</code> 连接序列号<br><code>$connection_requests</code> 一个连接中当前通过的请求数<br><code>$content_length</code> 请求头中的“Content-Length”字段<br><code>$content-type</code> 请求中的”Content-Type”字段<br><code>$cookie_name</code> 任意cookie名的值<br><code>$document_root</code> 当前请求的 root 或 alias 指令的值<br><code>$uri</code> 当前请求的URI，规范化后的。 $uri变量的值可能在处理请求的过程中改变。如发起内部请求或使用默认页文件。<br><code>$document_uri</code> 与$uri相同<br><code>$host</code> 根据下列的有限顺序： 请求中的host-name 或 请求头部中得”Host”字段 或 匹配这个请求的主机名。<br><code>$hostname</code> host的名字<br><code>$http_name</code> 任意请求头的名字<br><code>$https</code> 如果请求处理在SSL模式下，这个值为”on”。 否则为空<br><code>$is_args</code> 如果请求带有参数，值为 ‘?’ 否则为空<br><code>$limit_rate</code> 设置这个变量启用响应限速。见<code>limit_rate</code>指令<br><code>$msec</code> 当前时间，单位是秒，精度是毫秒<br><code>$nginx_version</code> nginx 版本<br><code>$pid</code> worker 进程的pid<br><code>$pipe</code> 如果请求是pipeline的，变量为’p’ 否则为’.’<br><code>$query_string</code> 与 $args相同<br><code>$realpath_root</code> 当前请求的绝对地址， 追加了root / alias的值，所有的软链也解析为了实际地址<br><code>$remote_addr</code> 客户端地址<br><code>$remote_port</code> 客户端端口<br><code>$remote_user</code> 为用户认证提供的用户名<br><code>$request</code> 完整的原始请求<br><code>$request_body</code> 请求体。 变量值在 <code>proxy_pass</code> <code>fastcgi_pass</code> <code>uwsgi_pass</code> <code>scgi_pass</code>指令处理的路径中可用。<br><code>$request_body_file</code> 请求体的临时文件名。请求处理过程的最后，文件会被移除。为了总是将请求正文写入文件，<code>client_body_in_file_only</code> 需要被开启。如果在被代理的请求中或CGI请求中传递这个文件名，应该使用下面的命令来禁止传递请求正文 <code>proxy_pass_request_body off</code>, <code>fastcgi_pass_request_body off</code>, <code>uwsgi_pass_request_body off</code>,  <code>scgi_pass_request_body off</code><br><code>$request_completion</code> 如果请求完成值为”OK”，否则为空<br><code>$request_filename</code> 当前请求的文件路径。取自于root、alias指令以及当前的URI<br><code>$request_length</code> 请求长度，包括请求行，请求头，请求体<br><code>$request_method</code> 请求方法，通常为 “GET” “POST”<br><code>$request_time</code> 请求的处理时间，单位为秒，精度为毫秒。从客户端收到第一个字节开始计时。<br><code>$request_uri</code> 请求的原始URI（带参数）<br><code>$scheme</code> 请求协议  “http” 或 “https”<br><code>$sent_http_name</code> 任意的响应头字段的值<br><code>$server_addr</code> 服务端地址<br><code>$server_name</code> 服务端机器名<br><code>$server_port</code> 服务端端口<br><code>$server_protocol</code> 服务端协议<br><code>$status</code> 响应码<br><code>$tcpinfo_rtt, $tcpinfo_rttvar, $tcpinfo_snd_cwnd, $tcpinfo_rcv_space</code> 客户端TCP连接的信息。只在支持 <code>TCP_INFO</code>socket选项的系统有效<br><code>$time_iso8601</code> 本地时间 ISO 8601格式<br><code>$time_local</code> 本地之间， 标准Log格式</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cibyy3z1c0000m3s6pcljww8y" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-nginx-manual-note-CORE-FUNC" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/" class="article-date">
@@ -100,7 +293,7 @@
       
         <h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
 <p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
-<p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">    debug_connection <span class="number">127.0</span>.0.1;</span><br><span class="line">    debug_connection localhost;</span><br><span class="line">    debug_connection <span class="number">192.0</span>.2.0/<span class="number">24</span>;</span><br><span class="line">    <span class="string">debug_connection :</span>:<span class="number">1</span>;</span><br><span class="line">    debug_connection <span class="number">2001</span>:<span class="number">0</span><span class="string">db8:</span>:/<span class="number">32</span>;</span><br><span class="line">    debug_connection <span class="string">unix:</span>;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">events &#123;&#10;    debug_connection 127.0.0.1;&#10;    debug_connection localhost;&#10;    debug_connection 192.0.2.0/24;&#10;    debug_connection ::1;&#10;    debug_connection 2001:0db8::/32;&#10;    debug_connection unix:;&#10;    ...&#10;&#125;</span><br></pre></td></tr></table></figure></p>
 <p><code>debug_points abort | stop</code><br>当发生严重的内部错误，开启此选项会创建一个core-file（abort）或停止进程已便于后续分析。</p>
 <p><code>lock_file file</code><br>nginx使用锁机制来实现<code>accept_mutex</code>，并将访问串行化到共享内存。大部分系统的锁操作是原子的，这条指令会被忽略。另外一部分系统使用文件锁，这条指令指定了锁文件的前缀。默认值为 <code>lock_file logs/nginx.lock</code></p>
 <p><code>multi_accept on | off</code><br>关闭时一个worker进程每次接受一个请求。开启时，每接到一个请求，就尽可能的取走全部的请求。</p>
@@ -108,7 +301,7 @@
 <p><code>thread_pool name threads=number [max_queue=number]</code><br>定义线程池的名字，线程数量以及任务队列的最大长度。一个请求事件，如果线程池中的所有线程都处于忙碌状态，请求会被塞入任务队列。 <code>max_queue</code> 定义了任务队列的最大长度，默认值为65535。当任务队列溢出，任务将会以一个error进入完成状态。</p>
 <p><code>timer_resolution interval</code><br>降低定时器的精度，进而减少gettimeofday()的系统调用数。默认情况下，每当有内核事件，都会调用gettimeofday()。使用此指令后，nginx只在固定时间间隔后才会调用。</p>
 <p><code>worker_connections number</code><br>设置每个worker 进程可以处理的最大并发连接数。需要注意的是，这个数字包含所有连接(如后端连接以及其它的)，而不仅仅是客户端连接。另一个需要注意的是，实际的并发连接数不能超过当前打开文件的最大限制。这个限制可以使用<code>worker_rlimit_nofile</code>来指定。</p>
-<p><code>worker_cpu_affinity cpumask ...</code><br>绑定worker进程到指定cpu。每个cpu用一个掩码来标识，需要为每个worker进程单独指定。worker进程默认不会绑定到cpu<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">比如</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">4</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0001</span> <span class="number">0010</span> <span class="number">0100</span> <span class="number">1000</span>;</span><br><span class="line">将每个工作进程分别绑定至不同的CPU，而</span><br><span class="line"></span><br><span class="line">worker_processes    <span class="number">2</span>;</span><br><span class="line">worker_cpu_affinity <span class="number">0101</span> <span class="number">1010</span>;</span><br><span class="line">将第一个工作进程绑定至CPU0<span class="regexp">/CPU2，将第二个工作进程绑定至CPU1/</span>CPU3。</span><br></pre></td></tr></table></figure></p>
+<p><code>worker_cpu_affinity cpumask ...</code><br>绑定worker进程到指定cpu。每个cpu用一个掩码来标识，需要为每个worker进程单独指定。worker进程默认不会绑定到cpu<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#27604;&#22914;&#10;&#10;worker_processes    4;&#10;worker_cpu_affinity 0001 0010 0100 1000;&#10;&#23558;&#27599;&#20010;&#24037;&#20316;&#36827;&#31243;&#20998;&#21035;&#32465;&#23450;&#33267;&#19981;&#21516;&#30340;CPU&#65292;&#32780;&#10;&#10;worker_processes    2;&#10;worker_cpu_affinity 0101 1010;&#10;&#23558;&#31532;&#19968;&#20010;&#24037;&#20316;&#36827;&#31243;&#32465;&#23450;&#33267;CPU0/CPU2&#65292;&#23558;&#31532;&#20108;&#20010;&#24037;&#20316;&#36827;&#31243;&#32465;&#23450;&#33267;CPU1/CPU3&#12290;</span><br></pre></td></tr></table></figure></p>
 <p><code>worker_processes number | auto</code><br>定义worker进程数。建议设置为当前cpu的核数，<code>auto</code> 会自动检测。</p>
 <p><code>worker_rlimit_core size</code><br>定义worker进程core文件的尺寸。</p>
 <p><code>worker_rlimit_nofile number</code><br>定义worker进程打开文件的最大数</p>
@@ -118,7 +311,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cibq3ipoe000jgh6aa3j6372y" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cibyy1cwb000jg3s6ykkx7n9i" class="article-share-link">分享到</a>
       
 
       
@@ -140,7 +333,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -158,7 +351,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a><a href="/tags/Tool/" style="font-size: 10px;">Tool</a><a href="/tags/Tools/" style="font-size: 15px;">Tools</a><a href="/tags/git/" style="font-size: 10px;">git</a><a href="/tags/php/" style="font-size: 10px;">php</a><a href="/tags/vim/" style="font-size: 10px;">vim</a>
+      <a href="/tags/Linux/" style="font-size: 20px;">Linux</a> <a href="/tags/Tool/" style="font-size: 10px;">Tool</a> <a href="/tags/Tools/" style="font-size: 15px;">Tools</a> <a href="/tags/git/" style="font-size: 10px;">git</a> <a href="/tags/php/" style="font-size: 10px;">php</a> <a href="/tags/vim/" style="font-size: 10px;">vim</a>
     </div>
   </div>
 
@@ -167,7 +360,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -177,6 +370,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
+          </li>
         
           <li>
             <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
@@ -192,10 +389,6 @@
         
           <li>
             <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
           </li>
         
       </ul>
