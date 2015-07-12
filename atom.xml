@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-12T13:53:49.000Z</updated>
+  <updated>2015-07-12T13:56:43.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[nginx-manual-note-Tuning-Nginx]]></title>
+    <title><![CDATA[Nginx手册阅读笔记 —— 性能调优]]></title>
     <link href="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/"/>
     <id>http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/</id>
     <published>2015-07-12T13:51:44.000Z</published>
-    <updated>2015-07-12T13:53:49.000Z</updated>
+    <updated>2015-07-12T13:56:43.000Z</updated>
     <content type="html"><![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
