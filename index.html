@@ -72,6 +72,80 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-manual-note-Tuning-Nginx" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/" class="article-date">
+  <time datetime="2015-07-12T13:51:44.000Z" itemprop="datePublished">2015-07-12</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/12/nginx-manual-note-Tuning-Nginx/">nginx-manual-note-Tuning-Nginx</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
+<h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
+<p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
+<h3 id="File_Descriptors">File Descriptors</h3><p>文件描述符是用来处理诸如连接或打开文件等事情的系统资源。Nginx最多为每个连接使用2个文件描述符。譬如做代理时，客户端请求占一个文件描述符，发起的后端请求会占一个。如果一个系统有大量的连接，下面的这些设置需要被调整：<br><code>sys.fs.file_max</code><br>系统全局的文件描述符限制</p>
+<p><code>nofile</code><br>用户可使用的文件描述符限制，在 /etc/security/limits.conf文件中设置<br>理解它们的关系：</p>
+<ul>
+<li>所有进程打开的文件描述符数不能超过/proc/sys/fs/file-max</li>
+<li>单个进程打开的文件描述符数不能超过user limit中nofile的soft limit</li>
+<li>nofile的soft limit不能超过其hard limit</li>
+<li>nofile的hard limit不能超过/proc/sys/fs/nr_open</li>
+</ul>
+<h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
+<p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>
+<h2 id="Nginx配置">Nginx配置</h2><h3 id="Worker_Processes">Worker Processes</h3><p>Nginx可以运行多个工作进程，每个进程可以处理大量的连接。你可以通过下面的指令，控制运行多少个工作进程以及每个进程处理多少个连接。</p>
+<p><code>worker_processes</code><br>Nginx 工作进程的数量。在绝大多数情况下，这个数字是CPU的核数。也可以统一设置为 <code>auto</code> 。有时你也不得不增加进程数，譬如每个进程需要操作大量的硬盘I/O。</p>
+<p><code>worker_connections</code><br>每个工作进程能够同时处理的最大连接数。默认值为512，但大多数系统可以调高这个值。具体的值依赖于服务器的配置以及负载。通过测试可以得到这个值。</p>
+<h3 id="Keepalives">Keepalives</h3><p>长连接可以减少开启/关闭连接时，CPU以及网卡的消耗，对于系统性能有着巨大的作用。Nginx支持客户端以及后端的长连接。<br>下列指令处理客户端长连接：<br><code>keepalive_requests</code><br>一个客户端长连接可处理的请求数。默认值为100. 但是更高的值可用于来自一个客户端的压力以及负载测试。</p>
+<p><code>keepalive_timeout</code><br>一个空闲的长连接可以维持的时间</p>
+<p>下列指令用于后端长连接：<br><code>keepalive</code><br>每个工作进程对一个后端服务器可维持的长连接数。没有默认值。 为了启用后端长连接，你还需要添加下面的指令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_http_version 1.1;&#10;proxy_set_header Connection &#34;&#34;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Access_Logging">Access Logging</h3><p>记录每个请求的日志需要同时消耗CPU以及I/O。一个有效减少消耗的方法是启用日志缓存。它使Nginx通过缓存收集请求日志并通过一次写操作全部写入文件。 可以通过<code>access_log</code>指令的 <code>buffer=size</code> 参数来设置这个缓存的大小。也可以通过<code>flush=time</code>参数，设置Nginx在一个指定的时间后刷新log到文件。 通过以上两个配置，Nginx当收集日志量超过缓存或者超过一定的时候执行写操作，将日志写入文件。此外， 当工作进程重新打开日志文件或结束时，也会执行一次写操作。</p>
+<h3 id="Sendfile">Sendfile</h3><p>sendfile 是一个操作系统选项，而Nginx也可以开启它。它可以在内核内，在文件描述符间拷贝数据(零拷贝)来实现TCP的快速数据传输。Nginx通过它来把缓存中或硬盘上的内容写到socket上，避免了内核态到用户态间的上下文切换。使这种操作消耗更少CPU并且更快。因为数据并不会流经用户态，所以在处理过程中不能加入内容过滤器，所以我们无法通过任何的Nginx过滤器来改变数据内容。例如gzip。  默认是关闭的。</p>
+<h3 id="Limits">Limits</h3><p>Nginx以及Nginx Plus 允许你设置一些限制，来阻止对用户体验，安全有不利影响的客户端请求消耗太多的资源。</p>
+<p><code>limit_conn</code> <code>limit_conn_zone</code><br>限制来自同一个客户端IP的请求数。 这些设置可以阻止同一个客户端发起大量请求而消耗过多的服务端资源。</p>
+<p><code>limit_rate</code><br>限制一个客户端在一个连接内可以使用的带宽(下载速率)。通过这个设置，可以避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。</p>
+<p><code>limit_req</code> <code>limit_req_zone</code><br>限制Nginx 处理请求的速率。和<code>limit_rate</code>一样，避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。也可以被用来提高安全性，类似登陆页等服务，限制请求速率，使速率足够满足人们正常的请求，但又可以限制恶意程序的请求。</p>
+<p><code>max_conns</code><br>对于后端服务器，设置可以同时接收的最大请求数。可以避免后端程序过载。默认值为0，意味没有限制。</p>
+<p><code>queue</code><br>如果为后端服务器设置了 <code>max_conns</code>，当由于后端没有可用的服务器或后端服务器达到了最大的上限导致请求无法处理时，这个指令使一定数目的请求置于一个队列指定的时间。如果没设置这个指令，不会有队列产生。</p>
+<h2 id="Additional_Considerations">Additional Considerations</h2><p>Nginx 的一些其它特性也可以用来提高web服务的性能而且并不输给上述的调优效果。值得提醒的是，他们的效果也是非常显著的。我们将讨论其中的两个特性</p>
+<h3 id="Caching">Caching</h3><p>通过启动一个用于负载均衡的Nginx实例的缓存，可以动态的改善对客户端的响应时间同时动态的减少对后端服务的负载。缓存可以自己作为一个大的主题，在这里并不能覆盖完整。详细内容可以参考 [<a href="https://www.nginx.com/resources/admin-guide/content-caching/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/content-caching/</a>]</p>
+<h3 id="Compression">Compression</h3><p>压缩返回给客户端的响应体，可以极大的减少它们的尺寸以及占用的带宽。压缩数据会消耗CPU资源，所以他们对于需要减少带宽使用的服务格外有用。一个非常重要的注意事项，对于已经压缩过的资源不能再进行压缩，如JPEG文件。更详细的内容可以参考[<a href="https://www.nginx.com/resources/admin-guide/compression-and-decompression/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/compression-and-decompression/</a>] </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cic0jl0wf000j016aot5mljmp" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-nginx-manual-note-HTTP-CORE-MODULE" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" class="article-date">
@@ -252,7 +326,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cibyy3z1c0000m3s6pcljww8y" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cic0jl0wi000m016aqd864mcb" class="article-share-link">分享到</a>
       
 
       
@@ -311,7 +385,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cibyy1cwb000jg3s6ykkx7n9i" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cic0jl0wk000o016a7bcsb0lv" class="article-share-link">分享到</a>
       
 
       
@@ -410,7 +484,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibyy1cwm000zg3s6suivnnz2" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cic0jl0wv0013016alqc916ef" class="article-share-link">分享到</a>
       
 
       
@@ -467,7 +541,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibyy1cw10007g3s6q33b84ll" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cic0jl0w30007016a785xij1q" class="article-share-link">分享到</a>
       
 
       
@@ -522,68 +596,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibyy1cw6000ag3s6jeupra8r" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
-  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
-<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
-<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
-<p>　　MapReduce实现的大概过程如下：</p>
-<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
-<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
-<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
-<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
-<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
-<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
-<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
-<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
-<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
-<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
-<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
-<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
-<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
-<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
-<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
-<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibyy1cw30008g3s6ht98gtlv" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cic0jl0w8000a016aknxtqrft" class="article-share-link">分享到</a>
       
 
       
@@ -644,7 +657,68 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibyy1cw50009g3s6jl47ebfx" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cic0jl0w70009016a2xikroxe" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
+  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
+<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
+<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
+<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
+<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
+<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
+<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
+<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
+<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cic0jl0w60008016af9gn1dsa" class="article-share-link">分享到</a>
       
 
       
@@ -691,7 +765,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cibyy1cw00006g3s6ng6wa2ng" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cic0jl0w10006016am9869ny3" class="article-share-link">分享到</a>
       
 
       
@@ -743,7 +817,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cibyy1cw9000eg3s6uo0b5aiw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cic0jl0wb000e016ax00xvye8" class="article-share-link">分享到</a>
       
 
       
@@ -1175,7 +1249,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cibyy1cwe000mg3s6gekcahqt" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cic0jl0wl000q016aiq8gk9ad" class="article-share-link">分享到</a>
       
 
       
@@ -1224,7 +1298,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibyy1cwg000qg3s6w4w7i05b" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cic0jl0wo000u016a06m2ktc7" class="article-share-link">分享到</a>
       
 
       
@@ -1476,7 +1550,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cibyy1cwj000wg3s6b0jnob9i" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cic0jl0wt0010016agz8kvt5g" class="article-share-link">分享到</a>
       
 
       
@@ -1660,7 +1734,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cibyy1cwh000tg3s6vm6dz1n2" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cic0jl0wq000x016avxnz5j3j" class="article-share-link">分享到</a>
       
 
       
@@ -1751,7 +1825,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cibyy1cw8000bg3s65v2v3jfz" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cic0jl0wa000b016aef1ptu1v" class="article-share-link">分享到</a>
       
 
       
@@ -1766,62 +1840,10 @@
 
 
   
-    <article id="post-初识GitBook" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/04/29/初识GitBook/" class="article-date">
-  <time datetime="2014-04-29T07:27:00.000Z" itemprop="datePublished">2014-04-29</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/git/">git</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/04/29/初识GitBook/">初识GitBook</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookIO/gitbook</a> )的产品频繁的占据视线。如果你是一个电子书爱好者，如果你有一些开源项目并希望制作优雅华美的文档，或者你只是纯粹的想把github上的一些开源图书”据为己有”， GitBook都可以帮到你。</p>
-<p>确切的来说，GitBook是一款用Node.js库构建的命令行工具，使用这个工具可以基于GitHub/Git／Markdown等电子书源码来制作精美的电子图书，今天我们以笔者最近在读的《Go Web 编程》(<a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank" rel="external">https://github.com/astaxie/build-web-application-with-golang</a>) 尝试构建一本本地的电子图书。</p>
-<h2 id="安装Nodejs">安装Nodejs</h2><p>安装GitBook首先需要有npm+nodejs，笔者的当前环境是Ubuntu 12.04 LTS, nodejs的版本较旧，我们需要先升级下下～</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo add-apt-repository ppa:chris-lea/node.js&#10;sudo apt-get update&#10;sudo apt-get install python-software-properties python g++ make nodejs</span><br></pre></td></tr></table></figure>
-<h2 id="安装GitBook">安装GitBook</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install gitbook -g</span><br></pre></td></tr></table></figure>
-<h2 id="下载《Go_Web_编程》源码">下载《Go Web 编程》源码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git://github.com/astaxie/build-web-application-with-golang.git GoWeb</span><br></pre></td></tr></table></figure>
-<h2 id="以Serve的方式浏览">以Serve的方式浏览</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd GoWeb/ebook #&#36827;&#20837;ebook&#30446;&#24405;&#10;gitbook serve #&#21551;&#21160;serve</span><br></pre></td></tr></table></figure>
-<p>这样gitbook就以serve的方式启动了，此时我们可以访问 <a href="http://localhost:4000/" target="_blank" rel="external">http://localhost:4000/</a> ，就可以看到排版良好的电子书内容了</p>
-<p><img class="center" src="http://user-image.logdown.io/user/1417/blog/1391/post/196328/sEyRsqDoTMaDSJEiLmDF_2014-04-29%2016:40:19%E7%9A%84%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt="GoWeb-Book.png"></p>
-<h2 id="GitBook的其他输出方式">GitBook的其他输出方式</h2><p>除了本地的Serve方式，GitBook还支持PDF,E-Book等方式的输出，不过需要安装一些转换插件,见官方文档：<a href="https://github.com/GitbookIO/gitbook#output-formats" target="_blank" rel="external">https://github.com/GitbookIO/gitbook#output-formats</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cibyy1cvq0001g3s6tbva1ljg" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/git/">git</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 </section>
       
@@ -1831,7 +1853,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1858,7 +1880,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1868,6 +1890,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/">nginx-manual-note-Tuning-Nginx</a>
+          </li>
         
           <li>
             <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
@@ -1883,10 +1909,6 @@
         
           <li>
             <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
           </li>
         
       </ul>

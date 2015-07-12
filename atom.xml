@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-11T11:11:00.000Z</updated>
+  <updated>2015-07-12T13:53:49.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -13,6 +13,51 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[nginx-manual-note-Tuning-Nginx]]></title>
+    <link href="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/"/>
+    <id>http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/</id>
+    <published>2015-07-12T13:51:44.000Z</published>
+    <updated>2015-07-12T13:53:49.000Z</updated>
+    <content type="html"><![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
+<h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
+<p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
+<h3 id="File_Descriptors">File Descriptors</h3><p>文件描述符是用来处理诸如连接或打开文件等事情的系统资源。Nginx最多为每个连接使用2个文件描述符。譬如做代理时，客户端请求占一个文件描述符，发起的后端请求会占一个。如果一个系统有大量的连接，下面的这些设置需要被调整：<br><code>sys.fs.file_max</code><br>系统全局的文件描述符限制</p>
+<p><code>nofile</code><br>用户可使用的文件描述符限制，在 /etc/security/limits.conf文件中设置<br>理解它们的关系：</p>
+<ul>
+<li>所有进程打开的文件描述符数不能超过/proc/sys/fs/file-max</li>
+<li>单个进程打开的文件描述符数不能超过user limit中nofile的soft limit</li>
+<li>nofile的soft limit不能超过其hard limit</li>
+<li>nofile的hard limit不能超过/proc/sys/fs/nr_open</li>
+</ul>
+<h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
+<p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>
+<h2 id="Nginx配置">Nginx配置</h2><h3 id="Worker_Processes">Worker Processes</h3><p>Nginx可以运行多个工作进程，每个进程可以处理大量的连接。你可以通过下面的指令，控制运行多少个工作进程以及每个进程处理多少个连接。</p>
+<p><code>worker_processes</code><br>Nginx 工作进程的数量。在绝大多数情况下，这个数字是CPU的核数。也可以统一设置为 <code>auto</code> 。有时你也不得不增加进程数，譬如每个进程需要操作大量的硬盘I/O。</p>
+<p><code>worker_connections</code><br>每个工作进程能够同时处理的最大连接数。默认值为512，但大多数系统可以调高这个值。具体的值依赖于服务器的配置以及负载。通过测试可以得到这个值。</p>
+<h3 id="Keepalives">Keepalives</h3><p>长连接可以减少开启/关闭连接时，CPU以及网卡的消耗，对于系统性能有着巨大的作用。Nginx支持客户端以及后端的长连接。<br>下列指令处理客户端长连接：<br><code>keepalive_requests</code><br>一个客户端长连接可处理的请求数。默认值为100. 但是更高的值可用于来自一个客户端的压力以及负载测试。</p>
+<p><code>keepalive_timeout</code><br>一个空闲的长连接可以维持的时间</p>
+<p>下列指令用于后端长连接：<br><code>keepalive</code><br>每个工作进程对一个后端服务器可维持的长连接数。没有默认值。 为了启用后端长连接，你还需要添加下面的指令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_http_version 1.1;&#10;proxy_set_header Connection &#34;&#34;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Access_Logging">Access Logging</h3><p>记录每个请求的日志需要同时消耗CPU以及I/O。一个有效减少消耗的方法是启用日志缓存。它使Nginx通过缓存收集请求日志并通过一次写操作全部写入文件。 可以通过<code>access_log</code>指令的 <code>buffer=size</code> 参数来设置这个缓存的大小。也可以通过<code>flush=time</code>参数，设置Nginx在一个指定的时间后刷新log到文件。 通过以上两个配置，Nginx当收集日志量超过缓存或者超过一定的时候执行写操作，将日志写入文件。此外， 当工作进程重新打开日志文件或结束时，也会执行一次写操作。</p>
+<h3 id="Sendfile">Sendfile</h3><p>sendfile 是一个操作系统选项，而Nginx也可以开启它。它可以在内核内，在文件描述符间拷贝数据(零拷贝)来实现TCP的快速数据传输。Nginx通过它来把缓存中或硬盘上的内容写到socket上，避免了内核态到用户态间的上下文切换。使这种操作消耗更少CPU并且更快。因为数据并不会流经用户态，所以在处理过程中不能加入内容过滤器，所以我们无法通过任何的Nginx过滤器来改变数据内容。例如gzip。  默认是关闭的。</p>
+<h3 id="Limits">Limits</h3><p>Nginx以及Nginx Plus 允许你设置一些限制，来阻止对用户体验，安全有不利影响的客户端请求消耗太多的资源。</p>
+<p><code>limit_conn</code> <code>limit_conn_zone</code><br>限制来自同一个客户端IP的请求数。 这些设置可以阻止同一个客户端发起大量请求而消耗过多的服务端资源。</p>
+<p><code>limit_rate</code><br>限制一个客户端在一个连接内可以使用的带宽(下载速率)。通过这个设置，可以避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。</p>
+<p><code>limit_req</code> <code>limit_req_zone</code><br>限制Nginx 处理请求的速率。和<code>limit_rate</code>一样，避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。也可以被用来提高安全性，类似登陆页等服务，限制请求速率，使速率足够满足人们正常的请求，但又可以限制恶意程序的请求。</p>
+<p><code>max_conns</code><br>对于后端服务器，设置可以同时接收的最大请求数。可以避免后端程序过载。默认值为0，意味没有限制。</p>
+<p><code>queue</code><br>如果为后端服务器设置了 <code>max_conns</code>，当由于后端没有可用的服务器或后端服务器达到了最大的上限导致请求无法处理时，这个指令使一定数目的请求置于一个队列指定的时间。如果没设置这个指令，不会有队列产生。</p>
+<h2 id="Additional_Considerations">Additional Considerations</h2><p>Nginx 的一些其它特性也可以用来提高web服务的性能而且并不输给上述的调优效果。值得提醒的是，他们的效果也是非常显著的。我们将讨论其中的两个特性</p>
+<h3 id="Caching">Caching</h3><p>通过启动一个用于负载均衡的Nginx实例的缓存，可以动态的改善对客户端的响应时间同时动态的减少对后端服务的负载。缓存可以自己作为一个大的主题，在这里并不能覆盖完整。详细内容可以参考 [<a href="https://www.nginx.com/resources/admin-guide/content-caching/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/content-caching/</a>]</p>
+<h3 id="Compression">Compression</h3><p>压缩返回给客户端的响应体，可以极大的减少它们的尺寸以及占用的带宽。压缩数据会消耗CPU资源，所以他们对于需要减少带宽使用的服务格外有用。一个非常重要的注意事项，对于已经压缩过的资源不能再进行压缩，如JPEG文件。更详细的内容可以参考[<a href="https://www.nginx.com/resources/admin-guide/compression-and-decompression/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/compression-and-decompression/</a>] </p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>]]>
+    </summary>
+    
+      <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Nginx手册阅读笔记 —— http-core-module]]></title>
@@ -343,10 +388,10 @@
   
   <entry>
     <title><![CDATA[[转] 快速理解MapReduce]]></title>
-    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/"/>
-    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/</id>
+    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-05-18T12:49:31.000Z</updated>
+    <updated>2015-05-18T12:50:45.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -377,10 +422,10 @@
   
   <entry>
     <title><![CDATA[[转] 快速理解MapReduce]]></title>
-    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/"/>
-    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/</id>
+    <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/"/>
+    <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-05-18T12:50:45.000Z</updated>
+    <updated>2015-05-18T12:49:31.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>

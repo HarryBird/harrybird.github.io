@@ -158,7 +158,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cibyy1cwm000zg3s6suivnnz2" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cic0jl0wv0013016alqc916ef" class="article-share-link">分享到</a>
       
 
       
@@ -215,7 +215,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cibyy1cw10007g3s6q33b84ll" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cic0jl0w30007016a785xij1q" class="article-share-link">分享到</a>
       
 
       
@@ -270,68 +270,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cibyy1cw6000ag3s6jeupra8r" class="article-share-link">分享到</a>
-      
-
-      
-
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
-  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
-<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
-<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
-<p>　　MapReduce实现的大概过程如下：</p>
-<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
-<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
-<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
-<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
-<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
-<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
-<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
-<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
-<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
-<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
-<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
-<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
-<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
-<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
-<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
-<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cibyy1cw30008g3s6ht98gtlv" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cic0jl0w8000a016aknxtqrft" class="article-share-link">分享到</a>
       
 
       
@@ -392,7 +331,68 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cibyy1cw50009g3s6jl47ebfx" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cic0jl0w70009016a2xikroxe" class="article-share-link">分享到</a>
+      
+
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-to-to-quickly-grasp-mapreduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/12/03/to-to-quickly-grasp-mapreduce/" class="article-date">
+  <time datetime="2014-12-03T07:50:00.000Z" itemprop="datePublished">2014-12-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/12/03/to-to-quickly-grasp-mapreduce/">[转] 快速理解MapReduce</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
+<p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
+<p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
+<p>　　Map阶段的key/value对的格式是由输入的格式所决定的，如果是默认的TextInputFormat，则每行作为一个记录进程处理，其中key为此行的开头相对于文件的起始位置，value就是此行的字符文本，Map阶段的输出的key/value对的格式必须同Reduce阶段的输入key/value对的格式相对应</p>
+<p>　　对于上面的例子，在map过程，输入的key-value对如下：<br>　　(0 ,0067011990999991950051507+0000+)<br>　　(1 ,0043011990999991950051512+0022+)<br>　　(2 ,0043011990999991950051518-0011+)<br>　　(3 ,0043012650999991949032412+0111+)<br>　　(4 ,0043012650999991949032418+0078+)<br>　　(5 ,0067011990999991937051507+0001+)<br>　　(6 ,0043011990999991937051512-0002+)<br>　　(7 ,0043011990999991945051518+0001+)<br>　　(8 ,0043012650999991945032412+0002+)<br>　　(9 ,0043012650999991945032418+0078+) </p>
+<p>　　将上面的数据作为用户编写的map函数的输入，通过对每一行字符串的解析，得到年/温度的key/value对作为输出：<br>　　(1950, 0)<br>　　(1950, 22)<br>　　(1950, -11)<br>　　(1949, 111)<br>　　(1949, 78)<br>　　(1937, 1)<br>　　(1937, -2)<br>　　(1945, 1)<br>　　(1945, 2)<br>　　(1945, 78) </p>
+<p>　　在Reduce过程，将map过程中的输出，按照相同的key将value放到同一个列表中作为用户写的reduce函数的输入<br>　　(1950, [0, 22, –11])<br>　　(1949, [111, 78])<br>　　(1937, [1, -2])<br>　　(1945, [1, 2, 78]) </p>
+<p>　　在Reduce过程中，在列表中选择出最大的温度，将年/最大温度的key/value作为输出：<br>　　(1950, 22)<br>　　(1949, 111)<br>　　(1937, 1)<br>　　(1945, 78) </p>
+<p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cic0jl0w60008016af9gn1dsa" class="article-share-link">分享到</a>
       
 
       
@@ -439,7 +439,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cibyy1cw00006g3s6ng6wa2ng" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cic0jl0w10006016am9869ny3" class="article-share-link">分享到</a>
       
 
       
@@ -491,7 +491,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cibyy1cw9000eg3s6uo0b5aiw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cic0jl0wb000e016ax00xvye8" class="article-share-link">分享到</a>
       
 
       
@@ -923,7 +923,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cibyy1cwe000mg3s6gekcahqt" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cic0jl0wl000q016aiq8gk9ad" class="article-share-link">分享到</a>
       
 
       
@@ -972,7 +972,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cibyy1cwg000qg3s6w4w7i05b" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cic0jl0wo000u016a06m2ktc7" class="article-share-link">分享到</a>
       
 
       
@@ -1224,7 +1224,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cibyy1cwj000wg3s6b0jnob9i" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cic0jl0wt0010016agz8kvt5g" class="article-share-link">分享到</a>
       
 
       
@@ -1408,7 +1408,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cibyy1cwh000tg3s6vm6dz1n2" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cic0jl0wq000x016avxnz5j3j" class="article-share-link">分享到</a>
       
 
       
@@ -1499,7 +1499,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cibyy1cw8000bg3s65v2v3jfz" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cic0jl0wa000b016aef1ptu1v" class="article-share-link">分享到</a>
       
 
       
@@ -1555,7 +1555,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cibyy1cvq0001g3s6tbva1ljg" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cic0jl0vp0001016ap5spsv5d" class="article-share-link">分享到</a>
       
 
       
@@ -1579,7 +1579,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1606,7 +1606,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1616,6 +1616,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/">nginx-manual-note-Tuning-Nginx</a>
+          </li>
         
           <li>
             <a href="/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/">Nginx手册阅读笔记 —— http-core-module</a>
@@ -1631,10 +1635,6 @@
         
           <li>
             <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/">[转] 简要介绍Hadoop的各个主要模块</a>
           </li>
         
       </ul>
