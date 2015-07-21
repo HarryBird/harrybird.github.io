@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-21T13:59:25.000Z</updated>
+  <updated>2015-07-21T14:02:52.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -15,12 +15,12 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[nginx-manual-note-CONTROL-NGINX]]></title>
+    <title><![CDATA[Nginx手册阅读笔记 —— 管理Nginx]]></title>
     <link href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/"/>
     <id>http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/</id>
     <published>2015-07-21T12:48:43.000Z</published>
-    <updated>2015-07-21T13:59:25.000Z</updated>
-    <content type="html"><![CDATA[<h1 id="Nginx手册阅读笔记_——_管理Nginx">Nginx手册阅读笔记 —— 管理Nginx</h1><p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
+    <updated>2015-07-21T14:02:52.000Z</updated>
+    <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
 <p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
 <table>
 <thead>
@@ -98,7 +98,8 @@
 <p>如果新的主进程退出了，旧的主进程会忽略.oldbin后缀，从文件中取到pid。<br>如果升级成功，旧的主进程会被发送<code>QUIT</code>信号而退出，只有新的进程将被保留：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;36264     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h1 id="Nginx手册阅读笔记_——_管理Nginx">Nginx手册阅读笔记 —— 管理Nginx</h1><p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="ext]]>
+    <![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
+<p>ng]]>
     </summary>
     
       <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
