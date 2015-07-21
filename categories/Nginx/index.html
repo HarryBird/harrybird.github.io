@@ -74,6 +74,131 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-manual-note-CONTROL-NGINX" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/" class="article-date">
+  <time datetime="2015-07-21T12:48:43.000Z" itemprop="datePublished">2015-07-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+    
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/">nginx-manual-note-CONTROL-NGINX</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Nginx手册阅读笔记_——_管理Nginx">Nginx手册阅读笔记 —— 管理Nginx</h1><p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
+<p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM, INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>HUP</td>
+<td>重新加载配置，用新的配置启动新的进程，优雅的关闭旧的进程</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>USR2</td>
+<td>升级可执行文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>优雅关闭worker进程</td>
+</tr>
+</tbody>
+</table>
+<p>也可以通过信号来控制独立的工作进程，尽管它不是必须的。 支持的信号如下：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM,INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>非正常终止进程来调试</td>
+</tr>
+</tbody>
+</table>
+<h2 id="重新加载配置">重新加载配置</h2><p>为了使nginx重新加载配置文件，可以发送一个<code>HUP</code>信号给主进程。主进程首先会检查配置语法的有效性，然后重试重新应用新的配置，即打开日志文件并监听新的套接字。如果失败，将回退所有新的配置，继续使用旧的配置。如果成功，主进程会启动新的worker进程，并向旧进程发送消息要求它们优雅的关闭。 旧的工作进程将关闭监听的套接字，然后继续完成当前客户端连接的请求。当完成所有客户端请求，旧的worker进程被关闭。<br>让我们通过一个实力来深入了解下。 设想 nginx 运行在 FreeBSD 4.x，执行命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps axw -o pid,ppid,user,%cpu,vsz,wchan,command | egrep &#39;(nginx|PID)&#39;&#10;  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33127 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33128 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;33129 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>如果一个<code>HUP</code>信号被发送给主进程， 输出变为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33129 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>pid 为 33129 的旧worker进程仍然在工作， 再过一段时间它退出了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<h2 id="日志切割">日志切割</h2><p>为了切割日志文件，它们首先需要被重命名， 然后发送<code>USR1</code>信号给主进程。主进程会重新打开所有当前的日志文件，并将它们分配给worker进程的执行用户作为owner。 再成功打开所有日志文件后， 主进程关闭这些文件并发送消息给所有的worker进程，让它们来打开这些文件。 worker进程会立即关闭旧文件并打开新的文件。旧文件可以立即被后续的进程处理，譬如执行压缩。</p>
+<h2 id="在线升级可执行文件">在线升级可执行文件</h2><p>为了升级服务端可执行文件， 旧的可执行文件需要被新的可执行文件替代。发送 <code>USR2</code>信号给主进程。主进程首先使用 .oldbin 尾缀重命名它的pid文件，如/usr/local/nginx/logs/nginx.pid.oldbin， 然后启动新的可执行文件并启动新的worker进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>这时所有的worker进程(旧的和新的)同时在接受请求。 如果发送 <code>WINCH</code> 信号给前一个主进程， 它将发送消息给它的worker进程，要求它们优雅的关闭，此时它们将开始退出进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>过一段时间，只有新的worker进程在处理请求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>需要注意，旧的主进程并不会关闭它的监听套接字，如果需要可以重新启动它的worker进程。如果基于一些原因，新的可执行文件没有很好的工作，可以使用下面的任一方式：</p>
+<ul>
+<li>发送<code>HUP</code>信号给旧的主进程。 旧的主进程将在不加载新配置的情况下，直接启动新的worker进程。 之后，发送<code>QUIT</code>信号给新的主进程，所有新的进程将优雅退出。</li>
+<li>发送<code>TERM</code>信号给新的主进程。它将发送消息给它的worker进程，要求它们立即退出 (如果由于某种原因新进程没有退出，主进程会发送kill信号强制它们退出)。  当新的主进程退出，旧的主进程会自动启动新的worker进程</li>
+</ul>
+<p>如果新的主进程退出了，旧的主进程会忽略.oldbin后缀，从文件中取到pid。<br>如果升级成功，旧的主进程会被发送<code>QUIT</code>信号而退出，只有新的进程将被保留：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;36264     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/" data-id="cicdc9adz000q576awp2ro94l" class="article-share-link">分享到</a>
+      
+
+      
+        <a href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-nginx-manual-note-Tuning-Nginx" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/" class="article-date">
@@ -137,7 +262,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cic95g5wj000jce6ahhd6eb2h" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cicdc9adt000j576a6t3vxfpg" class="article-share-link">分享到</a>
       
 
       
@@ -335,7 +460,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cic95g5wm000mce6am126awbf" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cicdc9adw000m576aabc7jrv6" class="article-share-link">分享到</a>
       
 
       
@@ -399,7 +524,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cic95g5wo000oce6ag2yqa7ew" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cicdc9ady000o576atxrlz9tw" class="article-share-link">分享到</a>
       
 
       
@@ -424,7 +549,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -451,7 +576,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -461,6 +586,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/">nginx-manual-note-CONTROL-NGINX</a>
+          </li>
         
           <li>
             <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/">Nginx手册阅读笔记 —— 性能调优</a>
@@ -476,10 +605,6 @@
         
           <li>
             <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
           </li>
         
       </ul>

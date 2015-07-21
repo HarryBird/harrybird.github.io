@@ -74,6 +74,131 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-nginx-manual-note-CONTROL-NGINX" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/" class="article-date">
+  <time datetime="2015-07-21T12:48:43.000Z" itemprop="datePublished">2015-07-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Nginx/">Nginx</a>
+  </div>
+
+    
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/">nginx-manual-note-CONTROL-NGINX</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Nginx手册阅读笔记_——_管理Nginx">Nginx手册阅读笔记 —— 管理Nginx</h1><p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
+<p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM, INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>HUP</td>
+<td>重新加载配置，用新的配置启动新的进程，优雅的关闭旧的进程</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>USR2</td>
+<td>升级可执行文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>优雅关闭worker进程</td>
+</tr>
+</tbody>
+</table>
+<p>也可以通过信号来控制独立的工作进程，尽管它不是必须的。 支持的信号如下：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM,INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>非正常终止进程来调试</td>
+</tr>
+</tbody>
+</table>
+<h2 id="重新加载配置">重新加载配置</h2><p>为了使nginx重新加载配置文件，可以发送一个<code>HUP</code>信号给主进程。主进程首先会检查配置语法的有效性，然后重试重新应用新的配置，即打开日志文件并监听新的套接字。如果失败，将回退所有新的配置，继续使用旧的配置。如果成功，主进程会启动新的worker进程，并向旧进程发送消息要求它们优雅的关闭。 旧的工作进程将关闭监听的套接字，然后继续完成当前客户端连接的请求。当完成所有客户端请求，旧的worker进程被关闭。<br>让我们通过一个实力来深入了解下。 设想 nginx 运行在 FreeBSD 4.x，执行命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps axw -o pid,ppid,user,%cpu,vsz,wchan,command | egrep &#39;(nginx|PID)&#39;&#10;  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33127 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33128 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;33129 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>如果一个<code>HUP</code>信号被发送给主进程， 输出变为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33129 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>pid 为 33129 的旧worker进程仍然在工作， 再过一段时间它退出了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<h2 id="日志切割">日志切割</h2><p>为了切割日志文件，它们首先需要被重命名， 然后发送<code>USR1</code>信号给主进程。主进程会重新打开所有当前的日志文件，并将它们分配给worker进程的执行用户作为owner。 再成功打开所有日志文件后， 主进程关闭这些文件并发送消息给所有的worker进程，让它们来打开这些文件。 worker进程会立即关闭旧文件并打开新的文件。旧文件可以立即被后续的进程处理，譬如执行压缩。</p>
+<h2 id="在线升级可执行文件">在线升级可执行文件</h2><p>为了升级服务端可执行文件， 旧的可执行文件需要被新的可执行文件替代。发送 <code>USR2</code>信号给主进程。主进程首先使用 .oldbin 尾缀重命名它的pid文件，如/usr/local/nginx/logs/nginx.pid.oldbin， 然后启动新的可执行文件并启动新的worker进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>这时所有的worker进程(旧的和新的)同时在接受请求。 如果发送 <code>WINCH</code> 信号给前一个主进程， 它将发送消息给它的worker进程，要求它们优雅的关闭，此时它们将开始退出进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>过一段时间，只有新的worker进程在处理请求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+<p>需要注意，旧的主进程并不会关闭它的监听套接字，如果需要可以重新启动它的worker进程。如果基于一些原因，新的可执行文件没有很好的工作，可以使用下面的任一方式：</p>
+<ul>
+<li>发送<code>HUP</code>信号给旧的主进程。 旧的主进程将在不加载新配置的情况下，直接启动新的worker进程。 之后，发送<code>QUIT</code>信号给新的主进程，所有新的进程将优雅退出。</li>
+<li>发送<code>TERM</code>信号给新的主进程。它将发送消息给它的worker进程，要求它们立即退出 (如果由于某种原因新进程没有退出，主进程会发送kill信号强制它们退出)。  当新的主进程退出，旧的主进程会自动启动新的worker进程</li>
+</ul>
+<p>如果新的主进程退出了，旧的主进程会忽略.oldbin后缀，从文件中取到pid。<br>如果升级成功，旧的主进程会被发送<code>QUIT</code>信号而退出，只有新的进程将被保留：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;36264     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/" data-id="cicdc9adz000q576awp2ro94l" class="article-share-link">分享到</a>
+      
+
+      
+        <a href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-nginx-manual-note-Tuning-Nginx" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/" class="article-date">
@@ -137,7 +262,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cic95g5wj000jce6ahhd6eb2h" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cicdc9adt000j576a6t3vxfpg" class="article-share-link">分享到</a>
       
 
       
@@ -335,7 +460,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cic95g5wm000mce6am126awbf" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/" data-id="cicdc9adw000m576aabc7jrv6" class="article-share-link">分享到</a>
       
 
       
@@ -399,7 +524,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cic95g5wo000oce6ag2yqa7ew" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cicdc9ady000o576atxrlz9tw" class="article-share-link">分享到</a>
       
 
       
@@ -503,7 +628,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cic95g5x10013ce6a3tx66pir" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cicdc9aeb0015576ajym4l5i3" class="article-share-link">分享到</a>
       
 
       
@@ -565,7 +690,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cic95g5w80007ce6ayyk1k644" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/" data-id="cicdc9adh0007576a2c6nr2m3" class="article-share-link">分享到</a>
       
 
       
@@ -625,7 +750,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cic95g5wc000ace6aov8s1grh" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/" data-id="cicdc9adm000a576a9gnnting" class="article-share-link">分享到</a>
       
 
       
@@ -691,7 +816,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cic95g5wb0009ce6ae4ga5vbw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/" data-id="cicdc9adk0009576a9pp2ldi9" class="article-share-link">分享到</a>
       
 
       
@@ -757,7 +882,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cic95g5wa0008ce6a9yas7v8v" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cicdc9adj0008576am3gzcq9m" class="article-share-link">分享到</a>
       
 
       
@@ -809,7 +934,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cic95g5w60006ce6a6y1j3vhs" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/" data-id="cicdc9adg0006576ayw2lj13g" class="article-share-link">分享到</a>
       
 
       
@@ -866,7 +991,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cic95g5wg000ece6aj4f3yedw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cicdc9adr000e576ais85c4ap" class="article-share-link">分享到</a>
       
 
       
@@ -1303,7 +1428,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cic95g5wp000qce6aohxuneut" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cicdc9ae1000s576a22nsl2b0" class="article-share-link">分享到</a>
       
 
       
@@ -1357,7 +1482,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cic95g5wr000uce6a371i29lw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cicdc9ae4000w576ad0vh8074" class="article-share-link">分享到</a>
       
 
       
@@ -1614,7 +1739,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cic95g5wx0010ce6ar4bp7ex7" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cicdc9ae90012576a0s3avr7i" class="article-share-link">分享到</a>
       
 
       
@@ -1803,7 +1928,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cic95g5wu000xce6af8a6d42q" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cicdc9ae6000z576a0l0qdsy5" class="article-share-link">分享到</a>
       
 
       
@@ -1812,102 +1937,6 @@
 
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-simple-steps-to-build-cool-vim-development-environment" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" class="article-date">
-  <time datetime="2014-05-05T04:05:00.000Z" itemprop="datePublished">2014-05-05</time>
-</a>
-    
-    
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/">简单几步搭建超酷的Vim开发环境</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
-<p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
-<p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
-<h1 id="安装_spf13-vim">安装 spf13-vim</h1><h2 id="官方的安装步骤">官方的安装步骤</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh &#38;&#38; sh spf13-vim.sh</span><br></pre></td></tr></table></figure>
-<p>官方的安装步骤很简便，但是综合了我国GFW的国情后，稍显得有些问题。官方的安装脚本会自动执行Vundle安装内置的插件，Vundle会自动Clone GitHub上的这些扩展，但是在我国从Github上clone代码还是很慢的，默认安装的插件也比较多，整个安装过程就比较慢。另外有些默认插件可能是你不需要的，都安装了用不上，费电不说，其实拖慢Vim的执行速度。下面我们看看怎样做一些设置。</p>
-<h2 id="自定义的安装步骤">自定义的安装步骤</h2><p>首先我们只下载安装脚本，但不要默认执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh</span><br></pre></td></tr></table></figure></p>
-<p>编辑spf13-vim.sh, 可以在最后看到这样一行, 看setup_vundle的函数定义，知道这个函数就是执行vundle 安装插件的命令，我们用 <code>&quot;</code> 注释掉这一行， 然后给脚本执行权限并执行spf安装脚本。chmod u+x spf13-vim.sh ＆＆ sh spf13-vim.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; setup_vundle    &#34;Now updating/installing plugins using Vundle&#34;</span><br></pre></td></tr></table></figure></p>
-<p>很快我们看到spf13安装完成了，在home目录下执行 ls -lha | grep vim  可以看到spf13安装的vim配置文件的软链接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lrwxrwxrwx   1 harry harry   33 May  5 11:27 .vimrc -&#62; /home/tianhai/.spf13-vim-3/.vimrc&#10;lrwxrwxrwx   1 harry harry   40 May  5 11:27 .vimrc.before -&#62; /home/tianhai/.spf13-vim-3/.vimrc.before&#10;-rw-r--r--   1 harry harry  143 May  5 11:45 .vimrc.before.local&#10;lrwxrwxrwx   1 harry harry   41 May  5 11:27 .vimrc.bundles -&#62; /home/tianhai/.spf13-vim-3/.vimrc.bundles&#10;lrwxrwxrwx   1 harry harry   31 May  5 11:27 .vim -&#62; /home/tianhai/.spf13-vim-3/.vim</span><br></pre></td></tr></table></figure></p>
-<p>编辑 .vimrc.bundles 这个文件,可以看到类似的代码块， 这个代码块就是告诉Vundle来安装哪些扩展<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; Misc &#123;&#10;    if count(g:spf13_bundle_groups, &#39;misc&#39;)&#10;        Bundle &#39;tpope/vim-markdown&#39;&#10;        Bundle &#39;spf13/vim-preview&#39;&#10;        Bundle &#39;tpope/vim-cucumber&#39;&#10;        Bundle &#39;quentindecock/vim-cucumber-align-pipes&#39;&#10;        Bundle &#39;Puppet-Syntax-Highlighting&#39;&#10;    endif&#10;&#34; &#125;</span><br></pre></td></tr></table></figure></p>
-<p>回到 100行左右， 可以看到如下的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; In your .vimrc.before.local file&#10;&#34; list only the plugin groups you will use&#10;if !exists(&#39;g:spf13_bundle_groups&#39;)&#10;    let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;twig&#39;, &#39;javascript&#39;, &#39;html&#39;, &#39;misc&#39;,]&#10;endif</span><br></pre></td></tr></table></figure></p>
-<p>spf13_bundle_groups 这个变量用来控制Vundle加载那些模块，spf默认安装了一些php/ruby/python／html/js的扩展，就像注释中说的，我们可以通过覆盖这个变量来自定义Vundle加载的扩展。譬如我想安装go 但我的工作中不使用twig，我就可以在.vimrc.before.local 通过覆盖 spf13_bundle_groups 变量的方式来做自定义。下面是我的定义：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &#34;let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;javascript&#39;, &#39;go&#39;, &#39;html&#39;, &#39;misc&#39;,]&#34; &#62;&#62; .vimrc.before.local</span><br></pre></td></tr></table></figure>
-<p>之后我们执行来激活Vundle开始安装扩展，其实使用vim打开任意文件，执行<code>:PluginInstall</code>也是一样的，看个人喜好<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim \&#10;    -u &#34;$HOME/.vimrc.bundles&#34; \&#10;    &#34;+set nomore&#34; \&#10;    +BundleInstall! \&#10;    +BundleClean \&#10;    +qall</span><br></pre></td></tr></table></figure></p>
-<p>执行后我们能看到Vundle开始安装扩展，综合了GFW的国情后，其实还是不快，给点耐心吧～ :)</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/197145/vQ2OrN4uTtiIl6MWKMvJ_2014-05-05%2013:31:04%E7%9A%84%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt="Vundle Install"></p>
-<p>安装完成后，恭喜你，你已经拥有了一个功能强大的Vim集成开发环境了。</p>
-<h1 id="Vundle">Vundle</h1><p>spf13 默认使用 Vundle (<a href="https://github.com/gmarik/Vundle.vim" target="_blank" rel="external">https://github.com/gmarik/Vundle.vim</a>)来管理vim插件</p>
-<p>关于Vundle的使用，可以参考这篇博客 <a href="http://foocoder.com/blog/mei-ri-vimcha-jian-kai-pian-zhi-vundle.html" target="_blank" rel="external">每日vim插件—开篇之vundle</a>，介绍的很详细。PS:博主每日都会介绍一款vim插件，vim功底深厚，讲的也很详细，建议大家follow。</p>
-<p>回到spf13中， 我们可以通过扩展 ~/.vimrc.bundles.local 来追加一些我们偏爱但是spf13没有内置的插件，语法参考~/.vimrc.bundles 或者参考上面的博客。</p>
-<h1 id="一些插件">一些插件</h1><h2 id="关于配色">关于配色</h2><p>spf13默认的配色方案是 solarized， 如果需要选择其他的配色方案，可以通过下面的命令来定义<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo colorscheme &#123;$colorscheme&#125;  &#62;&#62; ~/.vimrc.local</span><br></pre></td></tr></table></figure></p>
-<p>spf13 内置了  vim-colors-solarized (<a href="https://github.com/altercation/vim-colors-solarized" target="_blank" rel="external">https://github.com/altercation/vim-colors-solarized</a>) 以及 vim-colors (<a href="https://github.com/spf13/vim-colors/" target="_blank" rel="external">https://github.com/spf13/vim-colors/</a>) 两个配色插件，集中了上百种配色，可以从中选择. 放置在  ~/.vim/bundle/vim-colors/ 以及 ~/.vim/bundle/vim-colorschemes/ 两个目录中。</p>
-<p>我个人比较偏爱 molokai / peaksea / 256-jungle, 其中molokai在GVim下展示最好，256-jungle在终端下展示最好。</p>
-<h2 id="关于字体">关于字体</h2><p>我个人偏爱  Source-Code-Pro   <a href="Source-Code-Pro   https://github.com/adobe/source-code-pro">https://github.com/adobe/source-code-pro</a></p>
-<p>安装方法可以参考：<a href="https://github.com/adobe/source-code-pro/issues/17#issuecomment-8967116" target="_blank" rel="external">https://github.com/adobe/source-code-pro/issues/17#issuecomment-8967116</a></p>
-<h2 id="BufExplore">BufExplore</h2><p><a href="https://github.com/vim-scripts/bufexplorer.zip" target="_blank" rel="external">https://github.com/vim-scripts/bufexplorer.zip</a><br><code>:BufExplorer</code> 列出已经打开的文件, 选择后跳转 </p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/197145/EQahWRUvQAGIwf3lc3c7_bufexplore.png" alt="bufexplore.png"></p>
-<h2 id="vim-indent-guides">vim-indent-guides</h2><p><a href="https://github.com/nathanaelkane/vim-indent-guides" target="_blank" rel="external">https://github.com/nathanaelkane/vim-indent-guides</a><br>用来优化展示缩进， 在GVim 中这个插件展示的很完美，可以自动识别背景色来展示。但是在终端环境中，只能显示dark/light两种模式，缩进看起来一块一块的，比较难看，我习惯默认关闭它。<br>在.vimrc.local 中添加 <code>let g:indent_guides_auto_colors = 0</code>. 我们可以通过<code>&lt;Leader&gt;ig</code>来开启它, spf13的默认<leader>键为 <code>,</code>。</leader></p>
-<h2 id="NERDTree">NERDTree</h2><p><a href="https://github.com/scrooloose/nerdtree" target="_blank" rel="external">https://github.com/scrooloose/nerdtree</a></p>
-<p>Vim的文件浏览器。 通过<code>:NERDTreeToggle</code> 来唤出，我习惯把它绑定到F5上，下面是我的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">let NERDTreeChDirMode = 2&#10;let NERDTreeWinSize = 30&#10;nmap &#60;F5&#62;  :NERDTreeToggle&#60;CR&#62;</span><br></pre></td></tr></table></figure></p>
-<h2 id="ctrlp">ctrlp</h2><p><a href="https://github.com/kien/ctrlp.vim" target="_blank" rel="external">https://github.com/kien/ctrlp.vim</a></p>
-<p>Vim中的文件查找器，类似sublime的ctrl-p，几个常用命令<br><code>：CtrlP</code> or <code>:CtrlP [starting-directory]</code>  启动ctrlp<br><code>:CtrlPBuffer</code> or <code>:CtrlPMRU</code> 启动ctrlp并只在buffer/mru中进行查找<br><code>:CtrlPMixed</code> 在 Files, Buffers 和 MRU 中进行混合查找</p>
-<p>在ctrlp开启后，还有一些快捷键<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Press &#60;F5&#62; to purge the cache for the current directory to get new files, remove deleted files and apply new ignore options.&#10;Press &#60;c-f&#62; and &#60;c-b&#62; to cycle between modes.&#10;Press &#60;c-d&#62; to switch to filename only search instead of full path.&#10;Press &#60;c-r&#62; to switch to regexp mode.&#10;Use &#60;c-j&#62;, &#60;c-k&#62; or the arrow keys to navigate the result list.&#10;Use &#60;c-t&#62; or &#60;c-v&#62;, &#60;c-x&#62; to open the selected entry in a new tab or in a new split.&#10;Use &#60;c-n&#62;, &#60;c-p&#62; to select the next/previous string in the prompt&#39;s history.&#10;Use &#60;c-y&#62; to create a new file and its parent directories.&#10;Use &#60;c-z&#62; to mark/unmark multiple files and &#60;c-o&#62; to open them.</span><br></pre></td></tr></table></figure></p>
-<h2 id="surround">surround</h2><p><a href="https://github.com/tpope/vim-surround" target="_blank" rel="external">https://github.com/tpope/vim-surround</a><br>用来处理包围符号的插件，包括’ “ { } [ ]等<br>下面是一些基本的用法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**cs: &#21253;&#22260;&#31526;&#21495;&#26367;&#25442;**&#10;&#39;hello&#39; =&#62; cs&#39;&#34; =&#62;&#34;hello&#34;&#10;&#39;hello&#39; =&#62; cs&#39;&#60;q&#62; =&#62;&#60;q&#62;hello&#60;/q&#62;&#10;&#60;q&#62;hello&#60;/q&#62; =&#62; cst&#39; =&#62; &#39;hello&#39;&#10;**ds: &#21435;&#25481;&#21253;&#22260;&#31526;&#21495;**&#10;&#39;hello&#39; =&#62; ds&#39; =&#62; hello&#10;**ys: &#28155;&#21152;&#21253;&#22260;&#31526;&#21495;**&#10;hello =&#62; ysiw&#39; =&#62; &#39;hello&#39;&#10;**yss: &#25972;&#34892;&#28155;&#21152;&#21253;&#22260;&#31526;&#21495;**&#10;**yS/ySS &#21333;&#29420;&#19968;&#34892;&#24182;&#26377;&#32553;&#36827;**</span><br></pre></td></tr></table></figure></p>
-<h2 id="nerdcommenter">nerdcommenter</h2><p><a href="https://github.com/scrooloose/nerdcommenter" target="_blank" rel="external">https://github.com/scrooloose/nerdcommenter</a></p>
-<p>一个有用的注释插件。<br><code>&lt;Leader&gt;cc</code> 注释一行<br><code>&lt;Leader&gt;cu</code> 取消注释一行<br><code>&lt;Leader&gt;ca</code> 切换注释模式 ／／ 或 /**／<br><code>&lt;Leader&gt;cm</code> 以block的最简方式注释一段代码<br><code>&lt;Leader&gt;ci</code> 以独立注释单行的方式 注释选中的每一行， 注释模式取决<code>&lt;Leader&gt;ca</code><br><code>&lt;Leader&gt;cs</code> 以block的常规方式注释一段代码<br><code>&lt;Leader&gt;cA</code> 在行尾巴追加注释，注释模式取决于<code>&lt;Leader&gt;ca</code></p>
-<h2 id="关于补全">关于补全</h2><p>spf13 提供了4种补全插件供我们选择(只能选择其中之一)</p>
-<p>neocomplcache <a href="https://github.com/shougo/neocomplcache" target="_blank" rel="external">https://github.com/shougo/neocomplcache</a><br>YouCompleteMe <a href="https://github.com/Valloric/YouCompleteMe" target="_blank" rel="external">https://github.com/Valloric/YouCompleteMe</a><br>neocomplete  <a href="https://github.com/Shougo/neocomplete.vim" target="_blank" rel="external">https://github.com/Shougo/neocomplete.vim</a></p>
-<p>关于这几个补全插件的优劣，在各大论坛争论已久，neocomplete的作者在github上给出了一些自己看法，我觉得很值得参考<br><a href="https://github.com/skwp/dotfiles/issues/330#issuecomment-19034756" target="_blank" rel="external"> https://github.com/skwp/dotfiles/issues/330#issuecomment-19034756 </a></p>
-<p>我目前在用neocomplcache， 稍稍有些转到neocomplete的倾向了～ :)</p>
-<h2 id="PIV">PIV</h2><p><a href="https://github.com/spf13/PIV" target="_blank" rel="external">https://github.com/spf13/PIV</a></p>
-<p>我大PHP的开发插件，可以方便的对function/class/variable 生成注释<code>&lt;Leader&gt;pd</code>, 在任意php内建函数上操作<code>&lt;Shift-k&gt;</code>，可以查看该函数的manual</p>
-<h2 id="tabular">tabular</h2><p><a href="https://github.com/godlygeek/tabular" target="_blank" rel="external">https://github.com/godlygeek/tabular</a></p>
-<p>对齐控们的福音,可以对 = : , 做对齐操作</p>
-<p><code>&lt;Leader&gt;a=</code>  对<code>=</code>进行对齐操作<br><code>&lt;Leader&gt;a:</code>  对<code>:</code>进行对齐操作<br><code>&lt;Leader&gt;a::</code> 对<code>:</code> 后面的内容做对其操作，而<code>:</code>靠前紧贴<br><code>&lt;Leader&gt;a,</code>  对<code>,</code>进行对齐操作</p>
-<h2 id="tagbar">tagbar</h2><p><a href="https://github.com/majutsushi/tagbar" target="_blank" rel="external">https://github.com/majutsushi/tagbar</a></p>
-<p>Vim的tag插件，能在一个窗口中显示当前文件的tag，需要安装ctag/exuberant-ctags。<br>PS: 这个插件只展示tag，并不会做func的自动跳转</p>
-<p>我的常用配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nnoremap &#60;F6&#62; :TagbarToggle&#60;CR&#62; &#34;&#25105;&#19968;&#33324;&#25226;tagbar&#32465;&#22312;&#60;F6&#62;&#19978;&#10;let g:tagbar_autoclose=1 &#34;&#22312;&#19968;&#20010;tag&#19978;&#25353;&#22238;&#36710;&#21518;&#65292;&#33258;&#21160;&#36339;&#36716;&#21040;tag&#22312;&#25991;&#20214;&#30340;&#20301;&#32622;&#65292;&#24182;&#20851;&#38381;tagbar</span><br></pre></td></tr></table></figure></p>
-<h1 id="写在最后">写在最后</h1><p>说是”简单几步”，最后还是唠唠叨叨的这么多，主要是希望大家用的更舒服些，对VIM的恐惧更少一些，上面的插件主要参考了spf13中的一些介绍，加上了自己的一些理解，应该够大家用上一段时间了。其实Github上的vim插件很多，通过Vundle可以很方便的安装以及管理，有兴趣的同学可以找一些适合自己的，慢慢的你就会觉得VIM无所不能了～ :)</p>
-<p>今天就到这里， Enjoy~</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cic95g5we000bce6aebatsn8a" class="article-share-link">分享到</a>
-      
-
-      
-        <a href="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/#ds-thread" class="article-comment-link">评论</a>
-      
-
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vim/">vim</a></li></ul>
 
     </footer>
   </div>
@@ -1930,7 +1959,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1957,7 +1986,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1967,6 +1996,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/">nginx-manual-note-CONTROL-NGINX</a>
+          </li>
         
           <li>
             <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/">Nginx手册阅读笔记 —— 性能调优</a>
@@ -1982,10 +2015,6 @@
         
           <li>
             <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/to-understand-mapreduce-data-flow/">[转] 理解MapReduce数据流</a>
           </li>
         
       </ul>
