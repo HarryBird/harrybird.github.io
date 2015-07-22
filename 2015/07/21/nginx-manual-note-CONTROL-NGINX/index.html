@@ -34,7 +34,7 @@ nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文
 
 
 TERM, IN">
-<meta property="og:updated_time" content="2015-07-21T14:02:52.000Z">
+<meta property="og:updated_time" content="2015-07-22T14:09:42.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx手册阅读笔记 —— 管理Nginx">
 <meta name="twitter:description" content="URL： [http://nginx.org/en/docs/control.html]
@@ -204,6 +204,7 @@ TERM, IN">
 </tr>
 </tbody>
 </table>
+<a id="more"></a>
 <h2 id="重新加载配置">重新加载配置</h2><p>为了使nginx重新加载配置文件，可以发送一个<code>HUP</code>信号给主进程。主进程首先会检查配置语法的有效性，然后重试重新应用新的配置，即打开日志文件并监听新的套接字。如果失败，将回退所有新的配置，继续使用旧的配置。如果成功，主进程会启动新的worker进程，并向旧进程发送消息要求它们优雅的关闭。 旧的工作进程将关闭监听的套接字，然后继续完成当前客户端连接的请求。当完成所有客户端请求，旧的worker进程被关闭。<br>让我们通过一个实力来深入了解下。 设想 nginx 运行在 FreeBSD 4.x，执行命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps axw -o pid,ppid,user,%cpu,vsz,wchan,command | egrep &#39;(nginx|PID)&#39;&#10;  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33127 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33128 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;33129 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 <p>如果一个<code>HUP</code>信号被发送给主进程， 输出变为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33129 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 <p>pid 为 33129 的旧worker进程仍然在工作， 再过一段时间它退出了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>

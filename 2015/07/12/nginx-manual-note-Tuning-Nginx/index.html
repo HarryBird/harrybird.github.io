@@ -14,7 +14,7 @@ Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列�
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="URL: [https://www.nginx.com/blog/tuning-nginx/]
 Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意：">
-<meta property="og:updated_time" content="2015-07-12T13:56:43.000Z">
+<meta property="og:updated_time" content="2015-07-22T14:08:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx手册阅读笔记 —— 性能调优">
 <meta name="twitter:description" content="URL: [https://www.nginx.com/blog/tuning-nginx/]
@@ -124,6 +124,7 @@ Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列�
 </ul>
 <h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
 <p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>
+<a id="more"></a>
 <h2 id="Nginx配置">Nginx配置</h2><h3 id="Worker_Processes">Worker Processes</h3><p>Nginx可以运行多个工作进程，每个进程可以处理大量的连接。你可以通过下面的指令，控制运行多少个工作进程以及每个进程处理多少个连接。</p>
 <p><code>worker_processes</code><br>Nginx 工作进程的数量。在绝大多数情况下，这个数字是CPU的核数。也可以统一设置为 <code>auto</code> 。有时你也不得不增加进程数，譬如每个进程需要操作大量的硬盘I/O。</p>
 <p><code>worker_connections</code><br>每个工作进程能够同时处理的最大连接数。默认值为512，但大多数系统可以调高这个值。具体的值依赖于服务器的配置以及负载。通过测试可以得到这个值。</p>

@@ -102,7 +102,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
+        <p>URL： [<a href="http://nginx.org/en/docs/control.html">http://nginx.org/en/docs/control.html</a>]</p>
 <p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
 <table>
 <thead>
@@ -165,20 +165,11 @@
 </tr>
 </tbody>
 </table>
-<h2 id="重新加载配置">重新加载配置</h2><p>为了使nginx重新加载配置文件，可以发送一个<code>HUP</code>信号给主进程。主进程首先会检查配置语法的有效性，然后重试重新应用新的配置，即打开日志文件并监听新的套接字。如果失败，将回退所有新的配置，继续使用旧的配置。如果成功，主进程会启动新的worker进程，并向旧进程发送消息要求它们优雅的关闭。 旧的工作进程将关闭监听的套接字，然后继续完成当前客户端连接的请求。当完成所有客户端请求，旧的worker进程被关闭。<br>让我们通过一个实力来深入了解下。 设想 nginx 运行在 FreeBSD 4.x，执行命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps axw -o pid,ppid,user,%cpu,vsz,wchan,command | egrep &#39;(nginx|PID)&#39;&#10;  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33127 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33128 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;33129 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<p>如果一个<code>HUP</code>信号被发送给主进程， 输出变为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33129 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<p>pid 为 33129 的旧worker进程仍然在工作， 再过一段时间它退出了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<h2 id="日志切割">日志切割</h2><p>为了切割日志文件，它们首先需要被重命名， 然后发送<code>USR1</code>信号给主进程。主进程会重新打开所有当前的日志文件，并将它们分配给worker进程的执行用户作为owner。 再成功打开所有日志文件后， 主进程关闭这些文件并发送消息给所有的worker进程，让它们来打开这些文件。 worker进程会立即关闭旧文件并打开新的文件。旧文件可以立即被后续的进程处理，譬如执行压缩。</p>
-<h2 id="在线升级可执行文件">在线升级可执行文件</h2><p>为了升级服务端可执行文件， 旧的可执行文件需要被新的可执行文件替代。发送 <code>USR2</code>信号给主进程。主进程首先使用 .oldbin 尾缀重命名它的pid文件，如/usr/local/nginx/logs/nginx.pid.oldbin， 然后启动新的可执行文件并启动新的worker进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<p>这时所有的worker进程(旧的和新的)同时在接受请求。 如果发送 <code>WINCH</code> 信号给前一个主进程， 它将发送消息给它的worker进程，要求它们优雅的关闭，此时它们将开始退出进程：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33135 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<p>过一段时间，只有新的worker进程在处理请求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36264 33126 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-<p>需要注意，旧的主进程并不会关闭它的监听套接字，如果需要可以重新启动它的worker进程。如果基于一些原因，新的可执行文件没有很好的工作，可以使用下面的任一方式：</p>
-<ul>
-<li>发送<code>HUP</code>信号给旧的主进程。 旧的主进程将在不加载新配置的情况下，直接启动新的worker进程。 之后，发送<code>QUIT</code>信号给新的主进程，所有新的进程将优雅退出。</li>
-<li>发送<code>TERM</code>信号给新的主进程。它将发送消息给它的worker进程，要求它们立即退出 (如果由于某种原因新进程没有退出，主进程会发送kill信号强制它们退出)。  当新的主进程退出，旧的主进程会自动启动新的worker进程</li>
-</ul>
-<p>如果新的主进程退出了，旧的主进程会忽略.oldbin后缀，从文件中取到pid。<br>如果升级成功，旧的主进程会被发送<code>QUIT</code>信号而退出，只有新的进程将被保留：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;36264     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
-
+        
+          <p class="article-more-link">
+            <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -227,7 +218,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
+        <p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
 <h3 id="File_Descriptors">File Descriptors</h3><p>文件描述符是用来处理诸如连接或打开文件等事情的系统资源。Nginx最多为每个连接使用2个文件描述符。譬如做代理时，客户端请求占一个文件描述符，发起的后端请求会占一个。如果一个系统有大量的连接，下面的这些设置需要被调整：<br><code>sys.fs.file_max</code><br>系统全局的文件描述符限制</p>
@@ -240,24 +231,11 @@
 </ul>
 <h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
 <p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>
-<h2 id="Nginx配置">Nginx配置</h2><h3 id="Worker_Processes">Worker Processes</h3><p>Nginx可以运行多个工作进程，每个进程可以处理大量的连接。你可以通过下面的指令，控制运行多少个工作进程以及每个进程处理多少个连接。</p>
-<p><code>worker_processes</code><br>Nginx 工作进程的数量。在绝大多数情况下，这个数字是CPU的核数。也可以统一设置为 <code>auto</code> 。有时你也不得不增加进程数，譬如每个进程需要操作大量的硬盘I/O。</p>
-<p><code>worker_connections</code><br>每个工作进程能够同时处理的最大连接数。默认值为512，但大多数系统可以调高这个值。具体的值依赖于服务器的配置以及负载。通过测试可以得到这个值。</p>
-<h3 id="Keepalives">Keepalives</h3><p>长连接可以减少开启/关闭连接时，CPU以及网卡的消耗，对于系统性能有着巨大的作用。Nginx支持客户端以及后端的长连接。<br>下列指令处理客户端长连接：<br><code>keepalive_requests</code><br>一个客户端长连接可处理的请求数。默认值为100. 但是更高的值可用于来自一个客户端的压力以及负载测试。</p>
-<p><code>keepalive_timeout</code><br>一个空闲的长连接可以维持的时间</p>
-<p>下列指令用于后端长连接：<br><code>keepalive</code><br>每个工作进程对一个后端服务器可维持的长连接数。没有默认值。 为了启用后端长连接，你还需要添加下面的指令：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxy_http_version 1.1;&#10;proxy_set_header Connection &#34;&#34;;</span><br></pre></td></tr></table></figure></p>
-<h3 id="Access_Logging">Access Logging</h3><p>记录每个请求的日志需要同时消耗CPU以及I/O。一个有效减少消耗的方法是启用日志缓存。它使Nginx通过缓存收集请求日志并通过一次写操作全部写入文件。 可以通过<code>access_log</code>指令的 <code>buffer=size</code> 参数来设置这个缓存的大小。也可以通过<code>flush=time</code>参数，设置Nginx在一个指定的时间后刷新log到文件。 通过以上两个配置，Nginx当收集日志量超过缓存或者超过一定的时候执行写操作，将日志写入文件。此外， 当工作进程重新打开日志文件或结束时，也会执行一次写操作。</p>
-<h3 id="Sendfile">Sendfile</h3><p>sendfile 是一个操作系统选项，而Nginx也可以开启它。它可以在内核内，在文件描述符间拷贝数据(零拷贝)来实现TCP的快速数据传输。Nginx通过它来把缓存中或硬盘上的内容写到socket上，避免了内核态到用户态间的上下文切换。使这种操作消耗更少CPU并且更快。因为数据并不会流经用户态，所以在处理过程中不能加入内容过滤器，所以我们无法通过任何的Nginx过滤器来改变数据内容。例如gzip。  默认是关闭的。</p>
-<h3 id="Limits">Limits</h3><p>Nginx以及Nginx Plus 允许你设置一些限制，来阻止对用户体验，安全有不利影响的客户端请求消耗太多的资源。</p>
-<p><code>limit_conn</code> <code>limit_conn_zone</code><br>限制来自同一个客户端IP的请求数。 这些设置可以阻止同一个客户端发起大量请求而消耗过多的服务端资源。</p>
-<p><code>limit_rate</code><br>限制一个客户端在一个连接内可以使用的带宽(下载速率)。通过这个设置，可以避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。</p>
-<p><code>limit_req</code> <code>limit_req_zone</code><br>限制Nginx 处理请求的速率。和<code>limit_rate</code>一样，避免个别客户端的请求导致的服务端过载，帮助所有的客户端都得到良好的服务。也可以被用来提高安全性，类似登陆页等服务，限制请求速率，使速率足够满足人们正常的请求，但又可以限制恶意程序的请求。</p>
-<p><code>max_conns</code><br>对于后端服务器，设置可以同时接收的最大请求数。可以避免后端程序过载。默认值为0，意味没有限制。</p>
-<p><code>queue</code><br>如果为后端服务器设置了 <code>max_conns</code>，当由于后端没有可用的服务器或后端服务器达到了最大的上限导致请求无法处理时，这个指令使一定数目的请求置于一个队列指定的时间。如果没设置这个指令，不会有队列产生。</p>
-<h2 id="Additional_Considerations">Additional Considerations</h2><p>Nginx 的一些其它特性也可以用来提高web服务的性能而且并不输给上述的调优效果。值得提醒的是，他们的效果也是非常显著的。我们将讨论其中的两个特性</p>
-<h3 id="Caching">Caching</h3><p>通过启动一个用于负载均衡的Nginx实例的缓存，可以动态的改善对客户端的响应时间同时动态的减少对后端服务的负载。缓存可以自己作为一个大的主题，在这里并不能覆盖完整。详细内容可以参考 [<a href="https://www.nginx.com/resources/admin-guide/content-caching/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/content-caching/</a>]</p>
-<h3 id="Compression">Compression</h3><p>压缩返回给客户端的响应体，可以极大的减少它们的尺寸以及占用的带宽。压缩数据会消耗CPU资源，所以他们对于需要减少带宽使用的服务格外有用。一个非常重要的注意事项，对于已经压缩过的资源不能再进行压缩，如JPEG文件。更详细的内容可以参考[<a href="https://www.nginx.com/resources/admin-guide/compression-and-decompression/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/compression-and-decompression/</a>] </p>
-
+        
+          <p class="article-more-link">
+            <a href="/2015/07/12/nginx-manual-note-Tuning-Nginx/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">

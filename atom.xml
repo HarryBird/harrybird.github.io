@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-21T14:02:52.000Z</updated>
+  <updated>2015-07-22T14:09:42.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/"/>
     <id>http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/</id>
     <published>2015-07-21T12:48:43.000Z</published>
-    <updated>2015-07-21T14:02:52.000Z</updated>
+    <updated>2015-07-22T14:09:42.000Z</updated>
     <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
 <p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
 <table>
@@ -83,6 +83,7 @@
 </tr>
 </tbody>
 </table>
+<a id="more"></a>
 <h2 id="重新加载配置">重新加载配置</h2><p>为了使nginx重新加载配置文件，可以发送一个<code>HUP</code>信号给主进程。主进程首先会检查配置语法的有效性，然后重试重新应用新的配置，即打开日志文件并监听新的套接字。如果失败，将回退所有新的配置，继续使用旧的配置。如果成功，主进程会启动新的worker进程，并向旧进程发送消息要求它们优雅的关闭。 旧的工作进程将关闭监听的套接字，然后继续完成当前客户端连接的请求。当完成所有客户端请求，旧的worker进程被关闭。<br>让我们通过一个实力来深入了解下。 设想 nginx 运行在 FreeBSD 4.x，执行命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps axw -o pid,ppid,user,%cpu,vsz,wchan,command | egrep &#39;(nginx|PID)&#39;&#10;  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33127 33126 nobody   0.0  1380 kqread nginx: worker process (nginx)&#10;33128 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;33129 33126 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 <p>如果一个<code>HUP</code>信号被发送给主进程， 输出变为：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33129 33126 nobody   0.0  1380 kqread nginx: worker process is shutting down (nginx)&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 <p>pid 为 33129 的旧worker进程仍然在工作， 再过一段时间它退出了<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;33126     1 root     0.0  1164 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;33134 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33135 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)&#10;33136 33126 nobody   0.0  1368 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
@@ -98,8 +99,70 @@
 <p>如果新的主进程退出了，旧的主进程会忽略.oldbin后缀，从文件中取到pid。<br>如果升级成功，旧的主进程会被发送<code>QUIT</code>信号而退出，只有新的进程将被保留：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">  PID  PPID USER    %CPU   VSZ WCHAN  COMMAND&#10;36264     1 root     0.0  1148 pause  nginx: master process /usr/local/nginx/sbin/nginx&#10;36265 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36266 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)&#10;36267 36264 nobody   0.0  1364 kqread nginx: worker process (nginx)</span><br></pre></td></tr></table></figure></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
-<p>ng]]>
+    <![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html">http://nginx.org/en/docs/control.html</a>]</p>
+<p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM, INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>HUP</td>
+<td>重新加载配置，用新的配置启动新的进程，优雅的关闭旧的进程</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>USR2</td>
+<td>升级可执行文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>优雅关闭worker进程</td>
+</tr>
+</tbody>
+</table>
+<p>也可以通过信号来控制独立的工作进程，尽管它不是必须的。 支持的信号如下：</p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TERM,INT</td>
+<td>快速关闭</td>
+</tr>
+<tr>
+<td>QUIT</td>
+<td>优雅关闭</td>
+</tr>
+<tr>
+<td>USR1</td>
+<td>重新打开log文件</td>
+</tr>
+<tr>
+<td>WINCH</td>
+<td>非正常终止进程来调试</td>
+</tr>
+</tbody>
+</table>]]>
+    
     </summary>
     
       <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
@@ -111,7 +174,7 @@
     <link href="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/"/>
     <id>http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/</id>
     <published>2015-07-12T13:51:44.000Z</published>
-    <updated>2015-07-12T13:56:43.000Z</updated>
+    <updated>2015-07-22T14:08:00.000Z</updated>
     <content type="html"><![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
@@ -125,6 +188,7 @@
 </ul>
 <h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
 <p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>
+<a id="more"></a>
 <h2 id="Nginx配置">Nginx配置</h2><h3 id="Worker_Processes">Worker Processes</h3><p>Nginx可以运行多个工作进程，每个进程可以处理大量的连接。你可以通过下面的指令，控制运行多少个工作进程以及每个进程处理多少个连接。</p>
 <p><code>worker_processes</code><br>Nginx 工作进程的数量。在绝大多数情况下，这个数字是CPU的核数。也可以统一设置为 <code>auto</code> 。有时你也不得不增加进程数，譬如每个进程需要操作大量的硬盘I/O。</p>
 <p><code>worker_connections</code><br>每个工作进程能够同时处理的最大连接数。默认值为512，但大多数系统可以调高这个值。具体的值依赖于服务器的配置以及负载。通过测试可以得到这个值。</p>
@@ -144,7 +208,20 @@
 <h3 id="Compression">Compression</h3><p>压缩返回给客户端的响应体，可以极大的减少它们的尺寸以及占用的带宽。压缩数据会消耗CPU资源，所以他们对于需要减少带宽使用的服务格外有用。一个非常重要的注意事项，对于已经压缩过的资源不能再进行压缩，如JPEG文件。更详细的内容可以参考[<a href="https://www.nginx.com/resources/admin-guide/compression-and-decompression/" target="_blank" rel="external">https://www.nginx.com/resources/admin-guide/compression-and-decompression/</a>] </p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>]]>
+    <![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
+<h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
+<p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
+<h3 id="File_Descriptors">File Descriptors</h3><p>文件描述符是用来处理诸如连接或打开文件等事情的系统资源。Nginx最多为每个连接使用2个文件描述符。譬如做代理时，客户端请求占一个文件描述符，发起的后端请求会占一个。如果一个系统有大量的连接，下面的这些设置需要被调整：<br><code>sys.fs.file_max</code><br>系统全局的文件描述符限制</p>
+<p><code>nofile</code><br>用户可使用的文件描述符限制，在 /etc/security/limits.conf文件中设置<br>理解它们的关系：</p>
+<ul>
+<li>所有进程打开的文件描述符数不能超过/proc/sys/fs/file-max</li>
+<li>单个进程打开的文件描述符数不能超过user limit中nofile的soft limit</li>
+<li>nofile的soft limit不能超过其hard limit</li>
+<li>nofile的hard limit不能超过/proc/sys/fs/nr_open</li>
+</ul>
+<h3 id="Ephemeral_Ports">Ephemeral Ports</h3><p>当使用Nginx作为代理时，每个向后端发起的请求都会使用一个临时的端口。<br><code>net.ipv4.ip_local_port_range</code><br>端口的取值范围。如果你的端口耗尽，可以修改这个范围。通常的值为 1024~65000</p>
+<p><code>net.ipv4.tcp_fin_timeout</code><br>端口被另一个连接使用前的冻结时间。默认值为60秒，通常可以减少到30 到 15秒之间。</p>]]>
+    
     </summary>
     
       <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
