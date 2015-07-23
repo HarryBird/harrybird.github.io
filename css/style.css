@@ -1139,6 +1139,7 @@ ol.toc {
 #toc.toc-aside strong {
   padding: 0.3em 0;
   color: color-font;
+  color: #0f0;
 }
 #toc.toc-aside:hover {
   -webkit-transition: opacity 0.3s ease-out;
@@ -1151,7 +1152,6 @@ ol.toc {
   filter: none;
 }
 #toc.toc-aside a {
-  color: #0f0;
   -webkit-transition: color 1s ease-out;
   -moz-transition: color 1s ease-out;
   -o-transition: color 1s ease-out;
@@ -1165,6 +1165,9 @@ ol.toc {
   -o-transition: color 0.3s ease-out;
   -ms-transition: color 0.3s ease-out;
   transition: color 0.3s ease-out;
+}
+.article-entry #toc a {
+  color: #258fb8;
 }
 #comments {
   background: #fff;
