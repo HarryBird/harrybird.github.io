@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-22T14:09:42.000Z</updated>
+  <updated>2015-07-22T15:12:26.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/"/>
     <id>http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/</id>
     <published>2015-07-21T12:48:43.000Z</published>
-    <updated>2015-07-22T14:09:42.000Z</updated>
+    <updated>2015-07-22T15:12:26.000Z</updated>
     <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
 <p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
 <table>
@@ -174,7 +174,7 @@
     <link href="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/"/>
     <id>http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/</id>
     <published>2015-07-12T13:51:44.000Z</published>
-    <updated>2015-07-22T14:08:00.000Z</updated>
+    <updated>2015-07-22T15:21:13.000Z</updated>
     <content type="html"><![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
@@ -233,7 +233,7 @@
     <link href="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/"/>
     <id>http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/</id>
     <published>2015-07-11T10:03:27.000Z</published>
-    <updated>2015-07-22T14:11:22.000Z</updated>
+    <updated>2015-07-22T15:21:04.000Z</updated>
     <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/http/ngx\_http\_core\_module.html" target="_blank" rel="external">http://nginx.org/en/docs/http/ngx\_http\_core\_module.html</a>]</p>
 <hr>
 <p><code>aio on | off | threads[=pool]</code><br>如果是Linux/FreeBSD系统，这个选项用来开启/关闭AIO。<br>在Linux系统中，AIO需要内核版本2.6.22以上的支持。另外AIO的同时需要打开DirectIO，否则读操作将被阻塞:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /video/ &#123;&#10;    aio            on;&#10;    directio       512;&#10;    output_buffers 1 128k;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
@@ -403,7 +403,7 @@
     <link href="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/"/>
     <id>http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/</id>
     <published>2015-07-05T06:30:00.000Z</published>
-    <updated>2015-07-22T14:12:17.000Z</updated>
+    <updated>2015-07-22T15:21:00.000Z</updated>
     <content type="html"><![CDATA[<h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
 <p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
 <p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">events &#123;&#10;    debug_connection 127.0.0.1;&#10;    debug_connection localhost;&#10;    debug_connection 192.0.2.0/24;&#10;    debug_connection ::1;&#10;    debug_connection 2001:0db8::/32;&#10;    debug_connection unix:;&#10;    ...&#10;&#125;</span><br></pre></td></tr></table></figure></p>
@@ -661,7 +661,7 @@
     <link href="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/"/>
     <id>http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/</id>
     <published>2014-05-20T04:01:00.000Z</published>
-    <updated>2015-05-18T12:38:58.000Z</updated>
+    <updated>2015-07-22T15:21:19.000Z</updated>
     <content type="html"><![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>

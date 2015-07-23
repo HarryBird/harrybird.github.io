@@ -14,7 +14,7 @@ Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列�
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="URL: [https://www.nginx.com/blog/tuning-nginx/]
 Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意：">
-<meta property="og:updated_time" content="2015-07-22T14:08:00.000Z">
+<meta property="og:updated_time" content="2015-07-22T15:21:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx手册阅读笔记 —— 性能调优">
 <meta name="twitter:description" content="URL: [https://www.nginx.com/blog/tuning-nginx/]
@@ -111,6 +111,12 @@ Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列�
     
     <div class="article-entry" itemprop="articleBody">
       
+        
+        <div id="toc" class="toc-article">
+            <strong class="toc-title">文章目录</strong>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Linux_配置"><span class="toc-number">1.</span> <span class="toc-text">Linux 配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Backlog_Queue"><span class="toc-number">1.1.</span> <span class="toc-text">Backlog Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#File_Descriptors"><span class="toc-number">1.2.</span> <span class="toc-text">File Descriptors</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Ephemeral_Ports"><span class="toc-number">1.3.</span> <span class="toc-text">Ephemeral Ports</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx配置"><span class="toc-number">2.</span> <span class="toc-text">Nginx配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Worker_Processes"><span class="toc-number">2.1.</span> <span class="toc-text">Worker Processes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Keepalives"><span class="toc-number">2.2.</span> <span class="toc-text">Keepalives</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Access_Logging"><span class="toc-number">2.3.</span> <span class="toc-text">Access Logging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sendfile"><span class="toc-number">2.4.</span> <span class="toc-text">Sendfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Limits"><span class="toc-number">2.5.</span> <span class="toc-text">Limits</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Additional_Considerations"><span class="toc-number">3.</span> <span class="toc-text">Additional Considerations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Caching"><span class="toc-number">3.1.</span> <span class="toc-text">Caching</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compression"><span class="toc-number">3.2.</span> <span class="toc-text">Compression</span></a></li></ol></li></ol>
+        </div>
+        
         <p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
@@ -147,7 +153,7 @@ Linux 配置Backlog Queuenet.core.somaxconn等待被Nginx接收的请求队列�
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cicdc9adt000j576a6t3vxfpg" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/" data-id="cicfshi0g000jbws6ax029v59" class="article-share-link">分享到</a>
       
 
       

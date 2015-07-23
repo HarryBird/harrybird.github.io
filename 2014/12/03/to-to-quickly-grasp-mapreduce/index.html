@@ -109,6 +109,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -135,7 +136,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cicdc9adj0008576am3gzcq9m" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/" data-id="cicfshhzz0008bws6fpp2qt8k" class="article-share-link">分享到</a>
       
 
       

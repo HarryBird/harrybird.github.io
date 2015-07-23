@@ -12,7 +12,7 @@
 <meta property="og:url" content="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/index.html">
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="简介Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 Ngxtop，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然">
-<meta property="og:updated_time" content="2015-05-18T12:38:58.000Z">
+<meta property="og:updated_time" content="2015-07-22T15:21:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx监控利器 Ngxtop">
 <meta name="twitter:description" content="简介Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 Ngxtop，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然">
@@ -104,6 +104,12 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
+        <div id="toc" class="toc-article">
+            <strong class="toc-title">文章目录</strong>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#安装"><span class="toc-number">2.</span> <span class="toc-text">安装</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#pip"><span class="toc-number">2.1.</span> <span class="toc-text">pip</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ngxtop"><span class="toc-number">2.2.</span> <span class="toc-text">Ngxtop</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#使用"><span class="toc-number">3.</span> <span class="toc-text">使用</span></a></li></ol>
+        </div>
+        
         <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
@@ -121,7 +127,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cicdc9adr000e576ais85c4ap" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cicfshi0d000ebws62dqinsmg" class="article-share-link">分享到</a>
       
 
       

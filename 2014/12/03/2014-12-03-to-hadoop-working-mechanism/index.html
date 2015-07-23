@@ -107,6 +107,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
 <p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
 <h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
@@ -171,7 +172,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cicdc9aeb0015576ajym4l5i3" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/" data-id="cicfshi0w0015bws6x1h8b5im" class="article-share-link">分享到</a>
       
 
       

@@ -98,6 +98,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
@@ -115,7 +116,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cicdc9adr000e576ais85c4ap" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/" data-id="cicfshi0d000ebws62dqinsmg" class="article-share-link">分享到</a>
       
 
       
@@ -157,6 +158,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
 <p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
 <p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
@@ -552,7 +554,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cicdc9ae1000s576a22nsl2b0" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/" data-id="cicfshi0o000sbws6x3osi632" class="article-share-link">分享到</a>
       
 
       
@@ -594,6 +596,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
 <h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
@@ -606,7 +609,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cicdc9ae4000w576ad0vh8074" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/13/introduction-to-iotop/" data-id="cicfshi0q000wbws6at99rli6" class="article-share-link">分享到</a>
       
 
       
@@ -648,6 +651,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 <h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
 <p><strong>Comparison between htop and top</strong></p>
@@ -863,7 +867,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cicdc9ae90012576a0s3avr7i" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/" data-id="cicfshi0u0012bws61ul30fu5" class="article-share-link">分享到</a>
       
 
       
@@ -905,6 +909,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
 <p><strong>Mysqlnd_ms</strong></p>
 <p>优点：</p>
@@ -1052,7 +1057,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cicdc9ae6000z576a0l0qdsy5" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cicfshi0s000zbws65qg7pkcl" class="article-share-link">分享到</a>
       
 
       
@@ -1094,6 +1099,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
+        
         <p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
 <p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
 <p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
@@ -1148,7 +1154,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cicdc9ado000b576as7jxkkjf" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cicfshi0a000bbws6ttmbs6jn" class="article-share-link">分享到</a>
       
 
       

@@ -14,7 +14,7 @@ acce">
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="URL: [http://nginx.org/en/docs/ngx_core_module.html]accept_mutex on | off如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [http://huoding.com/2013/08/24/281]
 acce">
-<meta property="og:updated_time" content="2015-07-22T14:12:17.000Z">
+<meta property="og:updated_time" content="2015-07-22T15:21:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx手册阅读笔记 —— 核心指令">
 <meta name="twitter:description" content="URL: [http://nginx.org/en/docs/ngx_core_module.html]accept_mutex on | off如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [http://huoding.com/2013/08/24/281]
@@ -111,6 +111,12 @@ acce">
     
     <div class="article-entry" itemprop="articleBody">
       
+        
+        <div id="toc" class="toc-article">
+            <strong class="toc-title">文章目录</strong>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#URL:_[http://nginx-org/en/docs/ngx_core_module-html]"><span class="toc-number">1.</span> <span class="toc-text">URL: [http://nginx.org/en/docs/ngx_core_module.html]</span></a></li></ol>
+        </div>
+        
         <h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
 <p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
 <p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">events &#123;&#10;    debug_connection 127.0.0.1;&#10;    debug_connection localhost;&#10;    debug_connection 192.0.2.0/24;&#10;    debug_connection ::1;&#10;    debug_connection 2001:0db8::/32;&#10;    debug_connection unix:;&#10;    ...&#10;&#125;</span><br></pre></td></tr></table></figure></p>
@@ -132,7 +138,7 @@ acce">
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cicdc9ady000o576atxrlz9tw" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/" data-id="cicfshi0k000obws6fwmd5oua" class="article-share-link">分享到</a>
       
 
       
