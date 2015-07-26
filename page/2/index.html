@@ -74,6 +74,196 @@
     <div class="outer">
       <section id="main">
   
+    <article id="post-installation-configuration-and-use-of-mysqlnd-ms" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" class="article-date">
+  <time datetime="2014-05-10T02:21:00.000Z" itemprop="datePublished">2014-05-10</time>
+</a>
+    
+    
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/">Mysqlnd_ms的安装配置与使用</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+        <p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
+<p><strong>Mysqlnd_ms</strong></p>
+<p>优点：</p>
+<pre><code><span class="bullet">1. </span>PHP官方推荐的扩展，PECL安装方便
+</code></pre><ol>
+<li>基于PHP扩展对SQL进行解析，进而分离请求，对业务层代码改动小，性能损失也小</li>
+<li>扩展本身已经在社区打滚有些年头了，较稳定，口碑好</li>
+<li>入门级文档清晰，易配置易上手</li>
+<li>有连接池</li>
+<li><p>功能强大，支持SQL Hint， 事务，最终／Session/强一致性等场景</p>
+<p>缺点：</p>
+<ol>
+<li>基于扩展的封装，扩展的实现对上层透明。扩展本身缺乏debug工具， 所以真遇到问题可能比较难查</li>
+</ol>
+</li>
+<li>Failover 策略较基础</li>
+<li>缺乏中文文档</li>
+<li><p>强一致性的场景会有些坑</p>
+<p><strong>Mysql-Proxy</strong></p>
+<p>优点:</p>
+<ol>
+<li>来自Mysql官方的解决方案</li>
+</ol>
+</li>
+<li>性能好，资源占用少</li>
+<li>有连接池</li>
+<li>配置简单／文档众多</li>
+<li><p>应有广泛，口碑好</p>
+<p>缺点:</p>
+<ol>
+<li>需要第三方脚本(Lua)支持</li>
+</ol>
+</li>
+</ol>
+<p>鉴于”对业务层代码改动要小”这个需求，以及笔者对Mysql-Proxy 使用较少，所以在简单比较之后，果断选择了Mysqlnd_ms。</p>
+<h1 id="安装">安装</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. wget http://pecl.php.net/get/mysqlnd_ms-1.5.2.tgz &#10;2. tar xzvf mysqlnd_ms-1.5.2.tgz&#10;3. cd mysqlnd_ms-1.5.2&#10;4. /path/to/phpize&#10;5. ./configure --enable-mysqlnd-ms --with-php-config=/usr/local/php/bin/php-config&#10;6. make&#10;7. make install&#10;8. sudo /etc/init.d/php-fpm restart&#10;9. /path/to/php -m | grep mysql #&#30475;&#21040;&#34;mysqlnd_ms&#34;&#25193;&#23637;&#34920;&#31034;&#23433;&#35013;&#25104;&#21151;</span><br></pre></td></tr></table></figure>
+<h1 id="配置">配置</h1><h2 id="1-_创建配置文件_/usr/local/etc/php/php-d/mysqlnd_ms-ini">1. 创建配置文件 /usr/local/etc/php/php.d/mysqlnd_ms.ini</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">extension=&#34;/usr/local/php-5.5.9/lib/php/extensions/no-debug-non-zts-20121212/mysqlnd_ms.so&#34; &#10;; &#21551;&#21160;mysqlnd_ms&#10;mysqlnd_ms.enable=1&#10;; &#21152;&#36733;&#30340;&#20027;&#20174;&#37197;&#32622;&#25991;&#20214;&#10;mysqlnd_ms.config_file=&#34;/usr/local/etc/php/php.d/mysqlnd_ms.conf&#34; &#10;; &#26159;&#21542;&#31105;&#29992;&#35835;&#20889;&#20998;&#31163;&#10;mysqlnd_ms.disable_rw_split=0&#10;; mysqlnd &#26085;&#24535;&#36755;&#20986;&#26684;&#24335;(&#32447;&#19978;&#29615;&#22659;&#21487;&#36873;)&#10;mysqlnd.debug=&#34;d:t:x:A,/tmp/mysqlnd.trace&#34; &#10;;SERVER_QUERY_NO_GOOD_INDEX_USED=16&#10;;SERVER_QUERY_NO_INDEX_USED=32&#10;;SERVER_QUERY_WAS_SLOW=1024&#10;; &#26085;&#24535;&#25513;&#30721;&#10;mysqlnd.log_mask=1072&#10;&#10;; &#32593;&#32476;&#35835;&#32531;&#23384;&#22823;&#23567;&#10;; 64K&#10;mysqlnd.net_read_buffer_size=65536&#10;; &#32593;&#32476;&#35835;&#31561;&#24453;&#26102;&#38388;&#10;mysqlnd.net_read_timeout=600</span><br></pre></td></tr></table></figure>
+<h2 id="2-_创建主从策略文件_/usr/local/etc/php/php-d/mysqlnd_ms-conf_(位置由mysqlnd_ms-ini指定)">2. 创建主从策略文件 /usr/local/etc/php/php.d/mysqlnd_ms.conf (位置由mysqlnd_ms.ini指定)</h2><p>Demo 主从写成了同一个库<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;    &#34;master-slave&#34;: &#123; // section &#23545;&#24212;&#19968;&#32452;&#26381;&#21153;&#10;        &#34;master&#34;: &#123; // &#20027;&#24211;&#37197;&#32622;(&#40664;&#35748;&#20027;&#24211;&#21482;&#21253;&#21547;&#19968;&#39033;)&#10;            &#34;master_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.100&#34;,//host&#24517;&#36873; &#20854;&#20182;&#21487;&#20026;&#31354;&#12290; &#25193;&#23637;&#20248;&#20808;&#20351;&#29992;&#26412;&#25991;&#20214;&#20013;&#30340;&#37197;&#32622;&#65292;&#22914;&#26524;&#20026;&#31354;&#65292;&#20877;&#21435;&#20351;&#29992;php&#36830;&#25509;mysql&#26102;&#20351;&#29992;&#30340;&#21442;&#25968;&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0&#10;            &#125;&#10;        &#125;,&#10;        &#34;slave&#34;: &#123; // &#20174;&#24211;&#37197;&#32622;(&#21487;&#37197;&#32622;&#22810;&#39033;&#65292;slave&#20026;&#31354;&#20250;&#22312;php&#22788;&#25253;warning)&#10;            &#34;slave_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.101&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                                                                   &#10;            &#125;,&#10;            &#34;slave_1&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.102&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                        &#10;            &#125;,&#10;        &#125;,   &#10;        &#34;lazy_connections&#34;: 1, //&#21482;&#22312;&#25191;&#34892;sql&#20043;&#21069;&#25165;&#36830;&#25509;&#25968;&#25454;&#24211;&#10;        &#34;server_charset&#34; : &#34;utf8&#34; //&#26381;&#21153;&#31471;&#32534;&#30721;&#10;    &#125;   &#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>/etc/init.d/php-fpm restart  #重启fpm生效</p>
+<h2 id="3-_一些基本的参数说明">3. 一些基本的参数说明</h2><table>
+<thead>
+<tr>
+<th style="text-align:left">参数名称</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">master</td>
+<td style="text-align:left">主库配置</td>
+</tr>
+<tr>
+<td style="text-align:left">host</td>
+<td style="text-align:left">ip or hostname</td>
+</tr>
+<tr>
+<td style="text-align:left">port</td>
+<td style="text-align:left">端口</td>
+</tr>
+<tr>
+<td style="text-align:left">socket</td>
+<td style="text-align:left">连接套接字</td>
+</tr>
+<tr>
+<td style="text-align:left">db</td>
+<td style="text-align:left">库名字</td>
+</tr>
+<tr>
+<td style="text-align:left">user</td>
+<td style="text-align:left">用户名</td>
+</tr>
+<tr>
+<td style="text-align:left">password</td>
+<td style="text-align:left">用户密码</td>
+</tr>
+<tr>
+<td style="text-align:left">connect_flags</td>
+<td style="text-align:left">连接参数</td>
+</tr>
+<tr>
+<td style="text-align:left">slave</td>
+<td style="text-align:left">从库配置</td>
+</tr>
+<tr>
+<td style="text-align:left">global_transaction_id_injection</td>
+<td style="text-align:left">GTID的配置 详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
+</tr>
+<tr>
+<td style="text-align:left">filter</td>
+<td style="text-align:left">选择从库的策略 random/roundrobin/user/user_multi/node_groups 策略详情详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
+</tr>
+<tr>
+<td style="text-align:left">failover</td>
+<td style="text-align:left">故障转移 disabled (默认), master(读从失败就连主库),loop_before_master(读从失败轮寻其他从库再读主库)</td>
+</tr>
+<tr>
+<td style="text-align:left">lazy_connections</td>
+<td style="text-align:left">被动连接</td>
+</tr>
+<tr>
+<td style="text-align:left">server_charset</td>
+<td style="text-align:left">服务端字符集</td>
+</tr>
+<tr>
+<td style="text-align:left">trx_stickiness</td>
+<td style="text-align:left">事务控制策略</td>
+</tr>
+</tbody>
+</table>
+<h1 id="使用">使用</h1><ol>
+<li><p>通常情况下，使用mysqlnd_ms 不需要改动业务端的代码，只需要在连接数据库时，使用配置中的host，即可实现主从分离，如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">&lt;?php</span></span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$dbh</span>  = <span class="keyword">new</span>  PDO ( <span class="string">'mysql:host=master-slave;dbname=master-slave'</span> ,  <span class="string">'root'</span> ,  <span class="string">''</span> );</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Master */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'show tables'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Slave */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'SELECT * from test LIMIT 1'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$dbh</span>  =  <span class="keyword">null</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> ( PDOException <span class="variable">$e</span> )</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">print</span>  <span class="string">"Error!: "</span>  .  <span class="variable">$e</span> -&gt; getMessage () .  <span class="string">"&lt;br/&gt;"</span> ;</span><br><span class="line">        <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (<span class="keyword">Exception</span> <span class="variable">$e</span>)</span><br><span class="line">&#123;</span><br><span class="line">    var_dump(<span class="variable">$e</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>采取主从分离，就一定存在着同步延迟的问题。 在一个繁忙的服务中，主／从同步会存在延迟。mysqlnd_ms 将这种场景细分为：</p>
+</li>
+</ol>
+<ul>
+<li>最终一致性：用户可能无法立即看到自己写入的数据</li>
+<li>session一致性：用户自己可以立即看到自己写入的数据</li>
+<li>强一致性：所有的用户都可以立即看到其他用户的写入的数据</li>
+</ul>
+<p>mysqlnd_ms 针对不同的场景，提供不同的策略。如果对延迟比较敏感(如：用户提交表单后，页面立即跳转展示用户提交的数据)，在编码的过程中还需要参考下述文档</p>
+<ol>
+<li>SQL Hints: <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php</a></li>
+<li>事务： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php</a></li>
+<li>服务级别和一致性： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php</a></li>
+<li>Global transaction IDs (GTID)： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php</a></li>
+<li>Cache integration： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php</a></li>
+</ol>
+<h1 id="一些陷阱">一些陷阱</h1><ol>
+<li>Mysqlnd_ms 的行为是这样的。 所有的Select 操作会访问从库， 除Select 其他的所有操作都访问主库，包括(SHOW, SET等)。<br>所以习惯使用mysql变量来编程的同学要注意了，如：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span> @id=<span class="number">2</span>;</span>(主库)</span><br><span class="line"><span class="operator"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> id:=@id（从库）;</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面的第二条语句会因为在从库找不到id这个变量而报错， 这种情况要SQL Hint 给Mysql一些提示</p>
+<ol>
+<li>Mysqlnd_ms 并不支持 <em>mysqli</em> 的multi_statements。 如使用mysqli_multi_query() 来批量执行SQL<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">"SELECT * FROM &#123;$table&#125; WHERE .."</span>;</span><br><span class="line"><span class="variable">$sql</span> .= <span class="string">"INSERT INTO &#123;$table&#125;"</span>;</span><br><span class="line"><span class="variable">$mysqli</span> -&gt; multi_query (<span class="variable">$sql</span>);</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面的第一条SQL会被识别为访问从库，Mysqlnd_ms 无法拆分一个批量操作，所以第二条Insert 也会进从库而造成数据不一致。</p>
+<ol>
+<li>事务的默认行为也和上述第二点一样，无法拆分一个事务，所以”读／写”请求尽量不要写进同一个事务中。如果一定要写，要使用SQL Hint 给Mysqlnd_ms 一些提示。</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+        <a data-url="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/" data-id="cick7x8v7000z9l6a50q34tif" class="article-share-link">分享到</a>
+      
+
+      
+        <a href="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/#ds-thread" class="article-comment-link">评论</a>
+      
+
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/php/">php</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-simple-steps-to-build-cool-vim-development-environment" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" class="article-date">
@@ -153,7 +343,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cicg57mie000b52s6etog3obm" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/" data-id="cick7x8uo000b9l6awgci4d7i" class="article-share-link">分享到</a>
       
 
       
@@ -215,7 +405,7 @@
     </div>
     <footer class="article-footer">
       
-        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cicg57mho000152s62lcd40im" class="article-share-link">分享到</a>
+        <a data-url="http://www.harrycode.com/2014/04/29/初识GitBook/" data-id="cick7x8tz00019l6a2ejdf79c" class="article-share-link">分享到</a>
       
 
       
@@ -246,7 +436,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Nginx/">Nginx</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/git/">git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/杂货/">杂货</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -273,7 +463,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">七月 2015</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/12/">十二月 2014</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/06/">六月 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/04/">四月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -283,6 +473,10 @@
     <h3 class="widget-title">近期文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2015/07/26/EC2-ShadowSocks-GFW/">基于 EC2 + Shadowsocks 的翻墙解决方案</a>
+          </li>
         
           <li>
             <a href="/2015/07/21/nginx-manual-note-CONTROL-NGINX/">Nginx手册阅读笔记 —— 管理Nginx</a>
@@ -298,10 +492,6 @@
         
           <li>
             <a href="/2015/07/05/nginx-manual-note-CORE-FUNC/">Nginx手册阅读笔记 —— 核心指令</a>
-          </li>
-        
-          <li>
-            <a href="/2014/12/03/2014-12-03-to-hadoop-working-mechanism/">[转]  Hadoop工作机制</a>
           </li>
         
       </ul>

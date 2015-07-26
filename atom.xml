@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-22T15:12:26.000Z</updated>
+  <updated>2015-07-26T14:06:03.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -13,6 +13,77 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[基于 EC2 + Shadowsocks 的翻墙解决方案]]></title>
+    <link href="http://www.harrycode.com/2015/07/26/EC2-ShadowSocks-GFW/"/>
+    <id>http://www.harrycode.com/2015/07/26/EC2-ShadowSocks-GFW/</id>
+    <published>2015-07-26T08:21:41.000Z</published>
+    <updated>2015-07-26T14:06:03.000Z</updated>
+    <content type="html"><![CDATA[<p>众所周知的原因，我们被关在了墙内。<br>作为一名互联网工作者，失去了与外部世界的联系基本就算失去了学习国外先进技术的途径。 翻墙被越来越多的互联网工程师提上日程，方案也是层出不穷。</p>
+<p>本文简单阐述了基于AWS-EC2 + Shadowsocks组建的翻墙解决方案。 AWS第一年几乎是免费使用的， 这种方案性价比极高，效果也比Goagent等免费方案要好一些。</p>
+<p>如果还有不完善之处，欢迎指正。</p>
+<h2 id="AWS">AWS</h2><p>首先，你需要有一个 <a href="https://www.amazon.com" target="_blank" rel="external">Amazon</a> 的账号。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_1_amazon_register.png" alt=""></p>
+<p>其次，进入 <a href="https://aws.amazon.com" target="_blank" rel="external">AWS</a> 完善账户信息与信用卡信息。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_1_amazon_register.png" alt=""></p>
+<a id="more"></a>
+<h2 id="EC2">EC2</h2><h3 id="创建实例">创建实例</h3><p>完成Amazon / Aws 注册后，会自动进入控制台，选择我们需要的EC2实例即可。<strong>此时需要注意的是，右上角可以选择虚拟机实例所在的位置，国内用户可以选择新加坡或者东京的节点，接入速度很快。</strong></p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_3_ec2_instance.png" alt=""></p>
+<p>进入控制面板页面，面板内会陈列你当前的实例资源，安全组资源，密钥对资源等等， 这些后面会介绍到。 直戳 “启动实例”， 让我们先搞个尝尝。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_4_ec2_start_instance.png" alt=""></p>
+<p>接下来需要选择AMI， 也就是为实例选择操作系统的镜像， AWS提供的镜像多达22个之多， 横跨 Linux / Freebsd / Debian / SUSE / Windows 等多个发行版本。 我选择了免费套餐中的 Ubuntu 14.04 LTS</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_5_ec2_ami.png" alt=""></p>
+<p>接下来选择一个实例类型，AWS 提供多种实例类型以应对不同类型/负载的业务。 二话不说，选择了免费套餐的 t2.micro</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_6_ec2_instance_type.png" alt=""></p>
+<p>接下来配置实例的基本信息， 没特殊要求的话默认即可。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_7_ec2_instance_config.png" alt=""></p>
+<p>下一步添加存储， 免费套餐可支配的为30GB，默认分配大小为8GB</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_8_ec2_storage.png" alt=""></p>
+<p>接下来是为实例设置标签。 主要用来做集群的资源管理，我们暂时用不到，直接下一步。</p>
+<p>最后一步是设置安全组，这步比较重要。 之后我们需要通过ssh连接这个实例，所以22端口需要打开。可以选择针对某个IP开放，默认0.0.0.0 为对全网开放。<br>另外后面的Shadowsocks也需要一个端口，我使用8088。 这个端口也需要对(IP/全网)开放。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_9_ec2_safe.png" alt=""></p>
+<p>最后，我们选择”审核并启动”实例。几分钟后，可以在”实例”tab 中见到我们的新实例，状态为”running”。 至此，一个用于VPN的EC2实例创建完成。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_10_instance_status.png" alt=""></p>
+<h3 id="访问实例">访问实例</h3><p>访问实例，我们需要一组密码对。可以通过控制面板中的”密钥对”Tab，进入”密钥对”管理页，我们可以选择”创建密钥对” 或 “导入密钥对”, 我们使用”创建密钥对”来创建一组新的密钥。 输入”密钥对”的名字，AWS会生成公钥文件并提供下载，我们可以保存到固定位置，并给予权限 <code>chmod 0400 /path/to/my_vpn.pem</code></p>
+<p>回到”实例”面板，我们可以看到当前实例的“公有DNS“ 以及 “公有IP”，我们可以任选其中一个作为访问实例的地址，我选择”公有DNS”</p>
+<p>关于用户名，不同的AMI (系统镜像)，默认用户名也不相同， Ubuntu默认用户名为<code>ubuntu</code>。 其它AMI的默认用户名可以在 <a href="https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html" target="_blank" rel="external">官方连接文档</a> 中找到。</p>
+<p>然后打开终端通过  <code>ssh -i /path/to/my_vpn.pem ubuntu@我的公有DNS</code> 命令即可连接到指定实例。</p>
+<h2 id="Shadowsocks">Shadowsocks</h2><h3 id="服务端">服务端</h3><p>Shadowsocks 是一个轻量级的socket5代理，用户可以选择工业级的加密算法来保护网络中传输的流量不被污染。开源且全平台支持。</p>
+<p>Shadowsocks 的服务端有很多个版本的实现， 基于 Python / C / Go / C++等多种语言。  我选用了Python的实现，基于pip安装和管理都很方便。如果你想要选择其它版本，可以在<a href="http://shadowsocks.org/en/download/servers.html" target="_blank" rel="external">这里</a>找到</p>
+<p>登录实例后，首先安装pip，之后安装shadowsocks</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install pip&#10;sudo pip install shadowsocks</span><br></pre></td></tr></table></figure>
+<p>server端安装完成后，我们可以通过命令行来启动server端程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># &#30417;&#21548;8088&#31471;&#21475; &#23494;&#30721;&#20026;password &#21152;&#23494;&#26041;&#24335;&#20026; aes-256-cfb&#10;# &#21487;&#20197;&#36861;&#21152; -d start &#20351;server &#20316;&#20026;&#23432;&#25252;&#36827;&#31243;&#25191;&#34892;&#10;ssserver -p 8088  -k password -m aes-256-cfb</span><br></pre></td></tr></table></figure>
+<p>也可以通过编辑配置文件 /etc/shadowsocks.json 来进行配置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;&#34;server&#34;:&#34;my_server_ip&#34;, # EC2&#23454;&#20363;&#30340;IP&#65292;&#27880;&#24847;&#36825;&#37324;&#25105;&#20204;&#19981;&#33021;&#22635;&#20889;&#20844;&#26377;IP&#65292; &#38656;&#35201;&#22635;&#20889;&#31169;&#26377;IP&#25110;&#32773;0.0.0.0&#10;&#34;server_port&#34;:8088, # server&#31471;&#30417;&#21548;&#30340;&#31471;&#21475;&#65292;&#38656;&#35201;&#22312;EC2&#23454;&#20363;&#20013;&#24320;&#25918;&#27492;&#31471;&#21475;&#10;&#34;local_address&#34;: &#34;127.0.0.1&#34;,&#10;&#34;local_port&#34;:1080,&#10;&#34;password&#34;:&#34;mypassword&#34;, # &#23494;&#30721;&#10;&#34;timeout&#34;:300,&#10;&#34;method&#34;:&#34;aes-256-cfb&#34;, #&#21152;&#23494;&#26041;&#24335;&#10;&#34;fast_open&#34;: false #&#26159;&#21542;&#24320;&#21551;fast open&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>如果想要把VPN分享给其它人而不泄露自己的密码，也可以在配置文件中设置多端口+多密码的模式，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;&#34;server&#34;:&#34;my_server_ip&#34;, # EC2&#23454;&#20363;&#30340;IP&#65292;&#27880;&#24847;&#36825;&#37324;&#25105;&#20204;&#19981;&#33021;&#22635;&#20889;&#20844;&#26377;IP&#65292; &#38656;&#35201;&#22635;&#20889;&#31169;&#26377;IP&#25110;&#32773;0.0.0.0&#10;&#34;server_port&#34;:8088, # server&#31471;&#30417;&#21548;&#30340;&#31471;&#21475;&#65292;&#38656;&#35201;&#22312;EC2&#23454;&#20363;&#20013;&#24320;&#25918;&#27492;&#31471;&#21475;&#10;&#34;local_address&#34;: &#34;127.0.0.1&#34;,&#10;&#34;local_port&#34;:1080,&#10;&#34;port_password&#34;: &#10;&#34;8088&#8221;: &#8220;password8088&#8221;,&#10;&#34;8089&#8221;: &#34;password8089&#8221;&#10;&#125;&#10;&#34;timeout&#34;:300,&#10;&#34;method&#34;:&#34;aes-256-cfb&#34;, #&#21152;&#23494;&#26041;&#24335;&#10;&#34;fast_open&#34;: false #&#26159;&#21542;&#24320;&#21551;fast open&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>配置完成后， 通过以下命名以守护进程的方式开启/停止 shadowsocks</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># ssserver -c /etc/shadowsocks.json -d start&#10;# ssserver -c /etc/shadowsocks.json -d stop</span><br></pre></td></tr></table></figure>
+<p>至此，服务端配置完成</p>
+<h3 id="客户端">客户端</h3><p>Shadowsocks 是全平台支持，这也是它的一大亮点。可以在<a href="http://shadowsocks.org/en/download/clients.html" target="_blank" rel="external">这里</a>找到我们需要的客户端。这里简单介绍 Mac 和 Android客户端的使用，其实特别简单。</p>
+<h4 id="Mac">Mac</h4><p>下载 <a href="https://github.com/shadowsocks/shadowsocks-iOS/releases/download/2.6.3/ShadowsocksX-2.6.3.dmg" target="_blank" rel="external"> ShadowsocksX </a> 的最新版本，填写EC2的公有IP，密码，即可完成配置</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_11_client_mac.png" alt=""></p>
+<h4 id="Android">Android</h4><p>此时你至少有一个客户端已经可以翻墙了， 到Google Play 上下载最新的shadowsocks客户端，安装至手机。同上做简单配置</p>
+<h2 id="写在最后">写在最后</h2><p>这个方案里，我们利用了AWS第一年免费的特性，组建了一个性价比极高的翻墙方案。 我们可以选择多个国家的节点做VPN，而不再依赖市面上免费但没保障的VPN。不但接入速度提高了，数据也不再流经别人的服务器，更提高了安全性。</p>
+<p>可能有人会问，那一年后怎么办？  如果只是为了翻查资料，即使使用AWS也花不到几个钱，这比使用 “曲径” 等昂贵的VPN服务还是要经济的多。 而且没准儿一年后翻墙又有了新玩法咧 :)</p>
+<p>总之， Enjoy~</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>众所周知的原因，我们被关在了墙内。<br>作为一名互联网工作者，失去了与外部世界的联系基本就算失去了学习国外先进技术的途径。 翻墙被越来越多的互联网工程师提上日程，方案也是层出不穷。</p>
+<p>本文简单阐述了基于AWS-EC2 + Shadowsocks组建的翻墙解决方案。 AWS第一年几乎是免费使用的， 这种方案性价比极高，效果也比Goagent等免费方案要好一些。</p>
+<p>如果还有不完善之处，欢迎指正。</p>
+<h2 id="AWS">AWS</h2><p>首先，你需要有一个 <a href="https://www.amazon.com">Amazon</a> 的账号。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_1_amazon_register.png" alt=""></p>
+<p>其次，进入 <a href="https://aws.amazon.com">AWS</a> 完善账户信息与信用卡信息。</p>
+<p><img src="http://7xj5q6.com1.z0.glb.clouddn.com/harrycode_1_amazon_register.png" alt=""></p>]]>
+    
+    </summary>
+    
+      <category term="杂货" scheme="http://www.harrycode.com/categories/%E6%9D%82%E8%B4%A7/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Nginx手册阅读笔记 —— 管理Nginx]]></title>
