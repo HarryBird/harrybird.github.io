@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="左手代码 右手年华">
 <meta property="og:description" content="[来源: http://blog.csdn.net/suifeng3051/article/details/22416305]
 可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：1.JobClient 写代码，配置作业，提交作业。2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是Job">
-<meta property="og:updated_time" content="2015-07-27T06:03:29.000Z">
+<meta property="og:updated_time" content="2015-07-27T07:05:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[转]  Hadoop工作机制">
 <meta name="twitter:description" content="[来源: http://blog.csdn.net/suifeng3051/article/details/22416305]
@@ -122,7 +122,8 @@
 <span class="bullet">3. </span>计算作业输入分片及其划分信息。
 <span class="bullet">4. </span>将作业运行需要的资源（jar文件、配置文件等）复制到Shared HDFS，并复制多个副本（参数控制，默认值为10）供tasktracker访问，也会将计算的分片复制到HDFS。
 <span class="bullet">5. </span>调用JobTracker对象的submitJob()方法来真正提交作业，告诉JobTracker作业准备执行。
-</code></pre><h2 id="作业的初始化JobTracker">作业的初始化JobTracker</h2><p>JobTracker收到submitJob方法调用后，会把调用放入到一个内部队列，由作业调度器（Job scheduler）进行调度并对其初始化。Job初始化即创建一个作业对象。<br>当作业被调度后，JobTracker会创建一个代表这个作业的JobInProgress对象，并将任务和记录信息封装在这个对象中，以便跟踪任务状态和进程。<br>  初始化过程就是JobInProgress对象的initTasks方法进行初始化的。<br>  初始化步骤：</p>
+</code></pre><a id="more"></a>
+<h2 id="作业的初始化JobTracker">作业的初始化JobTracker</h2><p>JobTracker收到submitJob方法调用后，会把调用放入到一个内部队列，由作业调度器（Job scheduler）进行调度并对其初始化。Job初始化即创建一个作业对象。<br>当作业被调度后，JobTracker会创建一个代表这个作业的JobInProgress对象，并将任务和记录信息封装在这个对象中，以便跟踪任务状态和进程。<br>  初始化过程就是JobInProgress对象的initTasks方法进行初始化的。<br>  初始化步骤：</p>
 <pre><code>    <span class="number">1</span>. 从<span class="type">HDFS</span>中读取作业对应的job.<span class="built_in">split</span>信息，为后面的初始化做好准备。
 <span class="number">2</span>. 创建并初始化<span class="built_in">map</span>和<span class="built_in">reduce</span>任务。根据数据分片信息中的个数确定<span class="built_in">map</span> task的个数，然后为每个<span class="built_in">map</span> task生成一个<span class="type">TaskInProgress</span>对象来处理数据分片，先将其放入nonRunningMapCache,以便<span class="type">JobTracker</span>分配任务的时候使用。接下来根据<span class="type">JobConf</span>中的mapred.<span class="built_in">reduce</span>.tasks属性利用setNumReduceTasks()方法设置<span class="built_in">reduce</span> task的数量，然后同<span class="built_in">map</span> task创建方式。
 <span class="number">3</span>. 最后就是创建两个初始化task，进行<span class="built_in">map</span>和<span class="built_in">reduce</span>的初始化。

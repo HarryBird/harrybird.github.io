@@ -102,20 +102,13 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
-        <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
+        <h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
-<h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
-<h2 id="pip">pip</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py&#10;python get-pip.py</span><br></pre></td></tr></table></figure>
-<h2 id="Ngxtop">Ngxtop</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01#  pip install ngxtop&#10;&#10;Downloading/unpacking ngxtop&#10;  Downloading ngxtop-0.0.2-py2.py3-none-any.whl&#10;Downloading/unpacking pyparsing (from ngxtop)&#10;  Downloading pyparsing-2.0.2.tar.gz (1.1MB): 1.1MB downloaded&#10;  Running setup.py (path:/tmp/pip_build_root/pyparsing/setup.py) egg_info for package pyparsing&#10;Downloading/unpacking docopt (from ngxtop)&#10;  Downloading docopt-0.6.1.tar.gz&#10;  Running setup.py (path:/tmp/pip_build_root/docopt/setup.py) egg_info for package docopt&#10;Downloading/unpacking tabulate (from ngxtop)&#10;  Downloading tabulate-0.7.2.tar.gz&#10;  Running setup.py (path:/tmp/pip_build_root/tabulate/setup.py) egg_info for package tabulate&#10;Installing collected packages: ngxtop, pyparsing, docopt, tabulate&#10;  Running setup.py install for pyparsing&#10;  Running setup.py install for docopt&#10;  Running setup.py install for tabulate&#10;Successfully installed ngxtop pyparsing docopt tabulate&#10;Cleaning up...</span><br></pre></td></tr></table></figure>
-<h1 id="使用">使用</h1><p>老规矩，看看help</p>
-<p>Options:<br><code>-l &lt;file&gt;, --access-log &lt;file&gt;  access log file to parse.</code>  #指定access log<br><code>-f &lt;format&gt;, --log-format &lt;format&gt;  log format as specify in log_format directive. [default: combined]</code> #指定 log format<br><code>--no-follow  ngxtop default behavior is to ignore current lines in log and only watch for new lines as they are written to the access log. Use this flag to tell ngxtop to process the current content of the access log instead.</code> #ngxtop默认会对accesslog的新增行进行统计， 通过这个选项可以让ngxtop统计旧log<br><code>-t &lt;seconds&gt;, --interval &lt;seconds&gt;  report interval when running in follow mode [default: 2.0]</code><br><code>-g &lt;var&gt;, --group-by &lt;var&gt;  group by variable [default: request_path]</code> # 基于字段分组<br><code>-w &lt;var&gt;, --having &lt;expr&gt;  having clause [default: 1]</code> # 分组之后再筛选<br><code>-o &lt;var&gt;, --order-by &lt;var&gt;  order of output for default query [default: count]</code> # 排序字段<br><code>-n &lt;number&gt;, --limit &lt;number&gt;  limit the number of records included in report for top command [default: 10]</code> #默认显示前多少条<br><code>-a &lt;exp&gt; ..., --a &lt;exp&gt; ...  add exp (must be aggregation exp: sum, avg, min, max, etc.) into output</code> # 对输出字段做附加条件 sum/avg/min/max 可选</p>
-<p><code>-v, --verbose  more verbose output</code><br><code>-d, --debug  print every line and parsed record</code><br><code>-h, --help  print this help message.</code><br><code>--version  print version information.</code></p>
-<p>Advanced / experimental options:<br><code>-c &lt;file&gt;, --config &lt;file&gt;  allow ngxtop to parse nginx config file for log format and location.</code> # 指定nginx config文件，ngxtop 会自动解析配置文件，分析出access log的位置以及格式<br><code>-i &lt;filter-expression&gt;, --filter &lt;filter-expression&gt;  filter in, records satisfied given expression are processed.</code><br><code>-p &lt;filter-expression&gt;, --pre-filter &lt;filter-expression&gt; in-filter expression to check in pre-parsing phase.</code></p>
-<p>一些demo<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Examples:&#10;    All examples read nginx config file for access log location and format.&#10;    If you want to specify the access log file and / or log format, use the -f and -a options.&#10;&#10;    &#34;top&#34; like view of nginx requests&#10;    $ ngxtop&#10;&#10;    Top 10 requested path with status 404:&#10;    $ ngxtop top request_path --filter &#39;status == 404&#39;&#10;&#10;    Top 10 requests with highest total bytes sent&#10;    $ ngxtop --order-by &#39;avg(bytes_sent) * count&#39;&#10;&#10;    Top 10 remote address, e.g., who&#39;s hitting you the most&#10;    $ ngxtop --group-by remote_addr&#10;&#10;    Print requests with 4xx or 5xx status, together with status and http referer&#10;    $ ngxtop -i &#39;status &#62;= 400&#39; print request status http_referer&#10;&#10;    Average body bytes sent of 200 responses of requested path begin with &#39;foo&#39;:&#10;    $ ngxtop avg bytes_sent --filter &#39;status == 200 and request_path.startswith(&#34;foo&#34;)&#39;&#10;&#10;    Analyze apache access log from remote machine using &#39;common&#39; log format&#10;    $ ssh remote tail -f /var/log/apache2/access.log | ngxtop -f common</span><br></pre></td></tr></table></figure></p>
-<p>实际使用下来还是很方便的，可以很方便看到403／500／404等情况，有利于我们掌握当前的服务质量。</p>
-<p>Enjoy~</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2014/05/20/nginx-monitoring-tool-ngxtop/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -166,398 +159,17 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
         <h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
 <p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
 <p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
 <h1 id="1-_流量监控">1. 流量监控</h1><h2 id="1-1_Ifstat">1.1 Ifstat</h2><p>比较简易的网络监控工具，可以监控网卡的实时流量。当你只关心整机的流量而并不关心具体服务时，这个工具很趁手。</p>
 <h3 id="1-1-1_安装">1.1.1 安装</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/ifstat/ifstat-1.1-1.2.el6.rf.x86_64.rpm&#10;rpm -ivh ifstat-1.1-1.2.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
-<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS&#10;    ifstat accepts the following options:&#10;&#10;    -l  Enables monitoring of loopback interfaces for which statistics are available. By default, ifstat monitors all non-loopback interfaces that are up.&#10;    # ifstat &#40664;&#35748;&#19981;&#30417;&#25511;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#65292; -l &#20043;&#21518;&#21487;&#20197;&#30475;&#21040;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#30340;&#27969;&#37327;&#10;    -a  Enables monitoring of all interfaces found for which statistics are available.&#10;    # &#30417;&#25511;&#25152;&#26377;&#32593;&#32476;&#25509;&#21475;&#10;    -z  Hides interface which counters are null, eg interfaces that are up but not used.&#10;    # &#38544;&#34255;&#32479;&#35745;&#25968;&#20026;&#31354;&#30340;&#32593;&#32476;&#25509;&#21475;&#10;    -i  Specifies the list of interfaces to monitor, separated by commas (if an interface name has a comma, it can be escaped with &#8217;\&#8217;). Multiple instances of the options are added together.&#10;    # -i &#25351;&#23450;&#34987;&#30417;&#25511;&#30340;&#32593;&#32476;&#25509;&#21475;&#21015;&#34920;&#65292;&#36887;&#21495;&#20998;&#21106;&#10;    -s  Equivalent to -d snmp:[comm@][#]host[/nn]] to poll a remote host through SNMP. See below for details.&#10;    # &#21487;&#20197;&#22522;&#20110;snmp&#21327;&#35758;&#65292;&#30417;&#25511;&#36828;&#31471;&#26381;&#21153;&#22120;&#10;    -h  Displays a short help message.&#10;    -n  Turns off displaying the header periodically.&#10;    # &#20851;&#38381;&#26174;&#31034;&#22836;&#20449;&#24687;(&#31532;&#19968;&#23631;&#36824;&#26159;&#20250;&#26377;&#65292;&#36229;&#36807;&#19968;&#23631;&#26102;&#23601;&#19981;&#20250;&#20877;&#26377;&#20102;)&#10;    -t  Adds a timestamp at the beginning of each line.&#10;    # &#27599;&#34892;&#21069;&#28155;&#21152;&#26102;&#38388;&#25139;&#10;    -T  Reports total bandwith for all monitored interfaces.&#10;    # &#27599;&#34892;&#34892;&#23614;&#28155;&#21152;&#19968;&#21015;&#65292;&#32479;&#35745;&#24635;&#27969;&#37327;&#10;    -A  Disables use of interface indexes: by default, when polling mechanism is index based (snmp, ifmib), ifstat remembers indexes of monitored inter-faces to poll only them. However, if interfaces indexes change often (new interfaces added, etc), you might loose some stats, hence this flag.Note that if you ask ifstat to monitor a non existent interface, it will poll all interfaces until it finds the requested one (regardless of this flag) so you can poll for an interface that goes up and down.&#10;    # &#20851;&#38381;&#20351;&#29992;&#32593;&#32476;&#25509;&#21475;&#30340;&#32034;&#24341;&#12290;&#40664;&#35748;&#30340;&#32593;&#32476;&#25509;&#21475;&#36718;&#23547;&#26426;&#21046;&#26159;&#22522;&#20110;&#32034;&#24341;&#30340;&#65292;ifstat&#20250;&#20174;&#32034;&#24341;&#20013;&#25214;&#24403;&#21069;&#30340;&#32593;&#32476;&#25509;&#21475;&#32780;&#19981;&#20250;&#27599;&#27425;&#37117;&#20351;&#29992;&#31995;&#32479;&#35843;&#29992;&#12290;&#25152;&#20197;&#22914;&#26524;&#19968;&#21488;&#26381;&#21153;&#22120;&#30340;&#32593;&#32476;&#25509;&#21475;&#32463;&#24120;&#21464;&#26356;(&#35692;&#22914;&#26032;&#22686;&#65292;&#31561;) &#20320;&#21487;&#33021;&#20250;&#20002;&#22833;&#19968;&#20123;&#20449;&#24687;&#12290;&#22240;&#27492;&#26377;&#20102;&#36825;&#20010;&#21442;&#25968;&#10;    -w  Uses fixed width columns, instead of enlarging them if needed for interfaces names to fit.&#10;    # &#29992;&#22266;&#23450;&#30340;&#21015;&#23485;&#20195;&#26367;&#33258;&#36866;&#24212;&#30340;&#21015;&#27454;&#10;    -W  Wrap lines that are larger than the terminal width (implies -w). Wrapped lines are prefixed with a cycling letter to ease reading.&#10;    # &#22914;&#26524;&#27599;&#34892;&#30340;&#23485;&#24230;&#36229;&#36807;&#23631;&#24149;&#23485;&#24230;&#65292;&#33258;&#21160;&#25442;&#34892;&#12290;&#10;    -S  Keep stats updated on the same line if possible (no scrolling nor wrapping).&#10;    # &#36755;&#20986;&#32467;&#26524;&#19981;&#20877;&#26159;&#36861;&#21152;&#12290;&#32780;&#26159;&#26356;&#26032;&#21516;&#19968;&#34892;&#12290;&#10;    -b  Reports bandwith in kbits/sec instead of kbytes/sec.&#10;    # kbit &#20195;&#26367; kbyte&#10;    -q  Quiet mode, warnings are not printed.&#10;    -v  Displays version and the compiled-in drivers.&#10;       &#10;    delay&#10;        delay is the delay between updates in seconds, which defaults to 1.  A decimal number can be specified for intervals shorter than a second. (min-imum 0.1)&#10;A second delay can also be specified (separated from the first one by a &#8217;/&#8217;). In that case the first delay will be used for the first poll after start and the second one will be used for all following polls (This can be used to have a &#34;fast&#34; start when running for a long while with a big delay).&#10;        # &#27599;&#27425;&#26174;&#31034;&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#12290;&#40664;&#35748;&#26159;1.&#20063;&#25509;&#21463;&#19968;&#20010;&#28014;&#28857;&#25968;&#65292;&#26368;&#23567;&#20026;0.1. &#25509;&#21463;&#19968;&#20010;&#31532;&#20108;&#38388;&#38548;&#30340;&#21442;&#25968;&#65292;&#36890;&#36807;&#39;/&#39; &#20998;&#21106;&#65292;&#22914; 0.1&#65295;3. &#36825;&#31181;&#24773;&#20917;&#19979;&#65292;&#31532;&#19968;&#27425;&#26174;&#31034;&#20351;&#29992;0.1&#65292;&#21518;&#38754;&#26174;&#31034;&#30340;&#26102;&#38388;&#38388;&#38548;&#20351;&#29992;3. (&#36825;&#31181;&#26041;&#24335;&#21487;&#20197;&#29992;&#26469;&#34;&#24555;&#36895;&#34;&#21551;&#21160;&#65292;&#28982;&#21518;&#32531;&#24930;&#36718;&#23547;)&#10;    count&#10;        count is the number of updates before stopping. If not specified, it is unlimited.&#10;        # &#25351;&#23450;&#21047;&#26032;&#30340;&#27425;&#25968;&#12290;&#22914;&#26524;&#19981;&#25351;&#23450;&#65292;&#40664;&#35748;&#26080;&#38480;&#12290;</span><br></pre></td></tr></table></figure></p>
-<p>通常用法：<code>ifstat -a -t -T 0.1/2</code></p>
-<h2 id="1-2_Iftop">1.2 Iftop</h2><p>和ifstat 相比，iftop提供更丰富的监控维度。可以细化到网卡甚至端口服务。当网络成为瓶颈时，这个工具可以很快帮你找出是哪个服务占用了你网卡以及流量。</p>
-<h3 id="1-2-1_安装">1.2.1 安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/iftop/iftop-0.17-1.el6.rf.x86_64.rpm&#10;rpm -ivh iftop-0.17-1.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
-<h3 id="1-2-2_使用">1.2.2 使用</h3><p>老规矩， 看下man<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS&#10;    -h     Print a summary of usage.&#10;    -n     Don&#8217;t do hostname lookups. #&#19981;&#23545;ip&#20570;&#21453;&#21521;&#35299;&#26512;&#10;    -N     Do not resolve port number to service names # &#19981;&#20250;&#25226;port&#35299;&#26512;&#25104;&#26381;&#21153;&#21517;&#10;    -p     Run in promiscuous mode, so that traffic which does not pass directly through the specified interface is also counted. # &#36816;&#34892;&#22312;&#28151;&#26434;&#27169;&#24335;&#20013;&#65292;&#25152;&#20197;&#19981;&#26159;&#26469;&#33258;&#25351;&#23450;&#32593;&#32476;&#25509;&#21475;&#30340;&#27969;&#37327;&#20063;&#20250;&#34987;&#32479;&#35745;&#10;    -P     Turn on port display. #&#26174;&#31034;&#31471;&#21475;&#21495;&#10;    -b     Don&#8217;t display bar graphs of traffic.&#10;    -B     Display bandwidth rates in bytes/sec rather than bits/sec. #&#26174;&#31034;byte&#10;    -i interface&#10;        Listen to packets on interface. #&#25351;&#23450;&#32593;&#32476;&#25509;&#21475;&#10;    -f filter code&#10;        Use  filter code to select the packets to count. Only IP packets are ever counted, so the specified code is evaluated as (filter code) and ip.&#10;    -F net/mask&#10;        Specifies a network for traffic analysis.  If specified, iftop will only include packets flowing in to or out of the given network, and packet direction  is  determined  relative  to  the  network  boundary, rather than to the interface.  You may specify mask as a dotted quad, such as /255.255.255.0, or as a single number specifying the number of bits set in the netmask, such as /24. # &#25351;&#23450;ip&#21306;&#27573;&#20197;&#21450;&#25513;&#30721;&#10;    -c config file&#10;        Specifies an alternate config file.  If not specified, iftop will use ~/.iftoprc if it exists.  See below for a description of config files #&#21487;&#20197;&#25351;&#23450;&#37197;&#32622;&#25991;&#20214;&#65292;&#25991;&#20214;&#26684;&#24335;&#35814;&#35265; man</span><br></pre></td></tr></table></figure></p>
-<p>通常用法：<code>iftop -N -n -B -i em1</code></p>
-<h3 id="1-2-3_显示">1.2.3 显示</h3><p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/199171/GwYk2VoQ4eG6knaEFwb0_iftop.png" alt="iftop.png"></p>
-<ol>
-<li>第一行：当前带宽</li>
-<li>中间区域： 左-本机ip 中-远端ip 右-2／10／40 秒的实时流量</li>
-<li>底部：<br> TX：发送<br> RX：接收<br> Total：总流量<br> comm: 从iftop启动到现在产生的流量<br> peak：当前流量峰值／s<br> 右侧三列： 2／10／40 秒的平均值</li>
-</ol>
-<h3 id="1-2-4_交互操作">1.2.4 交互操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Host display:                          &#10; n - toggle DNS host resolution   #&#20999;&#25442;dns&#21453;&#21521;&#35299;&#26512;     &#10; s - toggle show source host # &#20999;&#25442;&#26174;&#31034;&#28304;&#20027;&#26426;           &#10; d - toggle show destination host # &#20999;&#25442;&#26174;&#31034;&#30446;&#30340;&#20027;&#26426;     &#10; t - cycle line display mode # &#24490;&#29615;&#20999;&#25442;&#19981;&#21516;&#30340;&#23637;&#31034;&#27169;&#24335; &#21333;&#34892;&#65295;&#22810;&#34892;           &#10;&#10;Port display:                          &#10; N - toggle service resolution  #&#20999;&#25442;&#31471;&#21475;&#21040;&#26381;&#21153;&#35299;&#26512;        &#10; S - toggle show source port    #&#20999;&#25442;&#23637;&#31034;&#28304;&#31471;&#21475;       &#10; D - toggle show destination port  #&#20999;&#25442;&#23637;&#31034;&#30446;&#30340;&#31471;&#21475;    &#10; p - toggle port display    #&#26159;&#21542;&#23637;&#31034;&#31471;&#21475;           &#10;&#10;&#10;Sorting:&#10; 1/2/3 - sort by 1st/2nd/3rd column #1/2/3&#21015;&#25490;&#24207;&#10; &#60; - sort by source name #&#28304;&#20027;&#26426;&#25490;&#24207;&#10; &#62; - sort by dest name #&#30446;&#30340;&#20027;&#26426;&#25490;&#24207;&#10; o - freeze current order &#10;&#10;General:&#10; P - pause display        &#10; h - toggle this help display&#10; b - toggle bar graph display&#10; B - cycle bar graph average&#10;                                   &#10; j/k - scroll display&#10; f - edit filter code&#10; l - set screen filter&#10; L - lin/log scales&#10; ! - shell command&#10; q - quit&#10; T - toggle cummulative line totals</span><br></pre></td></tr></table></figure>
-<h2 id="1-3_Iptraf">1.3 Iptraf</h2><pre><code>和iptop的功能比较类似，实时性更好一些，UI也更易懂。
-</code></pre><h3 id="1-3-1_安装">1.3.1 安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install iptraf</span><br></pre></td></tr></table></figure>
-<p>这东西纯界面的，menu也很清晰，就不多说了～</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/199171/mlS8w6p8Rt27r7lTk9Xc_traffic.png" alt="traffic.png"></p>
-<h1 id="2-_CPU">2. CPU</h1><h2 id="2-1_vmstat">2.1 vmstat</h2><p>vmstat可以说是最常用的cpu监控工具了，不但可以监控cpu的使用情况，还以cpu为维度，列出了请求队列，内存，io，中断等信息，方便我们从多个维度观察cpu信息，及时找出瓶颈。</p>
-<h3 id="使用">使用</h3><p><code>vmstat -t -S m 2</code> #每秒刷新，附带时间戳; 涉及到容量的单位为M(-S 的可选参数为  k/K/m/M 对应 1000/1024/1000000/1048576 bytes )</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------ ---timestamp---&#10; r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st&#10; 5  0      0    228   2137  18902    0    0     1    13    0    0  1  1 98  0  0&#9;2014-05-15 17:53:06 CST</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>procs-r</td>
-<td>执行队列中的进程数(等待被执行的进程数)</td>
-</tr>
-<tr>
-<td>procs-b</td>
-<td>等待I/O的进程数</td>
-</tr>
-<tr>
-<td>memory-swpd</td>
-<td>使用交换内存的大小</td>
-</tr>
-<tr>
-<td>memory-free</td>
-<td>空闲内存的大小</td>
-</tr>
-<tr>
-<td>memory-buff</td>
-<td>buffer使用的内存大小，一般对块设备读写会用到buff</td>
-</tr>
-<tr>
-<td>memory-cache</td>
-<td>cache使用的内存大小，一般对文件读写会用到cache</td>
-</tr>
-<tr>
-<td>swap-si</td>
-<td>由内存写入到交换区的大小</td>
-</tr>
-<tr>
-<td>swap-so</td>
-<td>由交换区写入到内存的大小</td>
-</tr>
-<tr>
-<td>io-bi</td>
-<td>写入块设备的块数。(单位是block)</td>
-</tr>
-<tr>
-<td>io-bo</td>
-<td>从块设备接收到的块数。(单位是block)</td>
-</tr>
-<tr>
-<td>system-in</td>
-<td>系统中断数，包括时钟中断</td>
-</tr>
-<tr>
-<td>system-cs</td>
-<td>系统的上下文切换数</td>
-</tr>
-<tr>
-<td>cpu-us</td>
-<td>用户进程使用CPU的百分比</td>
-</tr>
-<tr>
-<td>cpu-sy</td>
-<td>系统进程使用CPU的百分比</td>
-</tr>
-<tr>
-<td>cpu-id</td>
-<td>空闲PU的百分比</td>
-</tr>
-<tr>
-<td>cpu-wa</td>
-<td>等待I/O的CPU百分比</td>
-</tr>
-<tr>
-<td>cpu-st</td>
-<td>被虚拟机偷取的CPU百分比</td>
-</tr>
-</tbody>
-</table>
-<h2 id="2-2_mpstat">2.2 mpstat</h2><p>虽然 vmstat 已经很强大了，但随着多核cpu的出现，vmstat有时有些捉襟见肘。笔者之前遇到一个案例，在系统压力很大时，mysql slave服务器出现了较大的延迟，从vmstat看，io／cpu都不高。binlog同步没有延迟，但是在binlog重放时显然拖慢了整体进度。最后通过mpstat观察发现，只有一个核的使用率很高，而vmstat显示的平均值，所以整体很低。这就说明mysql的主从机制中，从服务器重放sql是单线程的，无法利用多核，难怪在系统繁忙时，数据会有延迟。好了，不吐槽了，我们接茬儿说回mpstat</p>
-<h3 id="使用-1">使用</h3><p><code>mpstat -u -P [ALL|0,1,2...]</code><br>|# -P 代表查看CPU的情况 ALL会列出全部CPU,也可以指定核编号，”,”分割<br><code>mpstat -I [SUM|CPU|ALL]</code>(不太常用，因为-P的结果中也会有中断数)<br>|# -I 代表查看CPU中断  SUM为所有cpu汇总,CPU代表列出所有核的中断，ALL为前两者之和</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux 2.6.32-431.el6.x86_64 (beta-01.cloud) &#9;05/15/2014 &#9;_x86_64_&#9;(24 CPU)&#10;&#10;08:56:32 PM  CPU    %usr   %nice    %sys %iowait    %irq   %soft  %steal  %guest   %idle&#10;08:56:34 PM  all   10.17    0.00   11.28    0.00    0.00    0.00    0.00    0.00   78.54&#10;08:56:34 PM    0    0.50    0.00    0.00    0.00    0.00    0.00    0.00    0.00   99.50&#10;08:56:34 PM    1    0.00    0.00    3.50    0.00    0.00    0.00    0.00    0.00   96.50&#10;08:56:34 PM    2    0.00    0.00    0.00    0.00    0.00    0.00    0.00    0.00  100.00&#10;08:56:34 PM    3   30.43    0.00   34.78    0.00    0.00    0.00    0.00    0.00   34.78</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>irq</td>
-<td>硬中断的CPU百分比</td>
-</tr>
-<tr>
-<td>soft</td>
-<td>软中断的CPU百分比(其他的项参考vmstat章节)</td>
-</tr>
-</tbody>
-</table>
-<h1 id="3-_I／O">3. I／O</h1><h2 id="3-1_iostat">3.1 iostat</h2><h3 id="使用-2">使用</h3><p><code>iostat -x -t [-k/-m] 3</code><br> |# -x 会展示一些扩展数据<br> |# -t 会展示刷新时间<br> |# -k 以kbytes为单位做展示<br> |# -m 以mbytes为单位做展示</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">05/15/2014 06:25:35 PM&#10;avg-cpu:  %user   %nice %system %iowait  %steal   %idle&#10;          10.38    0.00   10.89    0.00    0.00   78.73&#10;&#10;Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util&#10;sda               0.00  1017.00    0.00   23.00     0.00  8320.00   361.74     0.01    0.22   0.07   0.15</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>nice</td>
-<td>用做nice加权的进程分配的用户态cpu时间比(CPU的其它项，见vmstat章节)</td>
-</tr>
-<tr>
-<td>rrqm/s</td>
-<td>队列中每秒合并的读请求数</td>
-</tr>
-<tr>
-<td>wrqm/s</td>
-<td>队列中每秒合并的写请求数</td>
-</tr>
-<tr>
-<td>r/s</td>
-<td>每秒完成的读请求数</td>
-</tr>
-<tr>
-<td>w/s</td>
-<td>每秒完成的写请求数</td>
-</tr>
-<tr>
-<td>rsec/s</td>
-<td>每秒读取的扇区数</td>
-</tr>
-<tr>
-<td>wsec/s</td>
-<td>每秒写入的扇区数</td>
-</tr>
-<tr>
-<td>avgrq-sz</td>
-<td>平均每次io操作的扇区大小(单位为扇区)</td>
-</tr>
-<tr>
-<td>avgqu-sz</td>
-<td>I／O队列的平均长度</td>
-</tr>
-<tr>
-<td>await</td>
-<td>每次I/O请求的处理时间。这个时间包括排队时间+处理时间 (ms)</td>
-</tr>
-<tr>
-<td>svctm</td>
-<td>每次I/O请求的处理时间。这个时间不包括排队时间 (ms)</td>
-</tr>
-<tr>
-<td>%util</td>
-<td>I/O请求所占用的CPU时间百分比(<strong>这一项是衡量i/o负载的重要指标</strong>)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="3-2_iotop">3.2 iotop</h2><p>iostat 是从宏观上监控系统i/o的整体情况，于是它就存在个弱点，当我们发现系统i/o过高甚至成为瓶颈时，无法查看到底是哪个进程导致的io过高。这个时候就iotop出场了。<br>关于iotop的介绍，详见前几日的博文 <a href="http://harrycode.logdown.com/posts/198725-introduction-to-iotop" target="_blank" rel="external">IOTop 简介</a></p>
-<h1 id="4-_综合">4. 综合</h1><p>这个世界有小而精的东西，也永远都不缺大而全的东西</p>
-<h2 id="4-1_htop">4.1 htop</h2><p>htop是top的增强版，功能更强大，性能更好。详细的介绍参见之前的一篇博客 <a href="http://harrycode.logdown.com/posts/198662-change-replacing-the-top-process-management-tools-under-linux-htop" target="_blank" rel="external">[转]Linux下取代top的进程管理工具 htop</a></p>
-<h2 id="4-2_sar">4.2 sar</h2><p>sar可以快速收集服务器上的各项信息并显示，包括CPU，内存，I/O，中断，IP，TCP，UDP等。<br>这个工具通常都被预装在了服务器上，如果真的那么悲催居然没有，可以去找这个工具集 [sysstat][1] </p>
-<h2 id="用法">用法</h2><p><code>sar [ 选项 ] [ &lt;时间间隔&gt; [ &lt;次数&gt; ] ]</code></p>
-<p><strong>不带任何选项的sar，默认展示cpu信息</strong><br>展示的各项与mpstat一致，相关描述可参考mpstat -P的章节</p>
-<p><code>sar 2</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux 2.6.32-431.el6.x86_64 (beta-01.cloud) &#9;05/15/2014 &#9;_x86_64_&#9;(24 CPU)&#10;&#10;09:24:03 PM     CPU     %user     %nice   %system   %iowait    %steal     %idle&#10;09:24:05 PM     all     10.09      0.00     11.20      0.00      0.00     78.71&#10;09:24:07 PM     all     10.33      0.00     11.05      0.00      0.00     78.62</span><br></pre></td></tr></table></figure>
-<p><strong>-b    I/O 和传输速率信息状况</strong></p>
-<p><code>sar -b 2</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux 2.6.32-431.el6.x86_64 (beta-01.cloud) &#9;05/15/2014 &#9;_x86_64_&#9;(24 CPU)&#10;&#10;04:17:26 PM       tps      rtps      wtps   bread/s   bwrtn/s&#10;04:17:29 PM    481.00      0.00    481.00      0.00   4856.00&#10;04:17:32 PM      4.67      0.00      4.67      0.00    752.00</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tps</td>
-<td>每秒对物理磁盘的I/O请求数</td>
-</tr>
-<tr>
-<td>rtps</td>
-<td>每秒对物理磁盘的I/O读请求数</td>
-</tr>
-<tr>
-<td>wtps</td>
-<td>每秒对物理磁盘的I/O写请求数</td>
-</tr>
-<tr>
-<td>bread/s</td>
-<td>每秒从物理磁盘读取的数据块(block)数目。2.4及以上，一个block为512bytes</td>
-</tr>
-<tr>
-<td>bwrtn/s</td>
-<td>每秒对物理磁盘写的数据块数目</td>
-</tr>
-</tbody>
-</table>
-<p><strong>-d  块设备的使用情况</strong></p>
-<p><code>sar -p -d 2</code></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sarLinux 2.6.32-431.el6.x86_64 (beta-01.cloud) &#9;05/15/2014 &#9;_x86_64_&#9;(24 CPU)&#10;&#10;05:11:06 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util&#10;05:11:09 PM       sda      1.34      0.00     58.86     44.00      0.00      0.00      0.00      0.00&#10;&#10;05:11:09 PM       DEV       tps  rd_sec/s  wr_sec/s  avgrq-sz  avgqu-sz     await     svctm     %util&#10;05:11:12 PM       sda      1.99      0.00    685.71    344.00      0.00      0.00      0.00      0.00</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>DEV</td>
-<td>被监控的块设备名称</td>
-</tr>
-<tr>
-<td>tps</td>
-<td>每秒传输给块设备的请求数(I/O请求数)。多个逻辑请求会被合并成一个物理请求</td>
-</tr>
-<tr>
-<td>rd_sec/s</td>
-<td>每秒读取的扇区数(sector)。一个扇区512bytes</td>
-</tr>
-<tr>
-<td>wr_sec/s</td>
-<td>每秒写入的扇区数(sector)。一个扇区512bytes</td>
-</tr>
-<tr>
-<td>avgrq-sz</td>
-<td>平均每次I/O请求的扇区数</td>
-</tr>
-<tr>
-<td>avgqu-sz</td>
-<td>I/O请求队列的平均长度</td>
-</tr>
-<tr>
-<td>await</td>
-<td>每次I/O请求的处理时间。这个时间包括排队时间+处理时间 (ms)</td>
-</tr>
-<tr>
-<td>svctm</td>
-<td>每次I/O请求的处理时间。这个时间不包括排队时间 (ms)</td>
-</tr>
-<tr>
-<td>%util</td>
-<td>I/O请求所占用的CPU时间百分比(<strong>这一项是衡量i/o负载的重要指标</strong>)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>-P cpu的使用情况，支持多核， 与mpstat 一致</strong></p>
-<p><code>sar -P [ALL|0,1,2...] 2</code></p>
-<p><strong>-q   队列以及负载的情况</strong></p>
-<p><code>sar -q 2</code></p>
-<table>
-<thead>
-<tr>
-<th>列</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>runq-sz</td>
-<td>准备进入执行队列的进程数</td>
-</tr>
-<tr>
-<td>plist-sz</td>
-<td>进程列表中的进程数</td>
-</tr>
-<tr>
-<td>ldavg-1</td>
-<td>最近一分钟的系统负载</td>
-</tr>
-<tr>
-<td>ldavg-5</td>
-<td>最近5分钟的系统负载</td>
-</tr>
-<tr>
-<td>ldavg-15</td>
-<td>最近15分钟的系统负载</td>
-</tr>
-</tbody>
-</table>
-<p><strong>-n  网络相关的情况</strong></p>
-<p>根据关键字来基于不同维度展示网络相关的情况，关键字包括 DEV, EDEV, NFS, NFSD, SOCK, IP, EIP, ICMP, EICMP, TCP, ETCP, UDP, SOCK6, IP6, EIP6, ICMP6, EICMP6 and UDP6， 较为常用的是 DEV和SOCK</p>
-<table>
-<thead>
-<tr>
-<th>关键字</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>DEV</strong></td>
-<td>所有网络设备的活动统计</td>
-</tr>
-<tr>
-<td>IFACE</td>
-<td>网络接口名</td>
-</tr>
-<tr>
-<td>rxpck/s</td>
-<td>每秒收到的package</td>
-</tr>
-<tr>
-<td>txpck/s</td>
-<td>每秒发送的package</td>
-</tr>
-<tr>
-<td>rxkB/s</td>
-<td>每秒收到的字节数</td>
-</tr>
-<tr>
-<td>txkB/s</td>
-<td>每秒发送的字节数</td>
-</tr>
-<tr>
-<td>rxcmp/s</td>
-<td>每秒收到的压缩包数</td>
-</tr>
-<tr>
-<td>txcmp/s</td>
-<td>每秒发送的压缩包数</td>
-</tr>
-<tr>
-<td>rxmcst/s</td>
-<td>每秒收到的多播包数</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><strong>SOCK</strong></td>
-<td>所有网络套接字的活动统计</td>
-</tr>
-<tr>
-<td>totsck</td>
-<td>使用的套接字总数</td>
-</tr>
-<tr>
-<td>tcpsck</td>
-<td>使用的Tcp套接字总数</td>
-</tr>
-<tr>
-<td>udpsck</td>
-<td>使用的Udp套接字总数</td>
-</tr>
-<tr>
-<td>rawsck</td>
-<td>使用的Raw套接字总数</td>
-</tr>
-<tr>
-<td>ip-frag</td>
-<td>使用的ip段总数</td>
-</tr>
-<tr>
-<td>tcp-tw</td>
-<td>当前Time_Wait的套接字总数</td>
-</tr>
-</tbody>
-</table>
-<p>就这么多吧，敲的手抖，把最近用到的工具简单罗列了下下，希望对大家有用。<br>需要注意一下，上面的演示都是基于CentOSd的，其他操作系统中，同样的工具输出结果会略有不同，要想了解细节还是要靠 man.</p>
-<p>Enjoy~</p>
-
+<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br>
+        
+          <p class="article-more-link">
+            <a href="/2014/05/15/linux-server-system-monitor-tool-collecting/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -608,15 +220,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
         <h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
 <h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01# iotop --help&#10;Usage: /usr/sbin/iotop [OPTIONS]&#10;&#10;DISK READ and DISK WRITE are the block I/O bandwidth used during the sampling&#10;period. SWAPIN and IO are the percentages of time the thread spent respectively&#10;while swapping in and waiting on I/O more generally. PRIO is the I/O priority at&#10;which the thread is running (set using the ionice command).</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Options:&#10;  --version             show program&#39;s version number and exit&#10;  -h, --help            show this help message and exit&#10;  -o, --only            only show processes or threads actually doing I/O #&#21482;&#26174;&#31034;&#24403;&#21069;&#26377;IO&#25805;&#20316;&#30340;&#36827;&#31243;&#25110;&#32447;&#31243;&#10;  -b, --batch           non-interactive mode # &#36816;&#34892;&#22312;&#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#10;  -n NUM, --iter=NUM    number of iterations before ending [infinite] # &#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#23637;&#31034;&#30340;&#27425;&#25968;&#10;  -d SEC, --delay=SEC   delay between iterations [1 second] #&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#10;  -p PID, --pid=PID     processes/threads to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#36827;&#31243;&#65295;&#32447;&#31243;&#30340;IO&#20449;&#24687;&#10;  -u USER, --user=USER  users to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;&#25152;&#21457;&#29983;&#30340;IO&#10;  -P, --processes       only show processes, not all threads # &#21482;&#26174;&#31034;&#36827;&#31243;&#32780;&#19981;&#26159;&#25152;&#26377;&#30340;&#32447;&#31243;&#10;  -a, --accumulated     show accumulated I/O instead of bandwidth #&#22312;IOTOP&#21551;&#21160;&#21518; &#26174;&#31034;&#27599;&#20010;&#36827;&#31243;&#65295;&#32447;&#31243;&#22788;&#29702;&#30340;IO&#24635;&#25968;&#10;  -k, --kilobytes       use kilobytes instead of a human friendly unit # &#20197;KB&#20026;&#21333;&#20301;&#36827;&#34892;&#26174;&#31034;&#10;  -t, --time            add a timestamp on each line (implies --batch) # &#26174;&#31034;&#26102;&#22312;&#27599;&#34892;&#28155;&#21152;&#24403;&#21069;&#26102;&#38388;&#10;  -q, --quiet           suppress some lines of header (implies --batch)</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Controls: left and right arrows to change the sorting column, r to invert the&#10;sorting order, o to toggle the --only option, p to toggle the --processes&#10;option, a to toggle the --accumulated option, q to quit, any other key to force&#10;a refresh.&#10;&#10;&#25511;&#21046;&#65306;&#10;&#39;&#24038;&#21491;&#38190;&#39;&#29992;&#26469;&#25913;&#21464;&#25490;&#24207;&#30340;&#21015;&#65292;&#10;&#39;r&#39;&#29992;&#26469;&#20999;&#25442;&#27491;&#24207;/&#20498;&#24207;, &#10;&#39;o&#39; &#29992;&#26469;&#20999;&#25442; --only&#27169;&#24335;, &#10;&#39;p&#39; &#29992;&#26469;&#20999;&#25442; --processes &#27169;&#24335;&#65292; &#10;&#39;a&#39; &#29992;&#26469;&#20999;&#25442; --accumulated&#27169;&#24335;, &#10;&#39;q&#39; &#29992;&#26469;&#25512;&#20986;&#65292;&#8216;&#20854;&#20182;&#38190;&#8217; &#29992;&#26469;&#24378;&#21046;&#21047;&#26032;</span><br></pre></td></tr></table></figure>
-<p>PS: 笔者很喜欢 iotop -o 的玩法，祝大家也玩的愉快。</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2014/05/13/introduction-to-iotop/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -667,8 +280,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
-        <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+        <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 <h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
 <p><strong>Comparison between htop and top</strong></p>
 <ul>
@@ -689,196 +301,12 @@
 <li>htop 支持鼠标操作。</li>
 <li>top 已经很老了。</li>
 </ul>
-<p>htop 官网：<a href="http://htop.sourceforge.net/" target="_blank" rel="external">http://htop.sourceforge.net/</a></p>
-<h1 id="htop_安装">htop 安装</h1><p><strong>a. 源码包安装</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># tar zxvf htop-1.0.2.tar.gz&#10;# cd htop-1.0.2&#10;# ./configure&#10;# make &#38;&#38; make install</span><br></pre></td></tr></table></figure></p>
-<p>若出现错误：<br>configure: error: You may want to use —disable-unicode or install libncursesw.<br>则需安装 ncurses-devel<br><code>yum install ncurses-devel</code></p>
-<p><strong>b. RHEL/CentOS 安装</strong></p>
-<p>可以通过 yum install htop 来安装它，但前提是要添加epel 的yum源，具体请参考 CentOS yum 源的配置与使用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># rpm --import http://apt.sw.be/RPM-GPG-KEY.dag.txt&#10;# wget http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm&#10;# rpm -K rpmforge-release-0.5.3-1.el6.rf.*.rpm&#10;# rpm -i rpmforge-release-0.5.3-1.el6.rf.*.rpm&#10;# yum install htop</span><br></pre></td></tr></table></figure></p>
-<h1 id="htop_参数">htop 参数</h1><p>键入htop 命令，打开htop。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/EO2b6zTCT8eEv3oi8sRi_12224048-e798f9f6de94490885989b39970a8270.jpg" alt="12224048-e798f9f6de94490885989b39970a8270.jpg"></p>
-<p>上面左上角显示CPU、内存、交换区的使用情况，右边显示任务、负载、开机时间，下面就是进程实时状况。<br>下面是 F1~F10 的功能和对应的字母快捷键。</p>
-<table>
-<thead>
-<tr>
-<th>Shortcut Key</th>
-<th>Function Key</th>
-<th>Description</th>
-<th>中文说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>h, ?</td>
-<td>F1</td>
-<td>Invoke htop Help</td>
-<td>查看htop使用说明</td>
-</tr>
-<tr>
-<td>S</td>
-<td>F2</td>
-<td>Htop Setup Menu</td>
-<td>htop 设定</td>
-</tr>
-<tr>
-<td>/</td>
-<td>F3</td>
-<td>Search for a Process</td>
-<td>搜索进程</td>
-</tr>
-<tr>
-<td>\</td>
-<td>F4</td>
-<td>Incremental process filtering</td>
-<td>增量进程过滤器</td>
-</tr>
-<tr>
-<td>t</td>
-<td>F5</td>
-<td>Tree View</td>
-<td>显示树形结构</td>
-</tr>
-<tr>
-<td>&lt;, &gt;</td>
-<td>F6</td>
-<td>Sort by a column</td>
-<td>选择排序方式</td>
-</tr>
-<tr>
-<td>[</td>
-<td>F7</td>
-<td>Nice - (change priority)</td>
-<td>可减少nice值，这样就可以提高对应进程的优先级</td>
-</tr>
-<tr>
-<td>]</td>
-<td>F8</td>
-<td>Nice + (change priority)</td>
-<td>可增加nice值，这样就可以降低对应进程的优先级</td>
-</tr>
-<tr>
-<td>k</td>
-<td>F9</td>
-<td>Kill a Process</td>
-<td>可对进程传递信号</td>
-</tr>
-<tr>
-<td>q</td>
-<td>F10</td>
-<td>Quit htop</td>
-<td>结束htop</td>
-</tr>
-</tbody>
-</table>
-<p><strong>命令行选项（COMMAND-LINE OPTIONS）</strong></p>
-<p>-C —no-color　　　　 　　 使用一个单色的配色方案<br>-d —delay=DELAY　　　　 设置延迟更新时间，单位秒<br>-h —help　　　　　　  　　 显示htop 命令帮助信息<br>-u —user=USERNAME　　  只显示一个给定的用户的过程<br>-p —pid=PID,PID…　　　    只显示给定的PIDs<br>-s —sort-key COLUMN　    依此列来排序<br>-v –version　　　　　　　   显示版本信息</p>
-<p><strong>交互式命令（INTERACTIVE COMMANDS）</strong></p>
-<table>
-<thead>
-<tr>
-<th>上下键或PgUP, PgDn</th>
-<th>选定想要的进程</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>左右键或Home, End</td>
-<td>移动字段，当然也可以直接用鼠标选定进程；</td>
-</tr>
-<tr>
-<td>Space</td>
-<td>标记/取消标记一个进程。命令可以作用于多个进程，例如 “kill”，将应用于所有已标记的进程</td>
-</tr>
-<tr>
-<td>U</td>
-<td>取消标记所有进程</td>
-</tr>
-<tr>
-<td>s</td>
-<td>选择某一进程，按s:用strace追踪进程的系统调用</td>
-</tr>
-<tr>
-<td>l</td>
-<td>显示进程打开的文件: 如果安装了lsof，按此键可以显示进程所打开的文件</td>
-</tr>
-<tr>
-<td>I</td>
-<td>倒转排序顺序，如果排序是正序的，则反转成倒序的，反之亦然</td>
-</tr>
-<tr>
-<td>+, -</td>
-<td>When in tree view mode, expand or collapse subtree. When a subtree is collapsed a “+” sign shows to the left of the process name.</td>
-</tr>
-<tr>
-<td>a (在有多处理器的机器上)</td>
-<td>设置 CPU affinity: 标记一个进程允许使用哪些CPU</td>
-</tr>
-<tr>
-<td>u</td>
-<td>显示特定用户进程</td>
-</tr>
-<tr>
-<td>M</td>
-<td>按Memory 使用排序</td>
-</tr>
-<tr>
-<td>P</td>
-<td>按CPU 使用排序</td>
-</tr>
-<tr>
-<td>T</td>
-<td>按Time+ 使用排序</td>
-</tr>
-<tr>
-<td>F</td>
-<td>跟踪进程: 如果排序顺序引起选定的进程在列表上到处移动，让选定条跟随该进程。这对监视一个进程非常有用：通过这种方式，你可以让一个进程在屏幕上一直可见。使用方向键会停止该功能。</td>
-</tr>
-<tr>
-<td>K</td>
-<td>显示/隐藏内核线程</td>
-</tr>
-<tr>
-<td>H</td>
-<td>显示/隐藏用户线程</td>
-</tr>
-<tr>
-<td>Ctrl-L</td>
-<td>刷新</td>
-</tr>
-<tr>
-<td>Numbers</td>
-<td>PID 查找: 输入PID，光标将移动到相应的进程上</td>
-</tr>
-</tbody>
-</table>
-<h1 id="htop_使用">htop 使用</h1><h2 id="显示自带帮助">显示自带帮助</h2><p>鼠标点击Help或者按F1 显示自带帮助</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/bbtswYdaQsO6nxRL7Gea_12224050-75be8605449248f999bde75c6697522f.jpg" alt="12224050-75be8605449248f999bde75c6697522f.jpg"></p>
-<h2 id="htop_设定">htop 设定</h2><p>鼠标点击Setup或者按下F2 之后进入htop 设定的页面，Meters 页面设定了顶端的一些信息显示，顶端的显示又分为左右两侧，到底能显示些什么可以在最右侧那栏新增，要新增到上方左侧（F5）或是右侧（F6）都可以，这就是个人设定的范围了。这里多加了一个时钟。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/YPmTpe7bQBOnHyFrEaQE_12224052-570be85130854977aa4bc9f796fb0eb1.jpg" alt="12224052-570be85130854977aa4bc9f796fb0eb1.jpg"></p>
-<p>上方左右两栏的显示方式分为Text Bar Graph Led 四种，下图我就把 cpu memory swap 改成文本模式显示，然后右栏的改成Bar 显示，clock 用LED方式显示。数据显示都差不多，只是这样看有点不习惯了。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/AxJXcJalQGal98aIFO3i_12224053-eca0d56c388240e495c0b3226ed45472.jpg" alt="12224053-eca0d56c388240e495c0b3226ed45472.jpg"></p>
-<p>关于Display options 的设定，可要根据管理者自己的需要来设定。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9v3VH9ClSouJgF6vH0X3_12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg" alt="12224054-97538b88011d4b6fb49e7d48ec7b4263.jpg"></p>
-<p>颜色选择，除了基本的颜色显示之外，htop 还提供了换面板的功能，其实也只是改变一些色彩显示的设定，虽然说不能自定义到细部的颜色显示，但是至少提供了几种风格可以选择。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rk8VkpY2RI6pM4Qodmoe_12224056-2f6114304f37492095545a4ad6a68986.jpg" alt="12224056-2f6114304f37492095545a4ad6a68986.jpg"></p>
-<p>最后一项的设定是调整 Columns 的显示，就是在一般htop 指令进来希望可以看到的什么样的数据及信息，字段的调整可以在这边做个人化的设定，一般使用系统默认值就好了。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/hxFqEnM7RJO7KmynsnHu_12224059-a5ece1fdc31e420da897d01167e97550.jpg" alt="12224059-a5ece1fdc31e420da897d01167e97550.jpg"></p>
-<h2 id="搜索进程">搜索进程</h2><p>鼠标点击Search 或者按下F3 或者输入”/“， 输入进程名进行搜索，例如搜索ssh</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/tpHBqvDqSCyZsmVipLSy_12224101-da92613d580148e7a74b5bde960bbbb8.jpg" alt="12224101-da92613d580148e7a74b5bde960bbbb8.jpg"></p>
-<h2 id="过滤器">过滤器</h2><p>按下F4，进入过滤器，相当于关键字搜索，不区分大小写，例如过滤dev</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/N4ST8R9wSh2X2l5EQ6Tt_12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg" alt="12224103-ee01abbe5a7d4f5388057a52bd52e109.jpg"></p>
-<h2 id="显示树形结构">显示树形结构</h2><p>输入”t”或按下F5，显示树形结构，意思跟pstree 差不多，能看到所有程序树状执行的结构，这对于系统管理来说相当方便，理清程序是如何产生的，当然树状结构的浏览也可以依照其他数据来排序。</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/1ltROwUtTz6WPjCs0PrQ_12224105-44b98e747b494234929f8af4e3eeb5e4.jpg" alt="12224105-44b98e747b494234929f8af4e3eeb5e4.jpg"></p>
-<h2 id="选择排序方式">选择排序方式</h2><p>按下F6 就可以选择依照什么来排序，最常排序的内容就是cpu 和memory 吧！</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/qShoFiiTICm4u6C9kpWg_12224111-2f34d96612bd420ebcf9471c7339fc63.jpg" alt="12224111-2f34d96612bd420ebcf9471c7339fc63.jpg"></p>
-<h2 id="操作进程">操作进程</h2><p>F7、F8分别对应nice-和nice+，F9对应kill给进程发信号，选好信号回车就OK了</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/9cuJq5SGQfm4Jt87QcnB_12224113-0e383c20b0e74196a393586b72a67ba1.jpg" alt="12224113-0e383c20b0e74196a393586b72a67ba1.jpg"></p>
-<h2 id="显示某个用户的进程，在左侧选择用户">显示某个用户的进程，在左侧选择用户</h2><p>输入”u”，在左侧选择用户</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/198662/Rj7joHcVQLai0GctiCHa_12224116-5b7ca92b8c644464a65a11204e346f49.jpg" alt="12224116-5b7ca92b8c644464a65a11204e346f49.jpg"></p>
-<h1 id="Alias_top">Alias top</h1><p>也许你用惯了top，我们也可以用top来打开htop。</p>
-<p>编辑/root/.bashrc文件，添加如下代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if [ -f /usr/local/bin/htop ]; then&#10;    alias top=&#8217;/usr/local/bin/htop&#8217;&#10;fi</span><br></pre></td></tr></table></figure></p>
-<p><code>source /root/.bashrc</code></p>
-<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
-
+<p>htop 官网：<a href="http://htop.sourceforge.net/">http://htop.sourceforge.net/</a></p>
+        
+          <p class="article-more-link">
+            <a href="/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -929,7 +357,6 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
         <p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
 <p><strong>Mysqlnd_ms</strong></p>
 <p>优点：</p>
@@ -966,113 +393,11 @@
 </ol>
 <p>鉴于”对业务层代码改动要小”这个需求，以及笔者对Mysql-Proxy 使用较少，所以在简单比较之后，果断选择了Mysqlnd_ms。</p>
 <h1 id="安装">安装</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. wget http://pecl.php.net/get/mysqlnd_ms-1.5.2.tgz &#10;2. tar xzvf mysqlnd_ms-1.5.2.tgz&#10;3. cd mysqlnd_ms-1.5.2&#10;4. /path/to/phpize&#10;5. ./configure --enable-mysqlnd-ms --with-php-config=/usr/local/php/bin/php-config&#10;6. make&#10;7. make install&#10;8. sudo /etc/init.d/php-fpm restart&#10;9. /path/to/php -m | grep mysql #&#30475;&#21040;&#34;mysqlnd_ms&#34;&#25193;&#23637;&#34920;&#31034;&#23433;&#35013;&#25104;&#21151;</span><br></pre></td></tr></table></figure>
-<h1 id="配置">配置</h1><h2 id="1-_创建配置文件_/usr/local/etc/php/php-d/mysqlnd_ms-ini">1. 创建配置文件 /usr/local/etc/php/php.d/mysqlnd_ms.ini</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">extension=&#34;/usr/local/php-5.5.9/lib/php/extensions/no-debug-non-zts-20121212/mysqlnd_ms.so&#34; &#10;; &#21551;&#21160;mysqlnd_ms&#10;mysqlnd_ms.enable=1&#10;; &#21152;&#36733;&#30340;&#20027;&#20174;&#37197;&#32622;&#25991;&#20214;&#10;mysqlnd_ms.config_file=&#34;/usr/local/etc/php/php.d/mysqlnd_ms.conf&#34; &#10;; &#26159;&#21542;&#31105;&#29992;&#35835;&#20889;&#20998;&#31163;&#10;mysqlnd_ms.disable_rw_split=0&#10;; mysqlnd &#26085;&#24535;&#36755;&#20986;&#26684;&#24335;(&#32447;&#19978;&#29615;&#22659;&#21487;&#36873;)&#10;mysqlnd.debug=&#34;d:t:x:A,/tmp/mysqlnd.trace&#34; &#10;;SERVER_QUERY_NO_GOOD_INDEX_USED=16&#10;;SERVER_QUERY_NO_INDEX_USED=32&#10;;SERVER_QUERY_WAS_SLOW=1024&#10;; &#26085;&#24535;&#25513;&#30721;&#10;mysqlnd.log_mask=1072&#10;&#10;; &#32593;&#32476;&#35835;&#32531;&#23384;&#22823;&#23567;&#10;; 64K&#10;mysqlnd.net_read_buffer_size=65536&#10;; &#32593;&#32476;&#35835;&#31561;&#24453;&#26102;&#38388;&#10;mysqlnd.net_read_timeout=600</span><br></pre></td></tr></table></figure>
-<h2 id="2-_创建主从策略文件_/usr/local/etc/php/php-d/mysqlnd_ms-conf_(位置由mysqlnd_ms-ini指定)">2. 创建主从策略文件 /usr/local/etc/php/php.d/mysqlnd_ms.conf (位置由mysqlnd_ms.ini指定)</h2><p>Demo 主从写成了同一个库<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;    &#34;master-slave&#34;: &#123; // section &#23545;&#24212;&#19968;&#32452;&#26381;&#21153;&#10;        &#34;master&#34;: &#123; // &#20027;&#24211;&#37197;&#32622;(&#40664;&#35748;&#20027;&#24211;&#21482;&#21253;&#21547;&#19968;&#39033;)&#10;            &#34;master_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.100&#34;,//host&#24517;&#36873; &#20854;&#20182;&#21487;&#20026;&#31354;&#12290; &#25193;&#23637;&#20248;&#20808;&#20351;&#29992;&#26412;&#25991;&#20214;&#20013;&#30340;&#37197;&#32622;&#65292;&#22914;&#26524;&#20026;&#31354;&#65292;&#20877;&#21435;&#20351;&#29992;php&#36830;&#25509;mysql&#26102;&#20351;&#29992;&#30340;&#21442;&#25968;&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0&#10;            &#125;&#10;        &#125;,&#10;        &#34;slave&#34;: &#123; // &#20174;&#24211;&#37197;&#32622;(&#21487;&#37197;&#32622;&#22810;&#39033;&#65292;slave&#20026;&#31354;&#20250;&#22312;php&#22788;&#25253;warning)&#10;            &#34;slave_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.101&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                                                                   &#10;            &#125;,&#10;            &#34;slave_1&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.102&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                        &#10;            &#125;,&#10;        &#125;,   &#10;        &#34;lazy_connections&#34;: 1, //&#21482;&#22312;&#25191;&#34892;sql&#20043;&#21069;&#25165;&#36830;&#25509;&#25968;&#25454;&#24211;&#10;        &#34;server_charset&#34; : &#34;utf8&#34; //&#26381;&#21153;&#31471;&#32534;&#30721;&#10;    &#125;   &#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>/etc/init.d/php-fpm restart  #重启fpm生效</p>
-<h2 id="3-_一些基本的参数说明">3. 一些基本的参数说明</h2><table>
-<thead>
-<tr>
-<th style="text-align:left">参数名称</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">master</td>
-<td style="text-align:left">主库配置</td>
-</tr>
-<tr>
-<td style="text-align:left">host</td>
-<td style="text-align:left">ip or hostname</td>
-</tr>
-<tr>
-<td style="text-align:left">port</td>
-<td style="text-align:left">端口</td>
-</tr>
-<tr>
-<td style="text-align:left">socket</td>
-<td style="text-align:left">连接套接字</td>
-</tr>
-<tr>
-<td style="text-align:left">db</td>
-<td style="text-align:left">库名字</td>
-</tr>
-<tr>
-<td style="text-align:left">user</td>
-<td style="text-align:left">用户名</td>
-</tr>
-<tr>
-<td style="text-align:left">password</td>
-<td style="text-align:left">用户密码</td>
-</tr>
-<tr>
-<td style="text-align:left">connect_flags</td>
-<td style="text-align:left">连接参数</td>
-</tr>
-<tr>
-<td style="text-align:left">slave</td>
-<td style="text-align:left">从库配置</td>
-</tr>
-<tr>
-<td style="text-align:left">global_transaction_id_injection</td>
-<td style="text-align:left">GTID的配置 详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
-</tr>
-<tr>
-<td style="text-align:left">filter</td>
-<td style="text-align:left">选择从库的策略 random/roundrobin/user/user_multi/node_groups 策略详情详见 <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.plugin-ini-json.php</a></td>
-</tr>
-<tr>
-<td style="text-align:left">failover</td>
-<td style="text-align:left">故障转移 disabled (默认), master(读从失败就连主库),loop_before_master(读从失败轮寻其他从库再读主库)</td>
-</tr>
-<tr>
-<td style="text-align:left">lazy_connections</td>
-<td style="text-align:left">被动连接</td>
-</tr>
-<tr>
-<td style="text-align:left">server_charset</td>
-<td style="text-align:left">服务端字符集</td>
-</tr>
-<tr>
-<td style="text-align:left">trx_stickiness</td>
-<td style="text-align:left">事务控制策略</td>
-</tr>
-</tbody>
-</table>
-<h1 id="使用">使用</h1><ol>
-<li><p>通常情况下，使用mysqlnd_ms 不需要改动业务端的代码，只需要在连接数据库时，使用配置中的host，即可实现主从分离，如下：</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">&lt;?php</span></span><br><span class="line"><span class="keyword">try</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$dbh</span>  = <span class="keyword">new</span>  PDO ( <span class="string">'mysql:host=master-slave;dbname=master-slave'</span> ,  <span class="string">'root'</span> ,  <span class="string">''</span> );</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Master */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'show tables'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Slave */</span></span><br><span class="line">    <span class="keyword">foreach</span>( <span class="variable">$dbh</span> -&gt; query ( <span class="string">'SELECT * from test LIMIT 1'</span> ) <span class="keyword">as</span>  <span class="variable">$row</span> )</span><br><span class="line">    &#123;</span><br><span class="line">        print_r ( <span class="variable">$row</span> );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$dbh</span>  =  <span class="keyword">null</span> ;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> ( PDOException <span class="variable">$e</span> )</span><br><span class="line">&#123;</span><br><span class="line">        <span class="keyword">print</span>  <span class="string">"Error!: "</span>  .  <span class="variable">$e</span> -&gt; getMessage () .  <span class="string">"&lt;br/&gt;"</span> ;</span><br><span class="line">        <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">catch</span> (<span class="keyword">Exception</span> <span class="variable">$e</span>)</span><br><span class="line">&#123;</span><br><span class="line">    var_dump(<span class="variable">$e</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>采取主从分离，就一定存在着同步延迟的问题。 在一个繁忙的服务中，主／从同步会存在延迟。mysqlnd_ms 将这种场景细分为：</p>
-</li>
-</ol>
-<ul>
-<li>最终一致性：用户可能无法立即看到自己写入的数据</li>
-<li>session一致性：用户自己可以立即看到自己写入的数据</li>
-<li>强一致性：所有的用户都可以立即看到其他用户的写入的数据</li>
-</ul>
-<p>mysqlnd_ms 针对不同的场景，提供不同的策略。如果对延迟比较敏感(如：用户提交表单后，页面立即跳转展示用户提交的数据)，在编码的过程中还需要参考下述文档</p>
-<ol>
-<li>SQL Hints: <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.sqlhints.php</a></li>
-<li>事务： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.transactions.php</a></li>
-<li>服务级别和一致性： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.qos-consistency.php</a></li>
-<li>Global transaction IDs (GTID)： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.gtid.php</a></li>
-<li>Cache integration： <a href="http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php" target="_blank" rel="external">http://cn2.php.net/manual/zh/mysqlnd-ms.quickstart.cache.php</a></li>
-</ol>
-<h1 id="一些陷阱">一些陷阱</h1><ol>
-<li>Mysqlnd_ms 的行为是这样的。 所有的Select 操作会访问从库， 除Select 其他的所有操作都访问主库，包括(SHOW, SET等)。<br>所以习惯使用mysql变量来编程的同学要注意了，如：<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">set</span> @id=<span class="number">2</span>;</span>(主库)</span><br><span class="line"><span class="operator"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">table</span> <span class="keyword">where</span> id:=@id（从库）;</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>上面的第二条语句会因为在从库找不到id这个变量而报错， 这种情况要SQL Hint 给Mysql一些提示</p>
-<ol>
-<li>Mysqlnd_ms 并不支持 <em>mysqli</em> 的multi_statements。 如使用mysqli_multi_query() 来批量执行SQL<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span> = <span class="string">"SELECT * FROM &#123;$table&#125; WHERE .."</span>;</span><br><span class="line"><span class="variable">$sql</span> .= <span class="string">"INSERT INTO &#123;$table&#125;"</span>;</span><br><span class="line"><span class="variable">$mysqli</span> -&gt; multi_query (<span class="variable">$sql</span>);</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>上面的第一条SQL会被识别为访问从库，Mysqlnd_ms 无法拆分一个批量操作，所以第二条Insert 也会进从库而造成数据不一致。</p>
-<ol>
-<li>事务的默认行为也和上述第二点一样，无法拆分一个事务，所以”读／写”请求尽量不要写进同一个事务中。如果一定要写，要使用SQL Hint 给Mysqlnd_ms 一些提示。</li>
-</ol>
-
+        
+          <p class="article-more-link">
+            <a href="/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
@@ -1123,57 +448,20 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
         <p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
 <p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
-<p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
+<p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
 <h1 id="安装_spf13-vim">安装 spf13-vim</h1><h2 id="官方的安装步骤">官方的安装步骤</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh &#38;&#38; sh spf13-vim.sh</span><br></pre></td></tr></table></figure>
 <p>官方的安装步骤很简便，但是综合了我国GFW的国情后，稍显得有些问题。官方的安装脚本会自动执行Vundle安装内置的插件，Vundle会自动Clone GitHub上的这些扩展，但是在我国从Github上clone代码还是很慢的，默认安装的插件也比较多，整个安装过程就比较慢。另外有些默认插件可能是你不需要的，都安装了用不上，费电不说，其实拖慢Vim的执行速度。下面我们看看怎样做一些设置。</p>
 <h2 id="自定义的安装步骤">自定义的安装步骤</h2><p>首先我们只下载安装脚本，但不要默认执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh</span><br></pre></td></tr></table></figure></p>
 <p>编辑spf13-vim.sh, 可以在最后看到这样一行, 看setup_vundle的函数定义，知道这个函数就是执行vundle 安装插件的命令，我们用 <code>&quot;</code> 注释掉这一行， 然后给脚本执行权限并执行spf安装脚本。chmod u+x spf13-vim.sh ＆＆ sh spf13-vim.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; setup_vundle    &#34;Now updating/installing plugins using Vundle&#34;</span><br></pre></td></tr></table></figure></p>
 <p>很快我们看到spf13安装完成了，在home目录下执行 ls -lha | grep vim  可以看到spf13安装的vim配置文件的软链接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lrwxrwxrwx   1 harry harry   33 May  5 11:27 .vimrc -&#62; /home/tianhai/.spf13-vim-3/.vimrc&#10;lrwxrwxrwx   1 harry harry   40 May  5 11:27 .vimrc.before -&#62; /home/tianhai/.spf13-vim-3/.vimrc.before&#10;-rw-r--r--   1 harry harry  143 May  5 11:45 .vimrc.before.local&#10;lrwxrwxrwx   1 harry harry   41 May  5 11:27 .vimrc.bundles -&#62; /home/tianhai/.spf13-vim-3/.vimrc.bundles&#10;lrwxrwxrwx   1 harry harry   31 May  5 11:27 .vim -&#62; /home/tianhai/.spf13-vim-3/.vim</span><br></pre></td></tr></table></figure></p>
 <p>编辑 .vimrc.bundles 这个文件,可以看到类似的代码块， 这个代码块就是告诉Vundle来安装哪些扩展<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; Misc &#123;&#10;    if count(g:spf13_bundle_groups, &#39;misc&#39;)&#10;        Bundle &#39;tpope/vim-markdown&#39;&#10;        Bundle &#39;spf13/vim-preview&#39;&#10;        Bundle &#39;tpope/vim-cucumber&#39;&#10;        Bundle &#39;quentindecock/vim-cucumber-align-pipes&#39;&#10;        Bundle &#39;Puppet-Syntax-Highlighting&#39;&#10;    endif&#10;&#34; &#125;</span><br></pre></td></tr></table></figure></p>
-<p>回到 100行左右， 可以看到如下的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; In your .vimrc.before.local file&#10;&#34; list only the plugin groups you will use&#10;if !exists(&#39;g:spf13_bundle_groups&#39;)&#10;    let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;twig&#39;, &#39;javascript&#39;, &#39;html&#39;, &#39;misc&#39;,]&#10;endif</span><br></pre></td></tr></table></figure></p>
-<p>spf13_bundle_groups 这个变量用来控制Vundle加载那些模块，spf默认安装了一些php/ruby/python／html/js的扩展，就像注释中说的，我们可以通过覆盖这个变量来自定义Vundle加载的扩展。譬如我想安装go 但我的工作中不使用twig，我就可以在.vimrc.before.local 通过覆盖 spf13_bundle_groups 变量的方式来做自定义。下面是我的定义：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &#34;let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;javascript&#39;, &#39;go&#39;, &#39;html&#39;, &#39;misc&#39;,]&#34; &#62;&#62; .vimrc.before.local</span><br></pre></td></tr></table></figure>
-<p>之后我们执行来激活Vundle开始安装扩展，其实使用vim打开任意文件，执行<code>:PluginInstall</code>也是一样的，看个人喜好<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim \&#10;    -u &#34;$HOME/.vimrc.bundles&#34; \&#10;    &#34;+set nomore&#34; \&#10;    +BundleInstall! \&#10;    +BundleClean \&#10;    +qall</span><br></pre></td></tr></table></figure></p>
-<p>执行后我们能看到Vundle开始安装扩展，综合了GFW的国情后，其实还是不快，给点耐心吧～ :)</p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/197145/vQ2OrN4uTtiIl6MWKMvJ_2014-05-05%2013:31:04%E7%9A%84%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt="Vundle Install"></p>
-<p>安装完成后，恭喜你，你已经拥有了一个功能强大的Vim集成开发环境了。</p>
-<h1 id="Vundle">Vundle</h1><p>spf13 默认使用 Vundle (<a href="https://github.com/gmarik/Vundle.vim" target="_blank" rel="external">https://github.com/gmarik/Vundle.vim</a>)来管理vim插件</p>
-<p>关于Vundle的使用，可以参考这篇博客 <a href="http://foocoder.com/blog/mei-ri-vimcha-jian-kai-pian-zhi-vundle.html" target="_blank" rel="external">每日vim插件—开篇之vundle</a>，介绍的很详细。PS:博主每日都会介绍一款vim插件，vim功底深厚，讲的也很详细，建议大家follow。</p>
-<p>回到spf13中， 我们可以通过扩展 ~/.vimrc.bundles.local 来追加一些我们偏爱但是spf13没有内置的插件，语法参考~/.vimrc.bundles 或者参考上面的博客。</p>
-<h1 id="一些插件">一些插件</h1><h2 id="关于配色">关于配色</h2><p>spf13默认的配色方案是 solarized， 如果需要选择其他的配色方案，可以通过下面的命令来定义<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo colorscheme &#123;$colorscheme&#125;  &#62;&#62; ~/.vimrc.local</span><br></pre></td></tr></table></figure></p>
-<p>spf13 内置了  vim-colors-solarized (<a href="https://github.com/altercation/vim-colors-solarized" target="_blank" rel="external">https://github.com/altercation/vim-colors-solarized</a>) 以及 vim-colors (<a href="https://github.com/spf13/vim-colors/" target="_blank" rel="external">https://github.com/spf13/vim-colors/</a>) 两个配色插件，集中了上百种配色，可以从中选择. 放置在  ~/.vim/bundle/vim-colors/ 以及 ~/.vim/bundle/vim-colorschemes/ 两个目录中。</p>
-<p>我个人比较偏爱 molokai / peaksea / 256-jungle, 其中molokai在GVim下展示最好，256-jungle在终端下展示最好。</p>
-<h2 id="关于字体">关于字体</h2><p>我个人偏爱  Source-Code-Pro   <a href="Source-Code-Pro   https://github.com/adobe/source-code-pro">https://github.com/adobe/source-code-pro</a></p>
-<p>安装方法可以参考：<a href="https://github.com/adobe/source-code-pro/issues/17#issuecomment-8967116" target="_blank" rel="external">https://github.com/adobe/source-code-pro/issues/17#issuecomment-8967116</a></p>
-<h2 id="BufExplore">BufExplore</h2><p><a href="https://github.com/vim-scripts/bufexplorer.zip" target="_blank" rel="external">https://github.com/vim-scripts/bufexplorer.zip</a><br><code>:BufExplorer</code> 列出已经打开的文件, 选择后跳转 </p>
-<p><img src="http://user-image.logdown.io/user/1417/blog/1391/post/197145/EQahWRUvQAGIwf3lc3c7_bufexplore.png" alt="bufexplore.png"></p>
-<h2 id="vim-indent-guides">vim-indent-guides</h2><p><a href="https://github.com/nathanaelkane/vim-indent-guides" target="_blank" rel="external">https://github.com/nathanaelkane/vim-indent-guides</a><br>用来优化展示缩进， 在GVim 中这个插件展示的很完美，可以自动识别背景色来展示。但是在终端环境中，只能显示dark/light两种模式，缩进看起来一块一块的，比较难看，我习惯默认关闭它。<br>在.vimrc.local 中添加 <code>let g:indent_guides_auto_colors = 0</code>. 我们可以通过<code>&lt;Leader&gt;ig</code>来开启它, spf13的默认<leader>键为 <code>,</code>。</leader></p>
-<h2 id="NERDTree">NERDTree</h2><p><a href="https://github.com/scrooloose/nerdtree" target="_blank" rel="external">https://github.com/scrooloose/nerdtree</a></p>
-<p>Vim的文件浏览器。 通过<code>:NERDTreeToggle</code> 来唤出，我习惯把它绑定到F5上，下面是我的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">let NERDTreeChDirMode = 2&#10;let NERDTreeWinSize = 30&#10;nmap &#60;F5&#62;  :NERDTreeToggle&#60;CR&#62;</span><br></pre></td></tr></table></figure></p>
-<h2 id="ctrlp">ctrlp</h2><p><a href="https://github.com/kien/ctrlp.vim" target="_blank" rel="external">https://github.com/kien/ctrlp.vim</a></p>
-<p>Vim中的文件查找器，类似sublime的ctrl-p，几个常用命令<br><code>：CtrlP</code> or <code>:CtrlP [starting-directory]</code>  启动ctrlp<br><code>:CtrlPBuffer</code> or <code>:CtrlPMRU</code> 启动ctrlp并只在buffer/mru中进行查找<br><code>:CtrlPMixed</code> 在 Files, Buffers 和 MRU 中进行混合查找</p>
-<p>在ctrlp开启后，还有一些快捷键<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Press &#60;F5&#62; to purge the cache for the current directory to get new files, remove deleted files and apply new ignore options.&#10;Press &#60;c-f&#62; and &#60;c-b&#62; to cycle between modes.&#10;Press &#60;c-d&#62; to switch to filename only search instead of full path.&#10;Press &#60;c-r&#62; to switch to regexp mode.&#10;Use &#60;c-j&#62;, &#60;c-k&#62; or the arrow keys to navigate the result list.&#10;Use &#60;c-t&#62; or &#60;c-v&#62;, &#60;c-x&#62; to open the selected entry in a new tab or in a new split.&#10;Use &#60;c-n&#62;, &#60;c-p&#62; to select the next/previous string in the prompt&#39;s history.&#10;Use &#60;c-y&#62; to create a new file and its parent directories.&#10;Use &#60;c-z&#62; to mark/unmark multiple files and &#60;c-o&#62; to open them.</span><br></pre></td></tr></table></figure></p>
-<h2 id="surround">surround</h2><p><a href="https://github.com/tpope/vim-surround" target="_blank" rel="external">https://github.com/tpope/vim-surround</a><br>用来处理包围符号的插件，包括’ “ { } [ ]等<br>下面是一些基本的用法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**cs: &#21253;&#22260;&#31526;&#21495;&#26367;&#25442;**&#10;&#39;hello&#39; =&#62; cs&#39;&#34; =&#62;&#34;hello&#34;&#10;&#39;hello&#39; =&#62; cs&#39;&#60;q&#62; =&#62;&#60;q&#62;hello&#60;/q&#62;&#10;&#60;q&#62;hello&#60;/q&#62; =&#62; cst&#39; =&#62; &#39;hello&#39;&#10;**ds: &#21435;&#25481;&#21253;&#22260;&#31526;&#21495;**&#10;&#39;hello&#39; =&#62; ds&#39; =&#62; hello&#10;**ys: &#28155;&#21152;&#21253;&#22260;&#31526;&#21495;**&#10;hello =&#62; ysiw&#39; =&#62; &#39;hello&#39;&#10;**yss: &#25972;&#34892;&#28155;&#21152;&#21253;&#22260;&#31526;&#21495;**&#10;**yS/ySS &#21333;&#29420;&#19968;&#34892;&#24182;&#26377;&#32553;&#36827;**</span><br></pre></td></tr></table></figure></p>
-<h2 id="nerdcommenter">nerdcommenter</h2><p><a href="https://github.com/scrooloose/nerdcommenter" target="_blank" rel="external">https://github.com/scrooloose/nerdcommenter</a></p>
-<p>一个有用的注释插件。<br><code>&lt;Leader&gt;cc</code> 注释一行<br><code>&lt;Leader&gt;cu</code> 取消注释一行<br><code>&lt;Leader&gt;ca</code> 切换注释模式 ／／ 或 /**／<br><code>&lt;Leader&gt;cm</code> 以block的最简方式注释一段代码<br><code>&lt;Leader&gt;ci</code> 以独立注释单行的方式 注释选中的每一行， 注释模式取决<code>&lt;Leader&gt;ca</code><br><code>&lt;Leader&gt;cs</code> 以block的常规方式注释一段代码<br><code>&lt;Leader&gt;cA</code> 在行尾巴追加注释，注释模式取决于<code>&lt;Leader&gt;ca</code></p>
-<h2 id="关于补全">关于补全</h2><p>spf13 提供了4种补全插件供我们选择(只能选择其中之一)</p>
-<p>neocomplcache <a href="https://github.com/shougo/neocomplcache" target="_blank" rel="external">https://github.com/shougo/neocomplcache</a><br>YouCompleteMe <a href="https://github.com/Valloric/YouCompleteMe" target="_blank" rel="external">https://github.com/Valloric/YouCompleteMe</a><br>neocomplete  <a href="https://github.com/Shougo/neocomplete.vim" target="_blank" rel="external">https://github.com/Shougo/neocomplete.vim</a></p>
-<p>关于这几个补全插件的优劣，在各大论坛争论已久，neocomplete的作者在github上给出了一些自己看法，我觉得很值得参考<br><a href="https://github.com/skwp/dotfiles/issues/330#issuecomment-19034756" target="_blank" rel="external"> https://github.com/skwp/dotfiles/issues/330#issuecomment-19034756 </a></p>
-<p>我目前在用neocomplcache， 稍稍有些转到neocomplete的倾向了～ :)</p>
-<h2 id="PIV">PIV</h2><p><a href="https://github.com/spf13/PIV" target="_blank" rel="external">https://github.com/spf13/PIV</a></p>
-<p>我大PHP的开发插件，可以方便的对function/class/variable 生成注释<code>&lt;Leader&gt;pd</code>, 在任意php内建函数上操作<code>&lt;Shift-k&gt;</code>，可以查看该函数的manual</p>
-<h2 id="tabular">tabular</h2><p><a href="https://github.com/godlygeek/tabular" target="_blank" rel="external">https://github.com/godlygeek/tabular</a></p>
-<p>对齐控们的福音,可以对 = : , 做对齐操作</p>
-<p><code>&lt;Leader&gt;a=</code>  对<code>=</code>进行对齐操作<br><code>&lt;Leader&gt;a:</code>  对<code>:</code>进行对齐操作<br><code>&lt;Leader&gt;a::</code> 对<code>:</code> 后面的内容做对其操作，而<code>:</code>靠前紧贴<br><code>&lt;Leader&gt;a,</code>  对<code>,</code>进行对齐操作</p>
-<h2 id="tagbar">tagbar</h2><p><a href="https://github.com/majutsushi/tagbar" target="_blank" rel="external">https://github.com/majutsushi/tagbar</a></p>
-<p>Vim的tag插件，能在一个窗口中显示当前文件的tag，需要安装ctag/exuberant-ctags。<br>PS: 这个插件只展示tag，并不会做func的自动跳转</p>
-<p>我的常用配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nnoremap &#60;F6&#62; :TagbarToggle&#60;CR&#62; &#34;&#25105;&#19968;&#33324;&#25226;tagbar&#32465;&#22312;&#60;F6&#62;&#19978;&#10;let g:tagbar_autoclose=1 &#34;&#22312;&#19968;&#20010;tag&#19978;&#25353;&#22238;&#36710;&#21518;&#65292;&#33258;&#21160;&#36339;&#36716;&#21040;tag&#22312;&#25991;&#20214;&#30340;&#20301;&#32622;&#65292;&#24182;&#20851;&#38381;tagbar</span><br></pre></td></tr></table></figure></p>
-<h1 id="写在最后">写在最后</h1><p>说是”简单几步”，最后还是唠唠叨叨的这么多，主要是希望大家用的更舒服些，对VIM的恐惧更少一些，上面的插件主要参考了spf13中的一些介绍，加上了自己的一些理解，应该够大家用上一段时间了。其实Github上的vim插件很多，通过Vundle可以很方便的安装以及管理，有兴趣的同学可以找一些适合自己的，慢慢的你就会觉得VIM无所不能了～ :)</p>
-<p>今天就到这里， Enjoy~</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2014/05/05/simple-steps-to-build-cool-vim-development-environment/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">

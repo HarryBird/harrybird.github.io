@@ -19,7 +19,7 @@ NameNodeSecondary NameNodeDataNodeJobTrackerTaskTracker">
 <meta property="og:image" content="http://img.blog.csdn.net/20140718163718921?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
 <meta property="og:image" content="http://img.blog.csdn.net/20140718163814687?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
 <meta property="og:image" content="http://img.blog.csdn.net/20140718164110271?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
-<meta property="og:updated_time" content="2015-07-27T05:54:42.000Z">
+<meta property="og:updated_time" content="2015-07-27T07:07:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[转] 简要介绍Hadoop的各个主要模块">
 <meta name="twitter:description" content="先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。
@@ -127,6 +127,7 @@ NameNodeSecondary NameNodeDataNodeJobTrackerTaskTracker">
 </code></pre><h1 id="三、DataNode">三、DataNode</h1><pre><code>集群中每一个从节点都会驻留一个DataNode的守护进程，用来将HDFS数据库写入或读取到本地文件系统中。当对HDFS文件进行读写时，文件会被分割成多个块，有NameNode告知客户端每个数据驻留在哪个DataNode，客户端直接与DataNode进行通信，DataNode还会与其它DataNode通信，复制这些块以实现冗余。
 </code></pre><p><img class="center" src="http://img.blog.csdn.net/20140718163718921?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
 <p>NameNode跟踪源数据，DataNode提供数据块的备份存储并持续不断地向NameNode报告，以保持元数据最新状态。</p>
+<a id="more"></a>
 <h1 id="四、_Secondary_NameNode">四、 Secondary NameNode</h1><pre><code>SNN是一个监测HDFS的辅助进程，它只与NameNode进程通信，根据集群配置时间间隔获取HDFS元数据快照，我们知道HDFS有单点故障，SNN快照有助于减少宕机而导致的数据丢失风险，其一般也单独占一台服务器。
 </code></pre><h1 id="五、_JobTracker">五、 JobTracker</h1><pre><code>它是应用程序和Hadoop之间的纽带，监控MapReduce作业执行过程，一旦提交代码到集群，JobTracker就会确定执行计划，包括决定处理哪些文件、为不同的任务分配节点以及监控所有任务运行。每个集群只有一个JobTracker进程，一般运行在主节点。
 </code></pre><h1 id="六、_TaskTracker">六、 TaskTracker</h1><pre><code>TaskTracker管理各个任务在从节点上的执行情况。它负责执行有JobTracker分配的单项任务，虽然每个从节点只有一个TaskTracker运行，但每个TaskTracker可以生产多个JVM来并行地处理多<span class="keyword">Map</span>或<span class="keyword">Reduce</span>任务。TaskTracker的一个职责是不断的与JobTracker通信，即“心跳”。

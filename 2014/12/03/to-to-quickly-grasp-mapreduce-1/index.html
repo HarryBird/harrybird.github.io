@@ -16,7 +16,7 @@
 2 MapReduce的编程模型　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/v">
 <meta property="og:image" content="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 <meta property="og:image" content="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
-<meta property="og:updated_time" content="2015-07-27T05:55:08.000Z">
+<meta property="og:updated_time" content="2015-07-27T07:08:07.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[转] 快速理解MapReduce">
 <meta name="twitter:description" content="1 什么是MapReduce？　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。
@@ -125,6 +125,7 @@
 <p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
 <p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
 <p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<a id="more"></a>
 <p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
 <p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>

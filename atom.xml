@@ -534,7 +534,7 @@
     <link href="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/"/>
     <id>http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/</id>
     <published>2014-12-03T09:53:00.000Z</published>
-    <updated>2015-07-27T06:03:29.000Z</updated>
+    <updated>2015-07-27T07:05:27.000Z</updated>
     <content type="html"><![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
 <p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
 <h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
@@ -545,7 +545,8 @@
 <span class="bullet">3. </span>计算作业输入分片及其划分信息。
 <span class="bullet">4. </span>将作业运行需要的资源（jar文件、配置文件等）复制到Shared HDFS，并复制多个副本（参数控制，默认值为10）供tasktracker访问，也会将计算的分片复制到HDFS。
 <span class="bullet">5. </span>调用JobTracker对象的submitJob()方法来真正提交作业，告诉JobTracker作业准备执行。
-</code></pre><h2 id="作业的初始化JobTracker">作业的初始化JobTracker</h2><p>JobTracker收到submitJob方法调用后，会把调用放入到一个内部队列，由作业调度器（Job scheduler）进行调度并对其初始化。Job初始化即创建一个作业对象。<br>当作业被调度后，JobTracker会创建一个代表这个作业的JobInProgress对象，并将任务和记录信息封装在这个对象中，以便跟踪任务状态和进程。<br>  初始化过程就是JobInProgress对象的initTasks方法进行初始化的。<br>  初始化步骤：</p>
+</code></pre><a id="more"></a>
+<h2 id="作业的初始化JobTracker">作业的初始化JobTracker</h2><p>JobTracker收到submitJob方法调用后，会把调用放入到一个内部队列，由作业调度器（Job scheduler）进行调度并对其初始化。Job初始化即创建一个作业对象。<br>当作业被调度后，JobTracker会创建一个代表这个作业的JobInProgress对象，并将任务和记录信息封装在这个对象中，以便跟踪任务状态和进程。<br>  初始化过程就是JobInProgress对象的initTasks方法进行初始化的。<br>  初始化步骤：</p>
 <pre><code>    <span class="number">1</span>. 从<span class="type">HDFS</span>中读取作业对应的job.<span class="built_in">split</span>信息，为后面的初始化做好准备。
 <span class="number">2</span>. 创建并初始化<span class="built_in">map</span>和<span class="built_in">reduce</span>任务。根据数据分片信息中的个数确定<span class="built_in">map</span> task的个数，然后为每个<span class="built_in">map</span> task生成一个<span class="type">TaskInProgress</span>对象来处理数据分片，先将其放入nonRunningMapCache,以便<span class="type">JobTracker</span>分配任务的时候使用。接下来根据<span class="type">JobConf</span>中的mapred.<span class="built_in">reduce</span>.tasks属性利用setNumReduceTasks()方法设置<span class="built_in">reduce</span> task的数量，然后同<span class="built_in">map</span> task创建方式。
 <span class="number">3</span>. 最后就是创建两个初始化task，进行<span class="built_in">map</span>和<span class="built_in">reduce</span>的初始化。
@@ -596,7 +597,18 @@
 </ol>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/]]>
+    <![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
+<p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
+<h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
+<h2 id="而对于每个作业的执行，又包含">而对于每个作业的执行，又包含</h2><p><code>输入准备 ----&gt; 任务执行 ----&gt; 输出结果</code></p>
+<h2 id="作业提交JobClient">作业提交JobClient</h2><p>JobClient的runJob方法产生一个Jobclient实例并调用其submitJob方法，然后runJob开始循环吗，并在循环中调用getTaskCompetionEvents方法，获得TaskCompletionEvent实例，每秒轮询作业进度（后面有介绍进度和状态更新），把进度写到控制台，作业完成后显示作业计数器，若失败，则把错误记录到控制台。<br>    submitJob方法作业提交的过程：</p>
+<pre><code><span class="bullet">1. </span>向JobTracker请求一个新的JobId。
+<span class="bullet">2. </span>检查作业相关路径，如果路径不正确就会返回错误。
+<span class="bullet">3. </span>计算作业输入分片及其划分信息。
+<span class="bullet">4. </span>将作业运行需要的资源（jar文件、配置文件等）复制到Shared HDFS，并复制多个副本（参数控制，默认值为10）供tasktracker访问，也会将计算的分片复制到HDFS。
+<span class="bullet">5. </span>调用JobTracker对象的submitJob()方法来真正提交作业，告诉JobTracker作业准备执行。
+</code></pre>]]>
+    
     </summary>
     
       <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
@@ -612,7 +624,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/"/>
     <id>http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/</id>
     <published>2014-12-03T09:45:00.000Z</published>
-    <updated>2015-07-27T05:55:37.000Z</updated>
+    <updated>2015-07-27T07:08:29.000Z</updated>
     <content type="html"><![CDATA[<h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
 <span class="bullet">1. </span>输入数据
 <span class="bullet">2. </span>MapReduce程序
@@ -623,6 +635,7 @@
 </code></pre><h1 id="大块数据先流入map">大块数据先流入map</h1><p>  Hadoop会将输入数据划分成等长的数据块，成为数据分片。Hadoop会为每个分片构建一个map任务。并行的处理分片时间肯定会少于处理整个大数据块的时间，但由于各个节点性能及作业运行情况的不同，每个分片的处理时间可能不一样，因此，把数据分片切分的更细可以得到更好的负载均衡。<br>  但另一方面，分片太小的话，管理分片和构建map任务的时间将会增多。因此，需要在hadoop分片大小和处理分片时间之间做一个权衡。对大多数作业来说，一个分片大小为64MB比较合适，其实，Hadoop的默认块大小也是64MB。<br>  我们上面看到了hadoop的数据块大小与最佳分片大小相同，这样的话，数据分片就不容易跨数据块存储，因此，一个map任务的输入分片便可以直接读取本地数据块，这就避免了再从其它节点读取分片数据，从而节省了网络开销。<br>  map的任务输出是写入到本地磁盘而非HDFS的。那么为什么呢？因为map任务输出的是中间结果，一旦map任务完成即会被删除，如果把它存入HDFS中并实现备份容错，未免有点大题小做。如果一个map任务失败，hadoop会再另一个节点重启map一个map任务。</p>
 <h1 id="数据从map流入reduce">数据从map流入reduce</h1><p>  而reduce任务并不具备数据本地化优势——单个reduce任务的输入通常来自所有mapper输出。一般排序过的map输出需要通过网络传输发送到运行reduce任务的节点，并在reduce端进行合并。reduce的输出通常需要存储到HDFS中以实现可靠存储。每个reduce输出HDFS块第一个复本会存储在本地节点，而其它复本则存储到其它节点，因此reduce输出也需要占用网络带宽。</p>
 <p>  如下图：一个reduce任务的MapReduce任务数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195323354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<a id="more"></a>
 <p>  reduce任务的数量并非由输入数据大小决定，而是特别指定。如有多个reduce任务，则每个map任务都会对其输出进行分区（partition），因为每个reduce任务会建一个分区。相同键的记录都会被partition到同一个分区中。具体的分区方式由分区函数来控制，一般通过hash函数来分区。<br>  我们把map任务和reduce任务之间的数据流称为shuffle，因为每个reduce任务的输入都来自多个map任务，因此，这个阶段比较复杂，而shuffle过程中的参数调整对job运行的总时间是有非常大的影响的，一般MapReduce的调优主要就是调整shuffle阶段的参数。</p>
 <p>如下图：多个reduce任务的数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195403671?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <h1 id="如何减少从map到reduce的数据量">如何减少从map到reduce的数据量</h1><p>  集群上的可用带宽限制了MapReduce的作业数量，因为map的中间结果传递给reduce是要经过网络传输的，因此最重要的一点就是尽量减少map和reduce任务间传输的数据量。不过，Hadoop允许用户针对map任务的输出指定一个合并函数（combiner），用合并函数的输出作为reduce函数的输入，但需要注意，合并函数的运用不应该改变reduce函数的计算结果。</p>
@@ -634,7 +647,15 @@
     <summary type="html">
     <![CDATA[<h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
 <span class="bullet">1. </span>输入数据
-<span class="bul]]>
+<span class="bullet">2. </span>MapReduce程序
+<span class="bullet">3. </span>配置信息     
+</code></pre><p>  Hadoop工作时会将job分成若干个task：map任务和reduce任务<br>  有两类节点控制作业执行的过程：JobTracker和TaskTracker</p>
+<pre><code>-<span class="ruby"> <span class="constant">JobTracker</span>：记录作业整体进度，对<span class="constant">TaskTracker</span>进行调度
+</span>-<span class="ruby"> <span class="constant">TaskTracker</span>：执行task任务并向<span class="constant">JobTracker</span>汇报    </span>
+</code></pre><h1 id="大块数据先流入map">大块数据先流入map</h1><p>  Hadoop会将输入数据划分成等长的数据块，成为数据分片。Hadoop会为每个分片构建一个map任务。并行的处理分片时间肯定会少于处理整个大数据块的时间，但由于各个节点性能及作业运行情况的不同，每个分片的处理时间可能不一样，因此，把数据分片切分的更细可以得到更好的负载均衡。<br>  但另一方面，分片太小的话，管理分片和构建map任务的时间将会增多。因此，需要在hadoop分片大小和处理分片时间之间做一个权衡。对大多数作业来说，一个分片大小为64MB比较合适，其实，Hadoop的默认块大小也是64MB。<br>  我们上面看到了hadoop的数据块大小与最佳分片大小相同，这样的话，数据分片就不容易跨数据块存储，因此，一个map任务的输入分片便可以直接读取本地数据块，这就避免了再从其它节点读取分片数据，从而节省了网络开销。<br>  map的任务输出是写入到本地磁盘而非HDFS的。那么为什么呢？因为map任务输出的是中间结果，一旦map任务完成即会被删除，如果把它存入HDFS中并实现备份容错，未免有点大题小做。如果一个map任务失败，hadoop会再另一个节点重启map一个map任务。</p>
+<h1 id="数据从map流入reduce">数据从map流入reduce</h1><p>  而reduce任务并不具备数据本地化优势——单个reduce任务的输入通常来自所有mapper输出。一般排序过的map输出需要通过网络传输发送到运行reduce任务的节点，并在reduce端进行合并。reduce的输出通常需要存储到HDFS中以实现可靠存储。每个reduce输出HDFS块第一个复本会存储在本地节点，而其它复本则存储到其它节点，因此reduce输出也需要占用网络带宽。</p>
+<p>  如下图：一个reduce任务的MapReduce任务数据流<br><img class="center" src="http://img.blog.csdn.net/20141201195323354?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>]]>
+    
     </summary>
     
       <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
@@ -650,7 +671,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/"/>
     <id>http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/</id>
     <published>2014-12-03T09:29:00.000Z</published>
-    <updated>2015-07-27T05:54:42.000Z</updated>
+    <updated>2015-07-27T07:07:49.000Z</updated>
     <content type="html"><![CDATA[<p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
 <h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），每个进程都有各自的角色，有的仅运行在单个服务器上，有的则运行在集群多个服务器上，它们包括：
 </code></pre><p>NameNode<br>Secondary NameNode<br>DataNode<br>JobTracker<br>TaskTracker<br>     Hadoop是一个分布式存储与计算系统，分布式存储部分是HDFS，分布式计算部分是MapReduce，它们都是遵循主/从（Master/Slave)结构，上面前3个组件属于分布式存储部分，后面2个组件属于分布式计算部分，下面详细介绍一下它们。</p>
@@ -660,6 +681,7 @@
 </code></pre><h1 id="三、DataNode">三、DataNode</h1><pre><code>集群中每一个从节点都会驻留一个DataNode的守护进程，用来将HDFS数据库写入或读取到本地文件系统中。当对HDFS文件进行读写时，文件会被分割成多个块，有NameNode告知客户端每个数据驻留在哪个DataNode，客户端直接与DataNode进行通信，DataNode还会与其它DataNode通信，复制这些块以实现冗余。
 </code></pre><p><img class="center" src="http://img.blog.csdn.net/20140718163718921?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
 <p>NameNode跟踪源数据，DataNode提供数据块的备份存储并持续不断地向NameNode报告，以保持元数据最新状态。</p>
+<a id="more"></a>
 <h1 id="四、_Secondary_NameNode">四、 Secondary NameNode</h1><pre><code>SNN是一个监测HDFS的辅助进程，它只与NameNode进程通信，根据集群配置时间间隔获取HDFS元数据快照，我们知道HDFS有单点故障，SNN快照有助于减少宕机而导致的数据丢失风险，其一般也单独占一台服务器。
 </code></pre><h1 id="五、_JobTracker">五、 JobTracker</h1><pre><code>它是应用程序和Hadoop之间的纽带，监控MapReduce作业执行过程，一旦提交代码到集群，JobTracker就会确定执行计划，包括决定处理哪些文件、为不同的任务分配节点以及监控所有任务运行。每个集群只有一个JobTracker进程，一般运行在主节点。
 </code></pre><h1 id="六、_TaskTracker">六、 TaskTracker</h1><pre><code>TaskTracker管理各个任务在从节点上的执行情况。它负责执行有JobTracker分配的单项任务，虽然每个从节点只有一个TaskTracker运行，但每个TaskTracker可以生产多个JVM来并行地处理多<span class="keyword">Map</span>或<span class="keyword">Reduce</span>任务。TaskTracker的一个职责是不断的与JobTracker通信，即“心跳”。
@@ -669,7 +691,15 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
-<h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），]]>
+<h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），每个进程都有各自的角色，有的仅运行在单个服务器上，有的则运行在集群多个服务器上，它们包括：
+</code></pre><p>NameNode<br>Secondary NameNode<br>DataNode<br>JobTracker<br>TaskTracker<br>     Hadoop是一个分布式存储与计算系统，分布式存储部分是HDFS，分布式计算部分是MapReduce，它们都是遵循主/从（Master/Slave)结构，上面前3个组件属于分布式存储部分，后面2个组件属于分布式计算部分，下面详细介绍一下它们。</p>
+<h1 id="二、NameNode">二、NameNode</h1><pre><code><span class="comment">前面说了，NameNode属于HDFS</span><span class="string">,</span><span class="comment">它位于HDSF的主端，由它来指导DataNode执行底层I/O任务。NameNode相当于HDFS的书记员，它会跟踪文件如何被分割成文件块，而这些块又是被哪些节点存储，以及分布式文件系统整体运行状态是否正常等。</span>
+<span class="comment">运行NameNode会消耗大量内存和IO资源，因此为减轻机器负载，驻留NameNode的服务器通常不会存储用户数据或者进行MapReduce计算任务，这也就意味着一台NameNode服务器不会同时是DataNode或者TaskTracker服务器。</span>
+<span class="comment">不过NameNode的重要性也带来了一个负面影响</span><span class="literal">-</span><span class="literal">-</span><span class="literal">-</span><span class="comment">单点故障。对于其他任何守护进程，其驻留节点发生软件或硬件故障，Hadoop集群还可平稳运行，但是对于NameNode来说，则不可以。不过后面版本（2</span><span class="string">.</span><span class="comment">0以后的版本）已经解决此问题。</span>
+</code></pre><h1 id="三、DataNode">三、DataNode</h1><pre><code>集群中每一个从节点都会驻留一个DataNode的守护进程，用来将HDFS数据库写入或读取到本地文件系统中。当对HDFS文件进行读写时，文件会被分割成多个块，有NameNode告知客户端每个数据驻留在哪个DataNode，客户端直接与DataNode进行通信，DataNode还会与其它DataNode通信，复制这些块以实现冗余。
+</code></pre><p><img class="center" src="http://img.blog.csdn.net/20140718163718921?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast"></p>
+<p>NameNode跟踪源数据，DataNode提供数据块的备份存储并持续不断地向NameNode报告，以保持元数据最新状态。</p>]]>
+    
     </summary>
     
       <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
@@ -685,7 +715,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/"/>
     <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-07-27T05:55:08.000Z</updated>
+    <updated>2015-07-27T07:08:07.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -697,6 +727,7 @@
 <p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
 <p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
 <p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<a id="more"></a>
 <p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 <h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
 <p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
@@ -709,7 +740,18 @@
 <p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
+    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>]]>
+    
     </summary>
     
       <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
@@ -725,7 +767,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/"/>
     <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-07-27T05:55:23.000Z</updated>
+    <updated>2015-07-27T07:08:19.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -738,6 +780,7 @@
 <p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
 <p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
 <p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
+<a id="more"></a>
 <h1 id="4_例子">4 例子</h1><p>　　假设我们需要处理一批有关天气的数据，其格式如下： 按照ASCII码存储，每行一条记录，每一行字符从0开始计数，第15个到第18个字符为年，第25个到第29个字符为温度，其中第25位是符号+/-，现在需要统计出每年的最高温度。</p>
 <p>　　0067011990999991950051507+0000+<br>　　0043011990999991950051512+0022+<br>　　0043011990999991950051518-0011+<br>　　0043012650999991949032412+0111+<br>　　0043012650999991949032418+0078+<br>　　0067011990999991937051507+0001+<br>　　0043011990999991937051512-0002+<br>　　0043011990999991945051518+0001+<br>　　0043012650999991945032412+0002+<br>　　0043012650999991945032418+0078+ </p>
 <p>　　MapReduce主要包括两个步骤：Map和Reduce 每一步都有key/value对作为输入和输出： </p>
@@ -749,7 +792,19 @@
 <p>　　其逻辑过程可用如下图表示：<br><img class="center" src="http://img.blog.csdn.net/20141201200237609?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
+    <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
+<h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
+<h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
+<p>　　MapReduce实现的大概过程如下：</p>
+<p>　　1.用户程序首先调用的MapReduce库将输入文件分成M个数据片度，每个数据片段的大小一般从16MB到64MB(可以通过可选的参数来控制每个数据片段的大小)。然后用户程序在集群中创建大量的程序副本。</p>
+<p>　　2.这些程序副本中的有一个特殊的程序master。副本中其它的程序都是worker程序，由master分配任务。有M个Map任务和R个Reduce任务将被分配，master将一个Map任务或Reduce任务分配给一个空闲的worker。 </p>
+<p>　　3.被分配了map任务的worker程序读取相关的输入数据片段，从输入的数据片段中解析出key/value对，然后把key/value对传递给用户自定义的Map函数，由Map函数生成并输出的中间key/value对，并缓存在内存中。 </p>
+<p>　　4.缓存中的key/value对通过分区函数分成R个区域，之后周期性的写入到本地磁盘上，会产生R个临时文件。缓存的key/value对在本地磁盘上的存储位置将被回传给master，由master负责把这些存储位置再传送给Reduce worker。 </p>
+<p>　　5.当Reduce worker程序接收到master程序发来的数据存储位置信息后，使用RPC从Map worker所在主机的磁盘上读取这些缓存数据。当Reduce worker读取了所有的中间数据（这个时候所有的Map任务都执行完了）后，通过对key进行排序后使得具有相同key值的数据聚合在一起。由于许多不同的key值会映射到相同的Reduce任务上，因此必须进行排序。如果中间数据太大无法在内存中完成排序，那么就要在外部进行排序。 </p>
+<p>　　6.Reduce worker程序遍历排序后的中间数据，对于每一个唯一的中间key值，Reduce worker程序将这个key值和它相关的中间value值的集合（这个集合是由Reduce worker产生的，它存放的是同一个key对应的value值）传递给用户自定义的Reduce函数。Reduce函数的输出被追加到所属分区的输出文件。 </p>
+<p>　　上面过程中的排序很容易理解，关键是分区，这一步最终决定该键值对未来会交给哪个reduce任务，如统计单词出现的次数可以用前面说的hash(key) mod R来分区，如果是对数据进行排序则应该根据key的分布进行分区。</p>
+<p>图1 MapReduce过程<br><img class="center" src="http://img.blog.csdn.net/20141201200156533?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvc3VpZmVuZzMwNTE=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center"></p>]]>
+    
     </summary>
     
       <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
@@ -794,9 +849,10 @@
     <link href="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/"/>
     <id>http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/</id>
     <published>2014-05-20T04:01:00.000Z</published>
-    <updated>2015-07-27T05:53:37.000Z</updated>
+    <updated>2015-07-27T07:07:21.000Z</updated>
     <content type="html"><![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
 <h2 id="pip">pip</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget --no-check-certificate https://bootstrap.pypa.io/get-pip.py&#10;python get-pip.py</span><br></pre></td></tr></table></figure>
 <h2 id="Ngxtop">Ngxtop</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01#  pip install ngxtop&#10;&#10;Downloading/unpacking ngxtop&#10;  Downloading ngxtop-0.0.2-py2.py3-none-any.whl&#10;Downloading/unpacking pyparsing (from ngxtop)&#10;  Downloading pyparsing-2.0.2.tar.gz (1.1MB): 1.1MB downloaded&#10;  Running setup.py (path:/tmp/pip_build_root/pyparsing/setup.py) egg_info for package pyparsing&#10;Downloading/unpacking docopt (from ngxtop)&#10;  Downloading docopt-0.6.1.tar.gz&#10;  Running setup.py (path:/tmp/pip_build_root/docopt/setup.py) egg_info for package docopt&#10;Downloading/unpacking tabulate (from ngxtop)&#10;  Downloading tabulate-0.7.2.tar.gz&#10;  Running setup.py (path:/tmp/pip_build_root/tabulate/setup.py) egg_info for package tabulate&#10;Installing collected packages: ngxtop, pyparsing, docopt, tabulate&#10;  Running setup.py install for pyparsing&#10;  Running setup.py install for docopt&#10;  Running setup.py install for tabulate&#10;Successfully installed ngxtop pyparsing docopt tabulate&#10;Cleaning up...</span><br></pre></td></tr></table></figure>
@@ -809,7 +865,9 @@
 <p>Enjoy~</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.co]]>
+    <![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>]]>
+    
     </summary>
     
       <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
@@ -827,13 +885,13 @@
     <link href="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/"/>
     <id>http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/</id>
     <published>2014-05-15T08:50:00.000Z</published>
-    <updated>2015-07-27T05:50:54.000Z</updated>
+    <updated>2015-07-27T07:06:43.000Z</updated>
     <content type="html"><![CDATA[<h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
 <p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
 <p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
 <h1 id="1-_流量监控">1. 流量监控</h1><h2 id="1-1_Ifstat">1.1 Ifstat</h2><p>比较简易的网络监控工具，可以监控网卡的实时流量。当你只关心整机的流量而并不关心具体服务时，这个工具很趁手。</p>
 <h3 id="1-1-1_安装">1.1.1 安装</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/ifstat/ifstat-1.1-1.2.el6.rf.x86_64.rpm&#10;rpm -ivh ifstat-1.1-1.2.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
-<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS&#10;    ifstat accepts the following options:&#10;&#10;    -l  Enables monitoring of loopback interfaces for which statistics are available. By default, ifstat monitors all non-loopback interfaces that are up.&#10;    # ifstat &#40664;&#35748;&#19981;&#30417;&#25511;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#65292; -l &#20043;&#21518;&#21487;&#20197;&#30475;&#21040;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#30340;&#27969;&#37327;&#10;    -a  Enables monitoring of all interfaces found for which statistics are available.&#10;    # &#30417;&#25511;&#25152;&#26377;&#32593;&#32476;&#25509;&#21475;&#10;    -z  Hides interface which counters are null, eg interfaces that are up but not used.&#10;    # &#38544;&#34255;&#32479;&#35745;&#25968;&#20026;&#31354;&#30340;&#32593;&#32476;&#25509;&#21475;&#10;    -i  Specifies the list of interfaces to monitor, separated by commas (if an interface name has a comma, it can be escaped with &#8217;\&#8217;). Multiple instances of the options are added together.&#10;    # -i &#25351;&#23450;&#34987;&#30417;&#25511;&#30340;&#32593;&#32476;&#25509;&#21475;&#21015;&#34920;&#65292;&#36887;&#21495;&#20998;&#21106;&#10;    -s  Equivalent to -d snmp:[comm@][#]host[/nn]] to poll a remote host through SNMP. See below for details.&#10;    # &#21487;&#20197;&#22522;&#20110;snmp&#21327;&#35758;&#65292;&#30417;&#25511;&#36828;&#31471;&#26381;&#21153;&#22120;&#10;    -h  Displays a short help message.&#10;    -n  Turns off displaying the header periodically.&#10;    # &#20851;&#38381;&#26174;&#31034;&#22836;&#20449;&#24687;(&#31532;&#19968;&#23631;&#36824;&#26159;&#20250;&#26377;&#65292;&#36229;&#36807;&#19968;&#23631;&#26102;&#23601;&#19981;&#20250;&#20877;&#26377;&#20102;)&#10;    -t  Adds a timestamp at the beginning of each line.&#10;    # &#27599;&#34892;&#21069;&#28155;&#21152;&#26102;&#38388;&#25139;&#10;    -T  Reports total bandwith for all monitored interfaces.&#10;    # &#27599;&#34892;&#34892;&#23614;&#28155;&#21152;&#19968;&#21015;&#65292;&#32479;&#35745;&#24635;&#27969;&#37327;&#10;    -A  Disables use of interface indexes: by default, when polling mechanism is index based (snmp, ifmib), ifstat remembers indexes of monitored inter-faces to poll only them. However, if interfaces indexes change often (new interfaces added, etc), you might loose some stats, hence this flag.Note that if you ask ifstat to monitor a non existent interface, it will poll all interfaces until it finds the requested one (regardless of this flag) so you can poll for an interface that goes up and down.&#10;    # &#20851;&#38381;&#20351;&#29992;&#32593;&#32476;&#25509;&#21475;&#30340;&#32034;&#24341;&#12290;&#40664;&#35748;&#30340;&#32593;&#32476;&#25509;&#21475;&#36718;&#23547;&#26426;&#21046;&#26159;&#22522;&#20110;&#32034;&#24341;&#30340;&#65292;ifstat&#20250;&#20174;&#32034;&#24341;&#20013;&#25214;&#24403;&#21069;&#30340;&#32593;&#32476;&#25509;&#21475;&#32780;&#19981;&#20250;&#27599;&#27425;&#37117;&#20351;&#29992;&#31995;&#32479;&#35843;&#29992;&#12290;&#25152;&#20197;&#22914;&#26524;&#19968;&#21488;&#26381;&#21153;&#22120;&#30340;&#32593;&#32476;&#25509;&#21475;&#32463;&#24120;&#21464;&#26356;(&#35692;&#22914;&#26032;&#22686;&#65292;&#31561;) &#20320;&#21487;&#33021;&#20250;&#20002;&#22833;&#19968;&#20123;&#20449;&#24687;&#12290;&#22240;&#27492;&#26377;&#20102;&#36825;&#20010;&#21442;&#25968;&#10;    -w  Uses fixed width columns, instead of enlarging them if needed for interfaces names to fit.&#10;    # &#29992;&#22266;&#23450;&#30340;&#21015;&#23485;&#20195;&#26367;&#33258;&#36866;&#24212;&#30340;&#21015;&#27454;&#10;    -W  Wrap lines that are larger than the terminal width (implies -w). Wrapped lines are prefixed with a cycling letter to ease reading.&#10;    # &#22914;&#26524;&#27599;&#34892;&#30340;&#23485;&#24230;&#36229;&#36807;&#23631;&#24149;&#23485;&#24230;&#65292;&#33258;&#21160;&#25442;&#34892;&#12290;&#10;    -S  Keep stats updated on the same line if possible (no scrolling nor wrapping).&#10;    # &#36755;&#20986;&#32467;&#26524;&#19981;&#20877;&#26159;&#36861;&#21152;&#12290;&#32780;&#26159;&#26356;&#26032;&#21516;&#19968;&#34892;&#12290;&#10;    -b  Reports bandwith in kbits/sec instead of kbytes/sec.&#10;    # kbit &#20195;&#26367; kbyte&#10;    -q  Quiet mode, warnings are not printed.&#10;    -v  Displays version and the compiled-in drivers.&#10;       &#10;    delay&#10;        delay is the delay between updates in seconds, which defaults to 1.  A decimal number can be specified for intervals shorter than a second. (min-imum 0.1)&#10;A second delay can also be specified (separated from the first one by a &#8217;/&#8217;). In that case the first delay will be used for the first poll after start and the second one will be used for all following polls (This can be used to have a &#34;fast&#34; start when running for a long while with a big delay).&#10;        # &#27599;&#27425;&#26174;&#31034;&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#12290;&#40664;&#35748;&#26159;1.&#20063;&#25509;&#21463;&#19968;&#20010;&#28014;&#28857;&#25968;&#65292;&#26368;&#23567;&#20026;0.1. &#25509;&#21463;&#19968;&#20010;&#31532;&#20108;&#38388;&#38548;&#30340;&#21442;&#25968;&#65292;&#36890;&#36807;&#39;/&#39; &#20998;&#21106;&#65292;&#22914; 0.1&#65295;3. &#36825;&#31181;&#24773;&#20917;&#19979;&#65292;&#31532;&#19968;&#27425;&#26174;&#31034;&#20351;&#29992;0.1&#65292;&#21518;&#38754;&#26174;&#31034;&#30340;&#26102;&#38388;&#38388;&#38548;&#20351;&#29992;3. (&#36825;&#31181;&#26041;&#24335;&#21487;&#20197;&#29992;&#26469;&#34;&#24555;&#36895;&#34;&#21551;&#21160;&#65292;&#28982;&#21518;&#32531;&#24930;&#36718;&#23547;)&#10;    count&#10;        count is the number of updates before stopping. If not specified, it is unlimited.&#10;        # &#25351;&#23450;&#21047;&#26032;&#30340;&#27425;&#25968;&#12290;&#22914;&#26524;&#19981;&#25351;&#23450;&#65292;&#40664;&#35748;&#26080;&#38480;&#12290;</span><br></pre></td></tr></table></figure></p>
+<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br><a id="more"></a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OPTIONS&#10;    ifstat accepts the following options:&#10;&#10;    -l  Enables monitoring of loopback interfaces for which statistics are available. By default, ifstat monitors all non-loopback interfaces that are up.&#10;    # ifstat &#40664;&#35748;&#19981;&#30417;&#25511;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#65292; -l &#20043;&#21518;&#21487;&#20197;&#30475;&#21040;&#29615;&#22238;&#32593;&#32476;&#25509;&#21475;&#30340;&#27969;&#37327;&#10;    -a  Enables monitoring of all interfaces found for which statistics are available.&#10;    # &#30417;&#25511;&#25152;&#26377;&#32593;&#32476;&#25509;&#21475;&#10;    -z  Hides interface which counters are null, eg interfaces that are up but not used.&#10;    # &#38544;&#34255;&#32479;&#35745;&#25968;&#20026;&#31354;&#30340;&#32593;&#32476;&#25509;&#21475;&#10;    -i  Specifies the list of interfaces to monitor, separated by commas (if an interface name has a comma, it can be escaped with &#8217;\&#8217;). Multiple instances of the options are added together.&#10;    # -i &#25351;&#23450;&#34987;&#30417;&#25511;&#30340;&#32593;&#32476;&#25509;&#21475;&#21015;&#34920;&#65292;&#36887;&#21495;&#20998;&#21106;&#10;    -s  Equivalent to -d snmp:[comm@][#]host[/nn]] to poll a remote host through SNMP. See below for details.&#10;    # &#21487;&#20197;&#22522;&#20110;snmp&#21327;&#35758;&#65292;&#30417;&#25511;&#36828;&#31471;&#26381;&#21153;&#22120;&#10;    -h  Displays a short help message.&#10;    -n  Turns off displaying the header periodically.&#10;    # &#20851;&#38381;&#26174;&#31034;&#22836;&#20449;&#24687;(&#31532;&#19968;&#23631;&#36824;&#26159;&#20250;&#26377;&#65292;&#36229;&#36807;&#19968;&#23631;&#26102;&#23601;&#19981;&#20250;&#20877;&#26377;&#20102;)&#10;    -t  Adds a timestamp at the beginning of each line.&#10;    # &#27599;&#34892;&#21069;&#28155;&#21152;&#26102;&#38388;&#25139;&#10;    -T  Reports total bandwith for all monitored interfaces.&#10;    # &#27599;&#34892;&#34892;&#23614;&#28155;&#21152;&#19968;&#21015;&#65292;&#32479;&#35745;&#24635;&#27969;&#37327;&#10;    -A  Disables use of interface indexes: by default, when polling mechanism is index based (snmp, ifmib), ifstat remembers indexes of monitored inter-faces to poll only them. However, if interfaces indexes change often (new interfaces added, etc), you might loose some stats, hence this flag.Note that if you ask ifstat to monitor a non existent interface, it will poll all interfaces until it finds the requested one (regardless of this flag) so you can poll for an interface that goes up and down.&#10;    # &#20851;&#38381;&#20351;&#29992;&#32593;&#32476;&#25509;&#21475;&#30340;&#32034;&#24341;&#12290;&#40664;&#35748;&#30340;&#32593;&#32476;&#25509;&#21475;&#36718;&#23547;&#26426;&#21046;&#26159;&#22522;&#20110;&#32034;&#24341;&#30340;&#65292;ifstat&#20250;&#20174;&#32034;&#24341;&#20013;&#25214;&#24403;&#21069;&#30340;&#32593;&#32476;&#25509;&#21475;&#32780;&#19981;&#20250;&#27599;&#27425;&#37117;&#20351;&#29992;&#31995;&#32479;&#35843;&#29992;&#12290;&#25152;&#20197;&#22914;&#26524;&#19968;&#21488;&#26381;&#21153;&#22120;&#30340;&#32593;&#32476;&#25509;&#21475;&#32463;&#24120;&#21464;&#26356;(&#35692;&#22914;&#26032;&#22686;&#65292;&#31561;) &#20320;&#21487;&#33021;&#20250;&#20002;&#22833;&#19968;&#20123;&#20449;&#24687;&#12290;&#22240;&#27492;&#26377;&#20102;&#36825;&#20010;&#21442;&#25968;&#10;    -w  Uses fixed width columns, instead of enlarging them if needed for interfaces names to fit.&#10;    # &#29992;&#22266;&#23450;&#30340;&#21015;&#23485;&#20195;&#26367;&#33258;&#36866;&#24212;&#30340;&#21015;&#27454;&#10;    -W  Wrap lines that are larger than the terminal width (implies -w). Wrapped lines are prefixed with a cycling letter to ease reading.&#10;    # &#22914;&#26524;&#27599;&#34892;&#30340;&#23485;&#24230;&#36229;&#36807;&#23631;&#24149;&#23485;&#24230;&#65292;&#33258;&#21160;&#25442;&#34892;&#12290;&#10;    -S  Keep stats updated on the same line if possible (no scrolling nor wrapping).&#10;    # &#36755;&#20986;&#32467;&#26524;&#19981;&#20877;&#26159;&#36861;&#21152;&#12290;&#32780;&#26159;&#26356;&#26032;&#21516;&#19968;&#34892;&#12290;&#10;    -b  Reports bandwith in kbits/sec instead of kbytes/sec.&#10;    # kbit &#20195;&#26367; kbyte&#10;    -q  Quiet mode, warnings are not printed.&#10;    -v  Displays version and the compiled-in drivers.&#10;       &#10;    delay&#10;        delay is the delay between updates in seconds, which defaults to 1.  A decimal number can be specified for intervals shorter than a second. (min-imum 0.1)&#10;A second delay can also be specified (separated from the first one by a &#8217;/&#8217;). In that case the first delay will be used for the first poll after start and the second one will be used for all following polls (This can be used to have a &#34;fast&#34; start when running for a long while with a big delay).&#10;        # &#27599;&#27425;&#26174;&#31034;&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#12290;&#40664;&#35748;&#26159;1.&#20063;&#25509;&#21463;&#19968;&#20010;&#28014;&#28857;&#25968;&#65292;&#26368;&#23567;&#20026;0.1. &#25509;&#21463;&#19968;&#20010;&#31532;&#20108;&#38388;&#38548;&#30340;&#21442;&#25968;&#65292;&#36890;&#36807;&#39;/&#39; &#20998;&#21106;&#65292;&#22914; 0.1&#65295;3. &#36825;&#31181;&#24773;&#20917;&#19979;&#65292;&#31532;&#19968;&#27425;&#26174;&#31034;&#20351;&#29992;0.1&#65292;&#21518;&#38754;&#26174;&#31034;&#30340;&#26102;&#38388;&#38388;&#38548;&#20351;&#29992;3. (&#36825;&#31181;&#26041;&#24335;&#21487;&#20197;&#29992;&#26469;&#34;&#24555;&#36895;&#34;&#21551;&#21160;&#65292;&#28982;&#21518;&#32531;&#24930;&#36718;&#23547;)&#10;    count&#10;        count is the number of updates before stopping. If not specified, it is unlimited.&#10;        # &#25351;&#23450;&#21047;&#26032;&#30340;&#27425;&#25968;&#12290;&#22914;&#26524;&#19981;&#25351;&#23450;&#65292;&#40664;&#35748;&#26080;&#38480;&#12290;</span><br></pre></td></tr></table></figure></p>
 <p>通常用法：<code>ifstat -a -t -T 0.1/2</code></p>
 <h2 id="1-2_Iftop">1.2 Iftop</h2><p>和ifstat 相比，iftop提供更丰富的监控维度。可以细化到网卡甚至端口服务。当网络成为瓶颈时，这个工具可以很快帮你找出是哪个服务占用了你网卡以及流量。</p>
 <h3 id="1-2-1_安装">1.2.1 安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/iftop/iftop-0.17-1.el6.rf.x86_64.rpm&#10;rpm -ivh iftop-0.17-1.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
@@ -1221,7 +1279,12 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
-<p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控]]>
+<p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
+<p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
+<h1 id="1-_流量监控">1. 流量监控</h1><h2 id="1-1_Ifstat">1.1 Ifstat</h2><p>比较简易的网络监控工具，可以监控网卡的实时流量。当你只关心整机的流量而并不关心具体服务时，这个工具很趁手。</p>
+<h3 id="1-1-1_安装">1.1.1 安装</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://pkgs.repoforge.org/ifstat/ifstat-1.1-1.2.el6.rf.x86_64.rpm&#10;rpm -ivh ifstat-1.1-1.2.el6.rf.x86_64.rpm</span><br></pre></td></tr></table></figure>
+<h3 id="1-1-2_使用">1.1.2 使用</h3><p>老规矩，看下man<br>]]>
+    
     </summary>
     
       <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
@@ -1239,18 +1302,23 @@
     <link href="http://www.harrycode.com/2014/05/13/introduction-to-iotop/"/>
     <id>http://www.harrycode.com/2014/05/13/introduction-to-iotop/</id>
     <published>2014-05-13T05:19:00.000Z</published>
-    <updated>2015-07-27T05:50:37.000Z</updated>
+    <updated>2015-07-27T07:06:31.000Z</updated>
     <content type="html"><![CDATA[<h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
 <h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01# iotop --help&#10;Usage: /usr/sbin/iotop [OPTIONS]&#10;&#10;DISK READ and DISK WRITE are the block I/O bandwidth used during the sampling&#10;period. SWAPIN and IO are the percentages of time the thread spent respectively&#10;while swapping in and waiting on I/O more generally. PRIO is the I/O priority at&#10;which the thread is running (set using the ionice command).</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Options:&#10;  --version             show program&#39;s version number and exit&#10;  -h, --help            show this help message and exit&#10;  -o, --only            only show processes or threads actually doing I/O #&#21482;&#26174;&#31034;&#24403;&#21069;&#26377;IO&#25805;&#20316;&#30340;&#36827;&#31243;&#25110;&#32447;&#31243;&#10;  -b, --batch           non-interactive mode # &#36816;&#34892;&#22312;&#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#10;  -n NUM, --iter=NUM    number of iterations before ending [infinite] # &#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#23637;&#31034;&#30340;&#27425;&#25968;&#10;  -d SEC, --delay=SEC   delay between iterations [1 second] #&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#10;  -p PID, --pid=PID     processes/threads to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#36827;&#31243;&#65295;&#32447;&#31243;&#30340;IO&#20449;&#24687;&#10;  -u USER, --user=USER  users to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;&#25152;&#21457;&#29983;&#30340;IO&#10;  -P, --processes       only show processes, not all threads # &#21482;&#26174;&#31034;&#36827;&#31243;&#32780;&#19981;&#26159;&#25152;&#26377;&#30340;&#32447;&#31243;&#10;  -a, --accumulated     show accumulated I/O instead of bandwidth #&#22312;IOTOP&#21551;&#21160;&#21518; &#26174;&#31034;&#27599;&#20010;&#36827;&#31243;&#65295;&#32447;&#31243;&#22788;&#29702;&#30340;IO&#24635;&#25968;&#10;  -k, --kilobytes       use kilobytes instead of a human friendly unit # &#20197;KB&#20026;&#21333;&#20301;&#36827;&#34892;&#26174;&#31034;&#10;  -t, --time            add a timestamp on each line (implies --batch) # &#26174;&#31034;&#26102;&#22312;&#27599;&#34892;&#28155;&#21152;&#24403;&#21069;&#26102;&#38388;&#10;  -q, --quiet           suppress some lines of header (implies --batch)</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Controls: left and right arrows to change the sorting column, r to invert the&#10;sorting order, o to toggle the --only option, p to toggle the --processes&#10;option, a to toggle the --accumulated option, q to quit, any other key to force&#10;a refresh.&#10;&#10;&#25511;&#21046;&#65306;&#10;&#39;&#24038;&#21491;&#38190;&#39;&#29992;&#26469;&#25913;&#21464;&#25490;&#24207;&#30340;&#21015;&#65292;&#10;&#39;r&#39;&#29992;&#26469;&#20999;&#25442;&#27491;&#24207;/&#20498;&#24207;, &#10;&#39;o&#39; &#29992;&#26469;&#20999;&#25442; --only&#27169;&#24335;, &#10;&#39;p&#39; &#29992;&#26469;&#20999;&#25442; --processes &#27169;&#24335;&#65292; &#10;&#39;a&#39; &#29992;&#26469;&#20999;&#25442; --accumulated&#27169;&#24335;, &#10;&#39;q&#39; &#29992;&#26469;&#25512;&#20986;&#65292;&#8216;&#20854;&#20182;&#38190;&#8217; &#29992;&#26469;&#24378;&#21046;&#21047;&#26032;</span><br></pre></td></tr></table></figure>
 <p>PS: 笔者很喜欢 iotop -o 的玩法，祝大家也玩的愉快。</p>
 ]]></content>
     <summary type="html">
     <![CDATA[<h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
-<h2 id="安装">安装</h2><figure class="highlight p]]>
+<h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
+<h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beta-01# iotop --help&#10;Usage: /usr/sbin/iotop [OPTIONS]&#10;&#10;DISK READ and DISK WRITE are the block I/O bandwidth used during the sampling&#10;period. SWAPIN and IO are the percentages of time the thread spent respectively&#10;while swapping in and waiting on I/O more generally. PRIO is the I/O priority at&#10;which the thread is running (set using the ionice command).</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Options:&#10;  --version             show program&#39;s version number and exit&#10;  -h, --help            show this help message and exit&#10;  -o, --only            only show processes or threads actually doing I/O #&#21482;&#26174;&#31034;&#24403;&#21069;&#26377;IO&#25805;&#20316;&#30340;&#36827;&#31243;&#25110;&#32447;&#31243;&#10;  -b, --batch           non-interactive mode # &#36816;&#34892;&#22312;&#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#10;  -n NUM, --iter=NUM    number of iterations before ending [infinite] # &#38750;&#20132;&#20114;&#27169;&#24335;&#19979;&#23637;&#31034;&#30340;&#27425;&#25968;&#10;  -d SEC, --delay=SEC   delay between iterations [1 second] #&#21047;&#26032;&#30340;&#26102;&#38388;&#38388;&#38548;&#10;  -p PID, --pid=PID     processes/threads to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#36827;&#31243;&#65295;&#32447;&#31243;&#30340;IO&#20449;&#24687;&#10;  -u USER, --user=USER  users to monitor [all] #&#21482;&#26174;&#31034;&#25351;&#23450;&#29992;&#25143;&#30340;&#36827;&#31243;&#25152;&#21457;&#29983;&#30340;IO&#10;  -P, --processes       only show processes, not all threads # &#21482;&#26174;&#31034;&#36827;&#31243;&#32780;&#19981;&#26159;&#25152;&#26377;&#30340;&#32447;&#31243;&#10;  -a, --accumulated     show accumulated I/O instead of bandwidth #&#22312;IOTOP&#21551;&#21160;&#21518; &#26174;&#31034;&#27599;&#20010;&#36827;&#31243;&#65295;&#32447;&#31243;&#22788;&#29702;&#30340;IO&#24635;&#25968;&#10;  -k, --kilobytes       use kilobytes instead of a human friendly unit # &#20197;KB&#20026;&#21333;&#20301;&#36827;&#34892;&#26174;&#31034;&#10;  -t, --time            add a timestamp on each line (implies --batch) # &#26174;&#31034;&#26102;&#22312;&#27599;&#34892;&#28155;&#21152;&#24403;&#21069;&#26102;&#38388;&#10;  -q, --quiet           suppress some lines of header (implies --batch)</span><br></pre></td></tr></table></figure>]]>
+    
     </summary>
     
       <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
@@ -1268,7 +1336,7 @@
     <link href="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/"/>
     <id>http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/</id>
     <published>2014-05-12T13:14:00.000Z</published>
-    <updated>2015-07-27T05:50:04.000Z</updated>
+    <updated>2015-07-27T07:06:00.000Z</updated>
     <content type="html"><![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 <h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
 <p><strong>Comparison between htop and top</strong></p>
@@ -1291,6 +1359,7 @@
 <li>top 已经很老了。</li>
 </ul>
 <p>htop 官网：<a href="http://htop.sourceforge.net/" target="_blank" rel="external">http://htop.sourceforge.net/</a></p>
+<a id="more"></a>
 <h1 id="htop_安装">htop 安装</h1><p><strong>a. 源码包安装</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># tar zxvf htop-1.0.2.tar.gz&#10;# cd htop-1.0.2&#10;# ./configure&#10;# make &#38;&#38; make install</span><br></pre></td></tr></table></figure></p>
 <p>若出现错误：<br>configure: error: You may want to use —disable-unicode or install libncursesw.<br>则需安装 ncurses-devel<br><code>yum install ncurses-devel</code></p>
 <p><strong>b. RHEL/CentOS 安装</strong></p>
@@ -1481,7 +1550,29 @@
 <p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchin]]>
+    <![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
+<h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
+<p><strong>Comparison between htop and top</strong></p>
+<ul>
+<li>In ‘htop’ you can scroll the list vertically and horizontally to see all processes and complete command lines.</li>
+<li>In ‘top’ you are subject to a delay for each unassigned key you press (especially annoying when multi-key escape sequences are triggered by accident).</li>
+<li>‘htop’ starts faster (‘top’ seems to collect data for a while before displaying anything).</li>
+<li>In ‘htop’ you don’t need to type the process number to kill a process, in ‘top’ you do.</li>
+<li>In ‘htop’ you don’t need to type the process number or the priority value to renice a process, in ‘top’ you do.</li>
+<li>‘htop’ supports mouse operation, ‘top’ doesn’t</li>
+<li>‘top’ is older, hence, more used and tested.</li>
+</ul>
+<p>htop 是Linux系统中的一个互动的进程查看器，一个文本模式的应用程序(在控制台或者X终端中)，需要ncurses。<br>与Linux传统的top相比，htop更加人性化。它可让用户交互式操作，支持颜色主题，可横向或纵向滚动浏览进程列表，并支持鼠标操作。</p>
+<p><strong>与top相比，htop有以下优点：</strong></p>
+<ul>
+<li>可以横向或纵向滚动浏览进程列表，以便看到所有的进程和完整的命令行。</li>
+<li>在启动上，比top 更快。</li>
+<li>杀进程时不需要输入进程号。</li>
+<li>htop 支持鼠标操作。</li>
+<li>top 已经很老了。</li>
+</ul>
+<p>htop 官网：<a href="http://htop.sourceforge.net/">http://htop.sourceforge.net/</a></p>]]>
+    
     </summary>
     
       <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
@@ -1499,7 +1590,7 @@
     <link href="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/"/>
     <id>http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/</id>
     <published>2014-05-10T02:21:00.000Z</published>
-    <updated>2015-07-27T05:50:24.000Z</updated>
+    <updated>2015-07-27T07:06:15.000Z</updated>
     <content type="html"><![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
 <p><strong>Mysqlnd_ms</strong></p>
 <p>优点：</p>
@@ -1536,6 +1627,7 @@
 </ol>
 <p>鉴于”对业务层代码改动要小”这个需求，以及笔者对Mysql-Proxy 使用较少，所以在简单比较之后，果断选择了Mysqlnd_ms。</p>
 <h1 id="安装">安装</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. wget http://pecl.php.net/get/mysqlnd_ms-1.5.2.tgz &#10;2. tar xzvf mysqlnd_ms-1.5.2.tgz&#10;3. cd mysqlnd_ms-1.5.2&#10;4. /path/to/phpize&#10;5. ./configure --enable-mysqlnd-ms --with-php-config=/usr/local/php/bin/php-config&#10;6. make&#10;7. make install&#10;8. sudo /etc/init.d/php-fpm restart&#10;9. /path/to/php -m | grep mysql #&#30475;&#21040;&#34;mysqlnd_ms&#34;&#25193;&#23637;&#34920;&#31034;&#23433;&#35013;&#25104;&#21151;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
 <h1 id="配置">配置</h1><h2 id="1-_创建配置文件_/usr/local/etc/php/php-d/mysqlnd_ms-ini">1. 创建配置文件 /usr/local/etc/php/php.d/mysqlnd_ms.ini</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">extension=&#34;/usr/local/php-5.5.9/lib/php/extensions/no-debug-non-zts-20121212/mysqlnd_ms.so&#34; &#10;; &#21551;&#21160;mysqlnd_ms&#10;mysqlnd_ms.enable=1&#10;; &#21152;&#36733;&#30340;&#20027;&#20174;&#37197;&#32622;&#25991;&#20214;&#10;mysqlnd_ms.config_file=&#34;/usr/local/etc/php/php.d/mysqlnd_ms.conf&#34; &#10;; &#26159;&#21542;&#31105;&#29992;&#35835;&#20889;&#20998;&#31163;&#10;mysqlnd_ms.disable_rw_split=0&#10;; mysqlnd &#26085;&#24535;&#36755;&#20986;&#26684;&#24335;(&#32447;&#19978;&#29615;&#22659;&#21487;&#36873;)&#10;mysqlnd.debug=&#34;d:t:x:A,/tmp/mysqlnd.trace&#34; &#10;;SERVER_QUERY_NO_GOOD_INDEX_USED=16&#10;;SERVER_QUERY_NO_INDEX_USED=32&#10;;SERVER_QUERY_WAS_SLOW=1024&#10;; &#26085;&#24535;&#25513;&#30721;&#10;mysqlnd.log_mask=1072&#10;&#10;; &#32593;&#32476;&#35835;&#32531;&#23384;&#22823;&#23567;&#10;; 64K&#10;mysqlnd.net_read_buffer_size=65536&#10;; &#32593;&#32476;&#35835;&#31561;&#24453;&#26102;&#38388;&#10;mysqlnd.net_read_timeout=600</span><br></pre></td></tr></table></figure>
 <h2 id="2-_创建主从策略文件_/usr/local/etc/php/php-d/mysqlnd_ms-conf_(位置由mysqlnd_ms-ini指定)">2. 创建主从策略文件 /usr/local/etc/php/php.d/mysqlnd_ms.conf (位置由mysqlnd_ms.ini指定)</h2><p>Demo 主从写成了同一个库<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#10;    &#34;master-slave&#34;: &#123; // section &#23545;&#24212;&#19968;&#32452;&#26381;&#21153;&#10;        &#34;master&#34;: &#123; // &#20027;&#24211;&#37197;&#32622;(&#40664;&#35748;&#20027;&#24211;&#21482;&#21253;&#21547;&#19968;&#39033;)&#10;            &#34;master_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.100&#34;,//host&#24517;&#36873; &#20854;&#20182;&#21487;&#20026;&#31354;&#12290; &#25193;&#23637;&#20248;&#20808;&#20351;&#29992;&#26412;&#25991;&#20214;&#20013;&#30340;&#37197;&#32622;&#65292;&#22914;&#26524;&#20026;&#31354;&#65292;&#20877;&#21435;&#20351;&#29992;php&#36830;&#25509;mysql&#26102;&#20351;&#29992;&#30340;&#21442;&#25968;&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0&#10;            &#125;&#10;        &#125;,&#10;        &#34;slave&#34;: &#123; // &#20174;&#24211;&#37197;&#32622;(&#21487;&#37197;&#32622;&#22810;&#39033;&#65292;slave&#20026;&#31354;&#20250;&#22312;php&#22788;&#25253;warning)&#10;            &#34;slave_0&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.101&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                                                                   &#10;            &#125;,&#10;            &#34;slave_1&#34;: &#123;&#10;                &#34;host&#34;: &#34;192.168.100.102&#34;,&#10;                &#34;port&#34;: &#34;3306&#34;,&#10;                &#34;socket&#34;: &#34;\/var\/data\/mysql\/mysql.sock&#34;,&#10;                &#34;db&#34;: &#34;master-slave&#34;,&#10;                &#34;user&#34;: &#34;root&#34;,&#10;                &#34;password&#34;: &#34;&#34;,&#10;                &#34;connect_flags&#34;: 0                        &#10;            &#125;,&#10;        &#125;,   &#10;        &#34;lazy_connections&#34;: 1, //&#21482;&#22312;&#25191;&#34892;sql&#20043;&#21069;&#25165;&#36830;&#25509;&#25968;&#25454;&#24211;&#10;        &#34;server_charset&#34; : &#34;utf8&#34; //&#26381;&#21153;&#31471;&#32534;&#30721;&#10;    &#125;   &#10;&#125;</span><br></pre></td></tr></table></figure></p>
 <p>/etc/init.d/php-fpm restart  #重启fpm生效</p>
@@ -1644,7 +1736,43 @@
 </ol>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方]]>
+    <![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
+<p><strong>Mysqlnd_ms</strong></p>
+<p>优点：</p>
+<pre><code><span class="bullet">1. </span>PHP官方推荐的扩展，PECL安装方便
+</code></pre><ol>
+<li>基于PHP扩展对SQL进行解析，进而分离请求，对业务层代码改动小，性能损失也小</li>
+<li>扩展本身已经在社区打滚有些年头了，较稳定，口碑好</li>
+<li>入门级文档清晰，易配置易上手</li>
+<li>有连接池</li>
+<li><p>功能强大，支持SQL Hint， 事务，最终／Session/强一致性等场景</p>
+<p>缺点：</p>
+<ol>
+<li>基于扩展的封装，扩展的实现对上层透明。扩展本身缺乏debug工具， 所以真遇到问题可能比较难查</li>
+</ol>
+</li>
+<li>Failover 策略较基础</li>
+<li>缺乏中文文档</li>
+<li><p>强一致性的场景会有些坑</p>
+<p><strong>Mysql-Proxy</strong></p>
+<p>优点:</p>
+<ol>
+<li>来自Mysql官方的解决方案</li>
+</ol>
+</li>
+<li>性能好，资源占用少</li>
+<li>有连接池</li>
+<li>配置简单／文档众多</li>
+<li><p>应有广泛，口碑好</p>
+<p>缺点:</p>
+<ol>
+<li>需要第三方脚本(Lua)支持</li>
+</ol>
+</li>
+</ol>
+<p>鉴于”对业务层代码改动要小”这个需求，以及笔者对Mysql-Proxy 使用较少，所以在简单比较之后，果断选择了Mysqlnd_ms。</p>
+<h1 id="安装">安装</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1. wget http://pecl.php.net/get/mysqlnd_ms-1.5.2.tgz &#10;2. tar xzvf mysqlnd_ms-1.5.2.tgz&#10;3. cd mysqlnd_ms-1.5.2&#10;4. /path/to/phpize&#10;5. ./configure --enable-mysqlnd-ms --with-php-config=/usr/local/php/bin/php-config&#10;6. make&#10;7. make install&#10;8. sudo /etc/init.d/php-fpm restart&#10;9. /path/to/php -m | grep mysql #&#30475;&#21040;&#34;mysqlnd_ms&#34;&#25193;&#23637;&#34920;&#31034;&#23433;&#35013;&#25104;&#21151;</span><br></pre></td></tr></table></figure>]]>
+    
     </summary>
     
       <category term="php" scheme="http://www.harrycode.com/tags/php/"/>
@@ -1660,7 +1788,7 @@
     <link href="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/"/>
     <id>http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/</id>
     <published>2014-05-05T04:05:00.000Z</published>
-    <updated>2015-07-27T05:54:02.000Z</updated>
+    <updated>2015-07-27T07:07:39.000Z</updated>
     <content type="html"><![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
 <p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
 <p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
@@ -1670,6 +1798,7 @@
 <p>编辑spf13-vim.sh, 可以在最后看到这样一行, 看setup_vundle的函数定义，知道这个函数就是执行vundle 安装插件的命令，我们用 <code>&quot;</code> 注释掉这一行， 然后给脚本执行权限并执行spf安装脚本。chmod u+x spf13-vim.sh ＆＆ sh spf13-vim.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; setup_vundle    &#34;Now updating/installing plugins using Vundle&#34;</span><br></pre></td></tr></table></figure></p>
 <p>很快我们看到spf13安装完成了，在home目录下执行 ls -lha | grep vim  可以看到spf13安装的vim配置文件的软链接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lrwxrwxrwx   1 harry harry   33 May  5 11:27 .vimrc -&#62; /home/tianhai/.spf13-vim-3/.vimrc&#10;lrwxrwxrwx   1 harry harry   40 May  5 11:27 .vimrc.before -&#62; /home/tianhai/.spf13-vim-3/.vimrc.before&#10;-rw-r--r--   1 harry harry  143 May  5 11:45 .vimrc.before.local&#10;lrwxrwxrwx   1 harry harry   41 May  5 11:27 .vimrc.bundles -&#62; /home/tianhai/.spf13-vim-3/.vimrc.bundles&#10;lrwxrwxrwx   1 harry harry   31 May  5 11:27 .vim -&#62; /home/tianhai/.spf13-vim-3/.vim</span><br></pre></td></tr></table></figure></p>
 <p>编辑 .vimrc.bundles 这个文件,可以看到类似的代码块， 这个代码块就是告诉Vundle来安装哪些扩展<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; Misc &#123;&#10;    if count(g:spf13_bundle_groups, &#39;misc&#39;)&#10;        Bundle &#39;tpope/vim-markdown&#39;&#10;        Bundle &#39;spf13/vim-preview&#39;&#10;        Bundle &#39;tpope/vim-cucumber&#39;&#10;        Bundle &#39;quentindecock/vim-cucumber-align-pipes&#39;&#10;        Bundle &#39;Puppet-Syntax-Highlighting&#39;&#10;    endif&#10;&#34; &#125;</span><br></pre></td></tr></table></figure></p>
+<a id="more"></a>
 <p>回到 100行左右， 可以看到如下的配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; In your .vimrc.before.local file&#10;&#34; list only the plugin groups you will use&#10;if !exists(&#39;g:spf13_bundle_groups&#39;)&#10;    let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;twig&#39;, &#39;javascript&#39;, &#39;html&#39;, &#39;misc&#39;,]&#10;endif</span><br></pre></td></tr></table></figure></p>
 <p>spf13_bundle_groups 这个变量用来控制Vundle加载那些模块，spf默认安装了一些php/ruby/python／html/js的扩展，就像注释中说的，我们可以通过覆盖这个变量来自定义Vundle加载的扩展。譬如我想安装go 但我的工作中不使用twig，我就可以在.vimrc.before.local 通过覆盖 spf13_bundle_groups 变量的方式来做自定义。下面是我的定义：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &#34;let g:spf13_bundle_groups=[&#39;general&#39;, &#39;writing&#39;, &#39;neocomplcache&#39;, &#39;programming&#39;, &#39;php&#39;, &#39;ruby&#39;, &#39;python&#39;, &#39;javascript&#39;, &#39;go&#39;, &#39;html&#39;, &#39;misc&#39;,]&#34; &#62;&#62; .vimrc.before.local</span><br></pre></td></tr></table></figure>
@@ -1712,7 +1841,16 @@
 <p>今天就到这里， Enjoy~</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或]]>
+    <![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
+<p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
+<p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
+<h1 id="安装_spf13-vim">安装 spf13-vim</h1><h2 id="官方的安装步骤">官方的安装步骤</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh &#38;&#38; sh spf13-vim.sh</span><br></pre></td></tr></table></figure>
+<p>官方的安装步骤很简便，但是综合了我国GFW的国情后，稍显得有些问题。官方的安装脚本会自动执行Vundle安装内置的插件，Vundle会自动Clone GitHub上的这些扩展，但是在我国从Github上clone代码还是很慢的，默认安装的插件也比较多，整个安装过程就比较慢。另外有些默认插件可能是你不需要的，都安装了用不上，费电不说，其实拖慢Vim的执行速度。下面我们看看怎样做一些设置。</p>
+<h2 id="自定义的安装步骤">自定义的安装步骤</h2><p>首先我们只下载安装脚本，但不要默认执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &#62; spf13-vim.sh</span><br></pre></td></tr></table></figure></p>
+<p>编辑spf13-vim.sh, 可以在最后看到这样一行, 看setup_vundle的函数定义，知道这个函数就是执行vundle 安装插件的命令，我们用 <code>&quot;</code> 注释掉这一行， 然后给脚本执行权限并执行spf安装脚本。chmod u+x spf13-vim.sh ＆＆ sh spf13-vim.sh<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; setup_vundle    &#34;Now updating/installing plugins using Vundle&#34;</span><br></pre></td></tr></table></figure></p>
+<p>很快我们看到spf13安装完成了，在home目录下执行 ls -lha | grep vim  可以看到spf13安装的vim配置文件的软链接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lrwxrwxrwx   1 harry harry   33 May  5 11:27 .vimrc -&#62; /home/tianhai/.spf13-vim-3/.vimrc&#10;lrwxrwxrwx   1 harry harry   40 May  5 11:27 .vimrc.before -&#62; /home/tianhai/.spf13-vim-3/.vimrc.before&#10;-rw-r--r--   1 harry harry  143 May  5 11:45 .vimrc.before.local&#10;lrwxrwxrwx   1 harry harry   41 May  5 11:27 .vimrc.bundles -&#62; /home/tianhai/.spf13-vim-3/.vimrc.bundles&#10;lrwxrwxrwx   1 harry harry   31 May  5 11:27 .vim -&#62; /home/tianhai/.spf13-vim-3/.vim</span><br></pre></td></tr></table></figure></p>
+<p>编辑 .vimrc.bundles 这个文件,可以看到类似的代码块， 这个代码块就是告诉Vundle来安装哪些扩展<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#34; Misc &#123;&#10;    if count(g:spf13_bundle_groups, &#39;misc&#39;)&#10;        Bundle &#39;tpope/vim-markdown&#39;&#10;        Bundle &#39;spf13/vim-preview&#39;&#10;        Bundle &#39;tpope/vim-cucumber&#39;&#10;        Bundle &#39;quentindecock/vim-cucumber-align-pipes&#39;&#10;        Bundle &#39;Puppet-Syntax-Highlighting&#39;&#10;    endif&#10;&#34; &#125;</span><br></pre></td></tr></table></figure></p>]]>
+    
     </summary>
     
       <category term="vim" scheme="http://www.harrycode.com/tags/vim/"/>
