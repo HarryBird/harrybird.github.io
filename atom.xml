@@ -4,7 +4,7 @@
   <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
-  <updated>2015-07-26T14:06:03.000Z</updated>
+  <updated>2015-07-27T05:49:38.000Z</updated>
   <id>http://www.harrycode.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://www.harrycode.com/2015/07/26/EC2-ShadowSocks-GFW/"/>
     <id>http://www.harrycode.com/2015/07/26/EC2-ShadowSocks-GFW/</id>
     <published>2015-07-26T08:21:41.000Z</published>
-    <updated>2015-07-26T14:06:03.000Z</updated>
+    <updated>2015-07-27T05:49:38.000Z</updated>
     <content type="html"><![CDATA[<p>众所周知的原因，我们被关在了墙内。<br>作为一名互联网工作者，失去了与外部世界的联系基本就算失去了学习国外先进技术的途径。 翻墙被越来越多的互联网工程师提上日程，方案也是层出不穷。</p>
 <p>本文简单阐述了基于AWS-EC2 + Shadowsocks组建的翻墙解决方案。 AWS第一年几乎是免费使用的， 这种方案性价比极高，效果也比Goagent等免费方案要好一些。</p>
 <p>如果还有不完善之处，欢迎指正。</p>
@@ -81,7 +81,15 @@
     
     </summary>
     
-      <category term="杂货" scheme="http://www.harrycode.com/categories/%E6%9D%82%E8%B4%A7/"/>
+      <category term="AWS" scheme="http://www.harrycode.com/tags/AWS/"/>
+    
+      <category term="EC2" scheme="http://www.harrycode.com/tags/EC2/"/>
+    
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="杂货铺" scheme="http://www.harrycode.com/tags/%E6%9D%82%E8%B4%A7%E9%93%BA/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -90,7 +98,7 @@
     <link href="http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/"/>
     <id>http://www.harrycode.com/2015/07/21/nginx-manual-note-CONTROL-NGINX/</id>
     <published>2015-07-21T12:48:43.000Z</published>
-    <updated>2015-07-22T15:12:26.000Z</updated>
+    <updated>2015-07-27T06:05:32.000Z</updated>
     <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/control.html" target="_blank" rel="external">http://nginx.org/en/docs/control.html</a>]</p>
 <p>nginx 可以通过信号来控制。 主进程的进程 ID 默认会被写入文件 <code>/usr/local/nginx/logs/nginx.pid</code> 。 文件名可以在编译时(configure) 或 通过 nginx.conf 中的 pid 命令来更改。 主进程支持以下几种信号：</p>
 <table>
@@ -236,7 +244,13 @@
     
     </summary>
     
-      <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://www.harrycode.com/tags/Nginx/"/>
+    
+      <category term="笔记" scheme="http://www.harrycode.com/tags/%E7%AC%94%E8%AE%B0/"/>
+    
+      <category term="翻译" scheme="http://www.harrycode.com/tags/%E7%BF%BB%E8%AF%91/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -245,7 +259,7 @@
     <link href="http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/"/>
     <id>http://www.harrycode.com/2015/07/12/nginx-manual-note-Tuning-Nginx/</id>
     <published>2015-07-12T13:51:44.000Z</published>
-    <updated>2015-07-22T15:21:13.000Z</updated>
+    <updated>2015-07-27T05:59:14.000Z</updated>
     <content type="html"><![CDATA[<p>URL: [<a href="https://www.nginx.com/blog/tuning-nginx/" target="_blank" rel="external">https://www.nginx.com/blog/tuning-nginx/</a>]</p>
 <h2 id="Linux_配置">Linux 配置</h2><h3 id="Backlog_Queue">Backlog Queue</h3><p><code>net.core.somaxconn</code><br>等待被Nginx接收的请求队列。 Nginx 接收请求的速度很快，所以这个值通常不需要很大，默认值也是比较低的。但如果你的网站负载很高，可以尝试增加这个队列。如果内核的错误日志显示这个值太小，可以提高这个值直到错误停止。注意： 如果你把这个值设置的大于512，调整Nginx listen指令的backlog参数来与这个值匹配。</p>
 <p><code>net.core.netdev_max_backlog</code><br>在每个网络接口接收数据包的速率比内核处理这些包的速率快时，允许送到队列的数据包的最大数目。 如果你的带宽很高，建议调大这个值</p>
@@ -295,7 +309,11 @@
     
     </summary>
     
-      <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://www.harrycode.com/tags/Nginx/"/>
+    
+      <category term="翻译" scheme="http://www.harrycode.com/tags/%E7%BF%BB%E8%AF%91/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -304,7 +322,7 @@
     <link href="http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/"/>
     <id>http://www.harrycode.com/2015/07/11/nginx-manual-note-HTTP-CORE-MODULE/</id>
     <published>2015-07-11T10:03:27.000Z</published>
-    <updated>2015-07-22T15:21:04.000Z</updated>
+    <updated>2015-07-27T06:03:15.000Z</updated>
     <content type="html"><![CDATA[<p>URL： [<a href="http://nginx.org/en/docs/http/ngx\_http\_core\_module.html" target="_blank" rel="external">http://nginx.org/en/docs/http/ngx\_http\_core\_module.html</a>]</p>
 <hr>
 <p><code>aio on | off | threads[=pool]</code><br>如果是Linux/FreeBSD系统，这个选项用来开启/关闭AIO。<br>在Linux系统中，AIO需要内核版本2.6.22以上的支持。另外AIO的同时需要打开DirectIO，否则读操作将被阻塞:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">location /video/ &#123;&#10;    aio            on;&#10;    directio       512;&#10;    output_buffers 1 128k;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
@@ -465,7 +483,11 @@
     
     </summary>
     
-      <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://www.harrycode.com/tags/Nginx/"/>
+    
+      <category term="翻译" scheme="http://www.harrycode.com/tags/%E7%BF%BB%E8%AF%91/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -474,7 +496,7 @@
     <link href="http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/"/>
     <id>http://www.harrycode.com/2015/07/05/nginx-manual-note-CORE-FUNC/</id>
     <published>2015-07-05T06:30:00.000Z</published>
-    <updated>2015-07-22T15:21:00.000Z</updated>
+    <updated>2015-07-27T06:00:24.000Z</updated>
     <content type="html"><![CDATA[<h2 id="URL:_[http://nginx-org/en/docs/ngx_core_module-html]">URL: [<a href="http://nginx.org/en/docs/ngx_core_module.html" target="_blank" rel="external">http://nginx.org/en/docs/ngx_core_module.html</a>]</h2><p><code>accept_mutex on | off</code><br>如果开启，worker进程将轮流接收新请求。否则，有新请求到来时，所有的worker进程将集体被唤醒，而此时如果请求流量较低，一些worker进程只会浪费系统资源。 参考： [<a href="http://huoding.com/2013/08/24/281" target="_blank" rel="external">http://huoding.com/2013/08/24/281</a>]</p>
 <p><code>accept_mutex_delay time</code><br>启动<code>accept_mutex</code>后，每个worker进程重新接受新请求的最大时间间隔。默认值 500ms</p>
 <p><code>debug_connection</code><br>对指定的客户端请求启动debug模式。其它请求使用<code>error_log</code>指令设置的日志级别。可以指定 IP/主机名/unix套接字。 这个指令的生效需要在编译时指定 —with-debug<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">events &#123;&#10;    debug_connection 127.0.0.1;&#10;    debug_connection localhost;&#10;    debug_connection 192.0.2.0/24;&#10;    debug_connection ::1;&#10;    debug_connection 2001:0db8::/32;&#10;    debug_connection unix:;&#10;    ...&#10;&#125;</span><br></pre></td></tr></table></figure></p>
@@ -499,7 +521,11 @@
     
     </summary>
     
-      <category term="Nginx" scheme="http://www.harrycode.com/categories/Nginx/"/>
+      <category term="Nginx" scheme="http://www.harrycode.com/tags/Nginx/"/>
+    
+      <category term="翻译" scheme="http://www.harrycode.com/tags/%E7%BF%BB%E8%AF%91/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -508,7 +534,7 @@
     <link href="http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/"/>
     <id>http://www.harrycode.com/2014/12/03/2014-12-03-to-hadoop-working-mechanism/</id>
     <published>2014-12-03T09:53:00.000Z</published>
-    <updated>2015-05-18T12:55:44.000Z</updated>
+    <updated>2015-07-27T06:03:29.000Z</updated>
     <content type="html"><![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/article/details/22416305</a>]</p>
 <p>可以只用一行代码来运行MapReduce作业：JobClient.runJon(conf)，Job作业运行时参与的四个实体：<br>1.JobClient 写代码，配置作业，提交作业。<br>2.JobTracker:初始化作业，分配作业，协调作业运行。这是一个java程序，主类是JobTracker。<br>3.TaskTracker：运行作业划分后的任务，即分配数据分配上执行Map或Reduce任务。<br>4.HDFS：保存作业数据、配置信息等，保存作业结果。</p>
 <h2 id="Map/Reduce_作业总体执行流程">Map/Reduce 作业总体执行流程</h2><p><code>代码编写 ----&gt; 作业配置  ----&gt;  作业提交 ----&gt; Map任务分配和执行 ----&gt; 处理中间结果 ----&gt;  Reduce任务分配与执行 ----&gt;  输出结果</code></p>
@@ -573,6 +599,12 @@
     <![CDATA[<p>[来源: <a href="http://blog.csdn.net/suifeng3051/article/details/22416305" target="_blank" rel="external">http://blog.csdn.net/suifeng3051/]]>
     </summary>
     
+      <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
+    
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -580,7 +612,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/"/>
     <id>http://www.harrycode.com/2014/12/03/to-understand-mapreduce-data-flow/</id>
     <published>2014-12-03T09:45:00.000Z</published>
-    <updated>2015-05-18T12:54:23.000Z</updated>
+    <updated>2015-07-27T05:55:37.000Z</updated>
     <content type="html"><![CDATA[<h1 id="先理解MapReduce作业组成">先理解MapReduce作业组成</h1><pre><code>一个完整的MapReduce作业称作job，它包括三部分：
 <span class="bullet">1. </span>输入数据
 <span class="bullet">2. </span>MapReduce程序
@@ -605,6 +637,12 @@
 <span class="bul]]>
     </summary>
     
+      <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
+    
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -612,7 +650,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/"/>
     <id>http://www.harrycode.com/2014/12/03/to-briefly-introduce-each-major-module-of-hadoop/</id>
     <published>2014-12-03T09:29:00.000Z</published>
-    <updated>2015-05-18T12:53:07.000Z</updated>
+    <updated>2015-07-27T05:54:42.000Z</updated>
     <content type="html"><![CDATA[<p>先从概念层次介绍下Hadoop的各个组件，下一部分会深入Hadoop的每个组件，并从实战层次讲解。</p>
 <h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），每个进程都有各自的角色，有的仅运行在单个服务器上，有的则运行在集群多个服务器上，它们包括：
 </code></pre><p>NameNode<br>Secondary NameNode<br>DataNode<br>JobTracker<br>TaskTracker<br>     Hadoop是一个分布式存储与计算系统，分布式存储部分是HDFS，分布式计算部分是MapReduce，它们都是遵循主/从（Master/Slave)结构，上面前3个组件属于分布式存储部分，后面2个组件属于分布式计算部分，下面详细介绍一下它们。</p>
@@ -634,6 +672,12 @@
 <h1 id="一、Hadoop构造模块">一、Hadoop构造模块</h1><pre><code>运行Hadoop的意思其实就是运行一组守护进程（daemons），]]>
     </summary>
     
+      <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
+    
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -641,7 +685,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/"/>
     <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce-1/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-05-18T12:50:45.000Z</updated>
+    <updated>2015-07-27T05:55:08.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -667,6 +711,12 @@
     <summary type="html">
     <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
     </summary>
+    
+      <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
+    
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -675,7 +725,7 @@
     <link href="http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/"/>
     <id>http://www.harrycode.com/2014/12/03/to-to-quickly-grasp-mapreduce/</id>
     <published>2014-12-03T07:50:00.000Z</published>
-    <updated>2015-05-18T12:49:31.000Z</updated>
+    <updated>2015-07-27T05:55:23.000Z</updated>
     <content type="html"><![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。</p>
 <h1 id="2_MapReduce的编程模型">2 MapReduce的编程模型</h1><p>　　按照google的MapReduce论文所说的，MapReduce的编程模型的原理是：利用一个输入key/value对集合来产生一个输出的key/value对集合。MapReduce库的用户用两个函数表达这个计算：Map和Reduce。用户自定义的Map函数接受一个输入的key/value对值，然后产生一个中间key/value对值的集合。MapReduce库把所有具有相同中间key值的中间value值集合在一起后传递给Reduce函数。用户自定义的Reduce函数接受一个中间key的值和相关的一个value值的集合。Reduce函数合并这些value值，形成一个较小的value值的集合。</p>
 <h1 id="3_MapReduce实现">3 MapReduce实现</h1><p>　　通过将Map调用的输入数据自动分割为M个数据片段的集合，Map调用被分布到多台机器上执行。输入的数据片段能够在不同的机器上并行处理。使用分区函数将Map调用产生的中间key值分成R个不同分区（例如，hash(key) mod R），Reduce调用也被分布到多台机器上执行。分区数量（R）和分区函数由用户来指定。</p>
@@ -702,6 +752,12 @@
     <![CDATA[<h1 id="1_什么是MapReduce？">1 什么是MapReduce？</h1><p>　　Map本意可以理解为地图，映射（面向对象语言都有Map集合），这里我们可以理解为从现实世界获得或产生映射。Reduce本意是减少的意思，这里我们可以理解为归并前面Map产生的映射。]]>
     </summary>
     
+      <category term="Hadoop" scheme="http://www.harrycode.com/tags/Hadoop/"/>
+    
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -709,7 +765,7 @@
     <link href="http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/"/>
     <id>http://www.harrycode.com/2014/06/26/today-is-my-birthday-and-my-country/</id>
     <published>2014-06-26T08:58:00.000Z</published>
-    <updated>2015-05-18T12:48:12.000Z</updated>
+    <updated>2015-07-27T05:56:54.000Z</updated>
     <content type="html"><![CDATA[<p>今天是我的生日，我的祖国。</p>
 <p>过去的一年里发生了很多，失去了至亲，换了房子搬了家，接来了娘，换了工作。</p>
 <p>青春的颜色逐渐褪去殆尽，余下的是生活的琐碎和每日回家的温暖。</p>
@@ -725,6 +781,12 @@
 <p>很难注名的去感谢谁谁谁，但希望你们一直再我身边，原谅着我的任性与偏执]]>
     </summary>
     
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="杂货铺" scheme="http://www.harrycode.com/tags/%E6%9D%82%E8%B4%A7%E9%93%BA/"/>
+    
+      <category term="右手年华" scheme="http://www.harrycode.com/categories/%E5%8F%B3%E6%89%8B%E5%B9%B4%E5%8D%8E/"/>
+    
   </entry>
   
   <entry>
@@ -732,7 +794,7 @@
     <link href="http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/"/>
     <id>http://www.harrycode.com/2014/05/20/nginx-monitoring-tool-ngxtop/</id>
     <published>2014-05-20T04:01:00.000Z</published>
-    <updated>2015-07-22T15:21:19.000Z</updated>
+    <updated>2015-07-27T05:53:37.000Z</updated>
     <content type="html"><![CDATA[<h1 id="简介">简介</h1><p>Nginx 作为新一代的WebServer + ProxyServer， 以其优秀的并发能力，已被广泛接受。使用之广，直逼界内前辈 Apache。今天我们介绍一款Nginx的监控工具 <a href="https://github.com/lebinh/ngxtop#rd" target="_blank" rel="external">Ngxtop</a>，这款工具基于AccessLog的解析，为我们提供非常友好的统计方式，统计各个页面的request_path, remote_addr, status等，并基于字段order/group，监控起来自然是比awk这些工具要方便许多。<strong>附官方Demo：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ngxtop&#10;running for 411 seconds, 64332 records processed: 156.60 req/sec&#10;&#10;Summary:&#10;|   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|---------+------------------+-------+-------+-------+-------|&#10;|   64332 |         2775.251 | 61262 |  2994 |    71 |     5 |&#10;&#10;Detailed:&#10;| request_path                             |   count |   avg_bytes_sent |   2xx |   3xx |   4xx |   5xx |&#10;|------------------------------------------+---------+------------------+-------+-------+-------+-------|&#10;| /abc/xyz/xxxx                            |   20946 |          434.693 | 20935 |     0 |    11 |     0 |&#10;| /xxxxx.json                              |    5633 |         1483.723 |  5633 |     0 |     0 |     0 |&#10;| /xxxxx/xxx/xxxxxxxxxxxxx                 |    3629 |         6835.499 |  3626 |     0 |     3 |     0 |&#10;| /xxxxx/xxx/xxxxxxxx                      |    3627 |        15971.885 |  3623 |     0 |     4 |     0 |&#10;| /xxxxx/xxx/xxxxxxx                       |    3624 |         7830.236 |  3621 |     0 |     3 |     0 |&#10;| /static/js/minified/utils.min.js         |    3031 |         1781.155 |  2104 |   927 |     0 |     0 |&#10;| /static/js/minified/xxxxxxx.min.v1.js    |    2889 |         2210.235 |  2068 |   821 |     0 |     0 |&#10;| /static/tracking/js/xxxxxxxx.js          |    2594 |         1325.681 |  1927 |   667 |     0 |     0 |&#10;| /xxxxx/xxx.html                          |    2521 |          573.597 |  2520 |     0 |     1 |     0 |&#10;| /xxxxx/xxxx.json                         |    1840 |          800.542 |  1839 |     0 |     1 |     0 |</span><br></pre></td></tr></table></figure>
 <h1 id="安装">安装</h1><p>Ngxtop 是基于Python编写的，依赖Python，通过pip即可安装。一般服务器都会遇装Python，只是版本高低各有不同。安装Python的文章可以随手找到，不再赘述。</p>
@@ -752,7 +814,11 @@
     
       <category term="Linux" scheme="http://www.harrycode.com/tags/Linux/"/>
     
-      <category term="Tool" scheme="http://www.harrycode.com/tags/Tool/"/>
+      <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
+    
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -761,7 +827,7 @@
     <link href="http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/"/>
     <id>http://www.harrycode.com/2014/05/15/linux-server-system-monitor-tool-collecting/</id>
     <published>2014-05-15T08:50:00.000Z</published>
-    <updated>2015-05-18T12:37:49.000Z</updated>
+    <updated>2015-07-27T05:50:54.000Z</updated>
     <content type="html"><![CDATA[<h1 id="前言">前言</h1><p>没有好声音，再好的戏也出不来。<br>没有好工具，再好的服务器也出不来。</p>
 <p>最近一直在做一些服务端系统调优的工作，频繁的和各种监控工具打交到。很多工具以及参数细节在用到时才发现已经记不起了，所以顺着这次系统调优，把常用的监控工具又都熟悉了一遍。好记性不如烂笔头儿，记下来留备后用。</p>
 <p>需要说明的是，本文可能会很长，没耐性的以及有痔疮的同学慎入 :)</p>
@@ -1162,6 +1228,10 @@
     
       <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -1169,7 +1239,7 @@
     <link href="http://www.harrycode.com/2014/05/13/introduction-to-iotop/"/>
     <id>http://www.harrycode.com/2014/05/13/introduction-to-iotop/</id>
     <published>2014-05-13T05:19:00.000Z</published>
-    <updated>2015-05-18T12:36:17.000Z</updated>
+    <updated>2015-07-27T05:50:37.000Z</updated>
     <content type="html"><![CDATA[<h2 id="简介">简介</h2><p>IOTop 是一款Python程序，使用Top的UI样式， 可以查看基于进程／线程／User等多种维度来查看／监控服务器当前的I/O情况</p>
 <h2 id="安装">安装</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://guichaz.free.fr/iotop/files/iotop-0.6-1.noarch.rpm&#10;sudo rpm -ivh iotop-0.6-1.noarch.rpm</span><br></pre></td></tr></table></figure>
 <h2 id="使用">使用</h2><p>简单翻译下 —help ，用法很简单</p>
@@ -1187,6 +1257,10 @@
     
       <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -1194,7 +1268,7 @@
     <link href="http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/"/>
     <id>http://www.harrycode.com/2014/05/12/change-replacing-the-top-process-management-tools-under-linux-htop/</id>
     <published>2014-05-12T13:14:00.000Z</published>
-    <updated>2015-05-18T12:26:57.000Z</updated>
+    <updated>2015-07-27T05:50:04.000Z</updated>
     <content type="html"><![CDATA[<p>本文转自  <a href="http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html" target="_blank" rel="external">http://www.cnblogs.com/mchina/archive/2013/03/15/2858041.html</a></p>
 <h1 id="htop_简介">htop 简介</h1><p>This is htop, an interactive process viewer for Linux. It is a text-mode application (for console or X terminals) and requires ncurses.</p>
 <p><strong>Comparison between htop and top</strong></p>
@@ -1414,6 +1488,10 @@
     
       <category term="Tools" scheme="http://www.harrycode.com/tags/Tools/"/>
     
+      <category term="转载" scheme="http://www.harrycode.com/tags/%E8%BD%AC%E8%BD%BD/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -1421,7 +1499,7 @@
     <link href="http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/"/>
     <id>http://www.harrycode.com/2014/05/10/installation-configuration-and-use-of-mysqlnd-ms/</id>
     <published>2014-05-10T02:21:00.000Z</published>
-    <updated>2015-05-18T12:25:39.000Z</updated>
+    <updated>2015-07-27T05:50:24.000Z</updated>
     <content type="html"><![CDATA[<p>公司最近需要一个扩展性良好的Mysql主从分离方案，老大要求对业务层的代码改动要小。<br>业务层代码改动小，意味着要在连接层直接把读／写请求分发，而不是到业务层通过”SQL识别”的来分离。<br>脑子里有两套方案， Mysqlnd_ms 和 Mysql-Proxy。两个方案各有优／缺点</p>
 <p><strong>Mysqlnd_ms</strong></p>
 <p>优点：</p>
@@ -1571,6 +1649,10 @@
     
       <category term="php" scheme="http://www.harrycode.com/tags/php/"/>
     
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -1578,7 +1660,7 @@
     <link href="http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/"/>
     <id>http://www.harrycode.com/2014/05/05/simple-steps-to-build-cool-vim-development-environment/</id>
     <published>2014-05-05T04:05:00.000Z</published>
-    <updated>2015-05-18T12:21:45.000Z</updated>
+    <updated>2015-07-27T05:54:02.000Z</updated>
     <content type="html"><![CDATA[<p>无论是在前公司还是在新公司，总有同事路过我的工位，对着我的Vim界面赞叹不已，然后述说自己当年下好大决心工作在Vim环境中，后来“创业未半而中道崩殂”的苦楚… -_-# 后来我发现这些人多半不是卡在Vim的基本操作，而是抱怨Vim不能满足他们的各种开发需求，也没时间去了解或配置一些常规插件。望着一些其他的IDE内置了自己梦寐以求的功能，最终缴械投降。</p>
 <p>本着践行／传播Vim这一利器的主旨，把自己搭建Vim开发环境的一些经验分享出来。其实类似的文章已经很多了，其中不乏非常专业的文章。但是其实”懒人”真正需要的是一个可以”Setup-&gt;Next-&gt;Next-&gt;Finish”，然后”哇～ Amazing！！”的Vim集成开发环境。我们就来看看，如何通过简单几步，让您拥有一个超Cool并且可以到处炫耀的Vim环境～ :)</p>
 <p>现在我们要祭出一件神器，也是本文中要着重介绍的一款软件 —— spf13-vim (<a href="https://github.com/spf13/spf13-vim" target="_blank" rel="external">https://github.com/spf13/spf13-vim</a>)。 这东西是一个Vim的集成开发环境，内置集成很多码农们常用的插件，基于bundle的方式非常方便扩展以及更新，是初学者们了解Vim以及精通Vim的一个很好的出发点，极大的降低了Vim使用的门槛。</p>
@@ -1635,6 +1717,10 @@
     
       <category term="vim" scheme="http://www.harrycode.com/tags/vim/"/>
     
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
+    
   </entry>
   
   <entry>
@@ -1642,7 +1728,7 @@
     <link href="http://www.harrycode.com/2014/04/29/%E5%88%9D%E8%AF%86GitBook/"/>
     <id>http://www.harrycode.com/2014/04/29/初识GitBook/</id>
     <published>2014-04-29T07:27:00.000Z</published>
-    <updated>2015-05-18T12:09:26.000Z</updated>
+    <updated>2015-07-27T05:56:44.000Z</updated>
     <content type="html"><![CDATA[<p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookIO/gitbook</a> )的产品频繁的占据视线。如果你是一个电子书爱好者，如果你有一些开源项目并希望制作优雅华美的文档，或者你只是纯粹的想把github上的一些开源图书”据为己有”， GitBook都可以帮到你。</p>
 <p>确切的来说，GitBook是一款用Node.js库构建的命令行工具，使用这个工具可以基于GitHub/Git／Markdown等电子书源码来制作精美的电子图书，今天我们以笔者最近在读的《Go Web 编程》(<a href="https://github.com/astaxie/build-web-application-with-golang" target="_blank" rel="external">https://github.com/astaxie/build-web-application-with-golang</a>) 尝试构建一本本地的电子图书。</p>
 <h2 id="安装Nodejs">安装Nodejs</h2><p>安装GitBook首先需要有npm+nodejs，笔者的当前环境是Ubuntu 12.04 LTS, nodejs的版本较旧，我们需要先升级下下～</p>
@@ -1658,9 +1744,11 @@
     <![CDATA[<p>开源社区永远是惊喜不断的，这不，这几天一款叫做GitBook( <a href="https://github.com/GitbookIO/gitbook" target="_blank" rel="external">https://github.com/GitbookI]]>
     </summary>
     
-      <category term="git" scheme="http://www.harrycode.com/tags/git/"/>
+      <category term="Git" scheme="http://www.harrycode.com/tags/Git/"/>
     
-      <category term="git" scheme="http://www.harrycode.com/categories/git/"/>
+      <category term="原创" scheme="http://www.harrycode.com/tags/%E5%8E%9F%E5%88%9B/"/>
+    
+      <category term="左手代码" scheme="http://www.harrycode.com/categories/%E5%B7%A6%E6%89%8B%E4%BB%A3%E7%A0%81/"/>
     
   </entry>
   
