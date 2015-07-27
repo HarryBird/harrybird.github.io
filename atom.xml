@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title><![CDATA[左手代码 右手年华]]></title>
-  <subtitle><![CDATA[一个尘世迷途小码农的程序与人生]]></subtitle>
+  <subtitle><![CDATA[一个尘世迷途码农的程序与人生]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://www.harrycode.com/"/>
   <updated>2015-07-27T05:49:38.000Z</updated>
